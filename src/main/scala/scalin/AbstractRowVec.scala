@@ -13,7 +13,7 @@ abstract class AbstractRowVec[A] extends AbstractNode { lhs =>
 
   def length: Int
 
-  def get[V[A] <: Vec[A]](implicit f: AbstractVec[A] => V[A], w: Wrap[V]): w.R[A] = w.wrap(f(t))
+  def get[V[A] <: Vec[A]](implicit f: AbstractVec[A] => V[A], w: WrapVec[V]): w.RowVec[A] = w.rowVec(f(t))
 
   def +(rhs: AbstractRowVec[A])(implicit A: AdditiveSemigroup[A]): AbstractRowVec[A] = (lhs.t + rhs.t).t
 

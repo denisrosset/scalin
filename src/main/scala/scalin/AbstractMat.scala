@@ -7,6 +7,8 @@ trait AbstractMat[A] extends AbstractNode { lhs =>
 
   def apply(r: Int, c: Int): A
 
+//  def apply(rs: Seq[Int], cs: Seq[Int]): MatSlice[A, lhs.type] = MatSlice(lhs, rs, cs)
+
   /** Returns the index of the next possibly non-zero element in the row `r`
     * after column index `c`. */
   def nextNonZeroInRow(r: Int, c: Int = -1): Int

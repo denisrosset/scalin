@@ -7,22 +7,6 @@ trait Mat[A] extends scalin.Mat[A] with Mutable { lhs =>
 
   def update(r: Int, c: Int, a: A): Unit
 
-  def +=(rhs: AbstractMat[A])(implicit A: AdditiveSemigroup[A]): Unit = {
-    lhs := lhs + rhs
-  }
-
-  def -=(rhs: AbstractMat[A])(implicit A: AdditiveGroup[A]): Unit = {
-    lhs := lhs - rhs
-  }
-
-  def *=(rhs: AbstractMat[A])(implicit A: Semiring[A]): Unit = {
-    lhs := lhs * rhs
-  }
-
-  def :*=(rhs: A)(implicit A: MultiplicativeSemigroup[A]): Unit = {
-    lhs := lhs :* rhs
-  }
-
   def :=(rhs: AbstractMat[A]): Unit
 
 }

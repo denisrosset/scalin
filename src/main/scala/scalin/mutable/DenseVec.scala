@@ -19,18 +19,6 @@ class DenseVec[A](var data: Array[AnyRef]) extends scalin.DenseVec[A] with mutab
     res
   }
 
-  def :=(rhs: AbstractVec[A]): Unit = rhs.touch(DenseVec.this) match {
-    case Touch.Clean() | Touch.AsIs() =>
-      cforRange(0 until length) { k =>
-        update(k, rhs(k))
-      }
-    case _ =>
-      val res = mutableCopy
-      res := rhs
-      cforRange(0 until length) { k =>
-        update(k, res(k))
-      }
-  }
 }
 
 object DenseVec extends scalin.DenseVecFactory[mutable.DenseVec] {

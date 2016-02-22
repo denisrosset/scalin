@@ -1,0 +1,48 @@
+package scalin
+
+import spire.syntax.cfor._
+
+case class MatSlice[A, M <: AbstractMat[A]](mat: M, rowIndices: Seq[Int], colIndices: Seq[Int]) extends AbstractMat[A] {
+
+  def touch(node: AbstractNode) =
+    if (node ne mat) Touch.Clean()
+    else if (rowIndices.size == 1) Touch.Row(rowIndices.head)
+    else if (colIndices.size == 1) Touch.Col(colIndices.head)
+    else Touch.Multi()
+
+  def rows = rowIndices.size
+
+  def cols = colIndices.size
+
+  def apply(r: Int, c: Int) = mat(rowIndices(r), colIndices(c))
+
+  // TODO: be clever
+  def nextNonZeroInCol(r: Int, c: Int) = r + 1
+
+  // TODO: be clever
+  def nextNonZeroInRow(r: Int, c: Int) = c + 1
+
+  def :=(rhs: AbstractMat[A])(implicit ev: M <:< mutable.Mat[A]): Unit = {
+    val isClean = rhs.touch(mat) match {
+      case Touch.Clean() | Touch.AsIs() => true
+      case Touch.Row(r) => !rowIndices.contains(r)
+      case Touch.Col(c) => !colIndices.contains(c)
+      case _ => false
+    }
+    if (isClean) {
+      cforRange(0 until rows) { r =>
+        cforRange(0 until cols) { c =>
+          mat.update(rowIndices(r), colIndices(c), rhs(r, c))
+        }
+      }
+    } else {
+      val res = rhs.get // TODO: be clever
+      cforRange(0 until rows) { r =>
+        cforRange(0 until cols) { c =>
+          mat.update(rowIndices(r), colIndices(c), res(r, c))
+        }
+      }
+    }
+  }
+}
+

@@ -27,7 +27,7 @@ class DenseMat[A](val rows: Int, val cols: Int, var data: Array[AnyRef]) extends
         }
       }
     case _ =>
-      val res = mutableCopy
+      val res = mutableCopy // TODO: be clever
       res := rhs
       cforRange(0 until rows) { r =>
         cforRange(0 until cols) { c =>

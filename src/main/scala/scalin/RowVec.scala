@@ -32,6 +32,4 @@ object RowVec {
     val col = v
   }
 
-  implicit def fromVec[A](v: Vec[A]): RowVec[A] = apply(v)
-
 }

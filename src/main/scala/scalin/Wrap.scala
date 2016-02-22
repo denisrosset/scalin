@@ -1,34 +1,49 @@
 package scalin
 
-trait Wrap[-V[A] <: Vec[A]] {
+trait WrapVec[-V[A] <: Vec[A]] {
 
-  type R[A] <: RowVec[A]
+  type RowVec[A] <: scalin.RowVec[A]
+  type SliceVec[A] <: scalin.SliceVec[A]
 
-  def wrap[A](v: V[A]): R[A]
-
-}
-
-abstract class Wrap0 {
-
-  implicit object genericWrap extends Wrap[Vec] {
-    type R[A] = RowVec[A]
-    def wrap[A](v: Vec[A]): RowVec[A] = RowVec(v)
-  }
-
-//  implicit def getGeneric[V[A] <: Vec[A]]: Wrap[V] = genericInstance.asInstanceOf[Wrap[V]]
+  def rowVec[A](v: V[A]): RowVec[A]
+  def sliceVec[A](v: V[A], slice: Seq[Int]): SliceVec[A]
 
 }
 
-object Wrap extends Wrap0 {
+abstract class WrapVec0 {
 
-  implicit object mutableWrap extends Wrap[mutable.Vec] {
-    type R[A] = mutable.RowVec[A]
-    def wrap[A](v: mutable.Vec[A]): mutable.RowVec[A] = mutable.RowVec(v)
+  implicit object genericVec extends WrapVec[scalin.Vec] {
+
+    type RowVec[A] = scalin.RowVec[A]
+    type SliceVec[A] = scalin.SliceVec[A]
+
+    def rowVec[A](v: scalin.Vec[A]): scalin.RowVec[A] = scalin.RowVec(v)
+    def sliceVec[A](v: scalin.Vec[A], slice: Seq[Int]): scalin.SliceVec[A] = scalin.SliceVec[A](v, slice)
+
   }
 
-  implicit object immutableWrap extends Wrap[immutable.Vec] {
-    type R[A] = immutable.RowVec[A]
-    def wrap[A](v: immutable.Vec[A]): immutable.RowVec[A] = immutable.RowVec(v)
+}
+
+object WrapVec extends WrapVec0 {
+
+  implicit object mutableVec extends WrapVec[mutable.Vec] {
+
+    type RowVec[A] = mutable.RowVec[A]
+    type SliceVec[A] = mutable.SliceVec[A]
+
+    def rowVec[A](v: mutable.Vec[A]): mutable.RowVec[A] = mutable.RowVec(v)
+    def sliceVec[A](v: mutable.Vec[A], slice: Seq[Int]): mutable.SliceVec[A] = mutable.SliceVec[A](v, slice)
+
+  }
+
+  implicit object immutableVec extends WrapVec[immutable.Vec] {
+
+    type RowVec[A] = immutable.RowVec[A]
+    type SliceVec[A] = immutable.SliceVec[A]
+
+    def rowVec[A](v: immutable.Vec[A]): immutable.RowVec[A] = immutable.RowVec(v)
+    def sliceVec[A](v: immutable.Vec[A], slice: Seq[Int]): immutable.SliceVec[A] = immutable.SliceVec[A](v, slice)
+
   }
 
 }
