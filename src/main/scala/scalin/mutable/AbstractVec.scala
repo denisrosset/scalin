@@ -12,15 +12,16 @@ trait AbstractVec[A] extends scalin.AbstractVec[A] { lhs =>
   def update(k: Int, a: A): Unit
 
   protected def set(rhs: scalin.AbstractVec[A]): Unit = {
+    require(rhs.length == length)
     cforRange(0 until length) { k =>
       update(k, rhs(k))
     }
   }
 
-  protected def copyIfNeeded(rhs: scalin.AbstractVec[A]): scalin.AbstractVec[A] = rhs.touch(AbstractVec.this) match {
-    case Touch.Clean() | Touch.AsIs() => rhs
-    case _ => rhs.get
-  }
+  protected def copyNeeded(rhs: scalin.AbstractVec[A]): Boolean
+
+  protected def copyIfNeeded(rhs: scalin.AbstractVec[A]): scalin.AbstractVec[A] =
+    if (copyNeeded(rhs)) rhs.get else rhs
 
   def :=(rhs: scalin.AbstractVec[A]): Unit = set(copyIfNeeded(rhs))
 

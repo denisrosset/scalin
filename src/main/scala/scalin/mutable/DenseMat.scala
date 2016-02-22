@@ -17,22 +17,6 @@ class DenseMat[A](val rows: Int, val cols: Int, var data: Array[AnyRef]) extends
     res
   }
 
-  def :=(rhs: AbstractMat[A]): Unit = rhs.touch(DenseMat.this) match {
-    case Touch.Clean() | Touch.AsIs() =>
-      cforRange(0 until rows) { r =>
-        cforRange(0 until cols) { c =>
-          update(r, c, rhs(r, c))
-        }
-      }
-    case _ =>
-      val res = mutableCopy // TODO: be clever
-      res := rhs
-      cforRange(0 until rows) { r =>
-        cforRange(0 until cols) { c =>
-          update(r, c, res(r, c))
-        }
-      }
-  }
 }
 
 object DenseMat extends scalin.DenseMatFactory[DenseMat] {

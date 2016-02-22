@@ -1,7 +1,13 @@
 package scalin
 package immutable
 
-trait Mat[A] extends scalin.Mat[A]
+trait Mat[A] extends scalin.Mat[A] {
+
+  def intersectsMutable(mat: AbstractMat[_], rs: Range, cs: Range): Boolean = false
+
+  def intersectsMutable(vec: AbstractVec[_], ks: Range): Boolean = false
+
+}
 
 object Mat extends MatFactory[Mat, Dummy] {
 

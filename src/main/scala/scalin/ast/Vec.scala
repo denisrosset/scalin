@@ -9,7 +9,6 @@ object Vec {
 
     def nextNonZero(k: Int) = vec.nextNonZero(k)
     def length = vec.length
-    def touch(node: AbstractNode) = vec.touch(node)
     def apply(k: Int) = f(vec(k))
 
   }
@@ -17,22 +16,16 @@ object Vec {
   case class Elementwise[A, B](vec: AbstractVec[A], f: A => B) extends AbstractVec[B] {
 
     def length = vec.length
-
     def nextNonZero(k: Int) = k + 1
-
-    def touch(node: AbstractNode) = vec.touch(node)
-
     def apply(k: Int) = f(vec(k))
 
   }
-
 
   case class ColT[A](col: AbstractVec[A]) extends AbstractRowVec[A] { lhs =>
 
     def apply(k: Int) = col(k)
     def nextNonZero(k: Int) = col.nextNonZero(k)
     def length = col.length
-    def touch(node: AbstractNode) = col.touch(node).multiIfNotClean
 
   }
 
@@ -41,7 +34,6 @@ object Vec {
     def apply(k: Int) = A.dagger(col(k))
     def nextNonZero(k: Int) = col.nextNonZero(k)
     def length = col.length
-    def touch(node: AbstractNode) = col.touch(node).multiIfNotClean
 
   }
 
@@ -50,7 +42,6 @@ object Vec {
     def apply(k: Int) = row(k)
     def nextNonZero(k: Int) = row.nextNonZero(k)
     def length = row.length
-    def touch(node: AbstractNode) = row.touch(node).multiIfNotClean
 
   }
 
@@ -59,7 +50,6 @@ object Vec {
     def apply(k: Int) = A.dagger(row(k))
     def nextNonZero(k: Int) = row.nextNonZero(k)
     def length = row.length
-    def touch(node: AbstractNode) = row.touch(node).multiIfNotClean
 
   }
 

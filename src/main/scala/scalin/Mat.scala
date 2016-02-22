@@ -3,8 +3,6 @@ package scalin
 /** Concrete matrix trait. */
 trait Mat[A] extends AbstractMat[A] { lhs =>
 
-  def touch(node: AbstractNode) = if (node eq Mat.this) Touch.AsIs() else Touch.Clean()
-
   override def toString: String = Printer.mat(Mat.this)
 
 }

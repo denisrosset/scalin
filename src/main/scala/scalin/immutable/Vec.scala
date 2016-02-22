@@ -3,7 +3,10 @@ package immutable
 
 trait Vec[A] extends scalin.Vec[A] {
 
-  def touch(node: AbstractNode) = Touch.Clean() // immutable objects cannot be on both sides of :=
+  def intersectsMutable(mat: AbstractMat[_], rs: Range, cs: Range): Boolean = false
+
+  def intersectsMutable(vec: AbstractVec[_], ks: Range): Boolean = false
+
 }
 
 object Vec extends VecFactory[immutable.Vec, Dummy] {

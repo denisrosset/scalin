@@ -17,8 +17,6 @@ class DenseVec[A](var data: Array[AnyRef]) extends scalin.DenseVec[A] with mutab
     res
   }
 
-  def touch(node: AbstractNode) = if (node eq this) Touch.AsIs() else Touch.Clean()
-
 }
 
 object DenseVec extends scalin.DenseVecFactory[mutable.DenseVec] {

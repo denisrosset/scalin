@@ -5,7 +5,7 @@ import spire.algebra._
 
 object MatMat {
 
-  case class Linear[A](lhs: AbstractMat[A], rhs: AbstractMat[A], op: (A, A) => A) extends AbstractMat[A] {
+  case class Linear[A](lhs: AbstractMat[A], rhs: AbstractMat[A], f: (A, A) => A) extends AbstractMat[A] {
 
     require(lhs.rows == rhs.rows && lhs.cols == rhs.cols)
 
@@ -19,9 +19,41 @@ object MatMat {
     def nextNonZeroInRow(r: Int, c: Int) =
       spire.math.min(lhs.nextNonZeroInRow(r, c), rhs.nextNonZeroInRow(r, c))
 
-    def touch(node: AbstractNode) = lhs.touch(node).merge(rhs.touch(node))
+    def apply(r: Int, c: Int) = f(lhs(r, c), rhs(r, c))
 
-    def apply(r: Int, c: Int) = op(lhs(r, c), rhs(r, c))
+  }
+
+  case class ElementwiseProduct[A](lhs: AbstractMat[A], rhs: AbstractMat[A], f: (A, A) => A) extends AbstractMat[A] {
+
+    require(lhs.rows == rhs.rows && lhs.cols == rhs.cols)
+
+    def rows: Int = lhs.rows
+
+    def cols: Int = rhs.cols
+
+    def nextNonZeroInCol(r: Int, c: Int) =
+      spire.math.max(lhs.nextNonZeroInCol(r, c), rhs.nextNonZeroInCol(r, c))
+
+    def nextNonZeroInRow(r: Int, c: Int) =
+      spire.math.max(lhs.nextNonZeroInRow(r, c), rhs.nextNonZeroInRow(r, c))
+
+    def apply(r: Int, c: Int) = f(lhs(r, c), rhs(r, c))
+
+  }
+
+  case class Elementwise[A, B](lhs: AbstractMat[A], rhs: AbstractMat[A], f: (A, A) => B) extends AbstractMat[B] {
+
+    require(lhs.rows == rhs.rows && lhs.cols == rhs.cols)
+
+    def rows: Int = lhs.rows
+
+    def cols: Int = rhs.cols
+
+    def nextNonZeroInCol(r: Int, c: Int) = r + 1
+
+    def nextNonZeroInRow(r: Int, c: Int) = c + 1
+
+    def apply(r: Int, c: Int) = f(lhs(r, c), rhs(r, c))
 
   }
 
@@ -55,9 +87,6 @@ object MatMat {
     def rows: Int = lhs.rows
 
     def cols: Int = rhs.cols
-
-    def touch(node: AbstractNode) =
-      if (lhs.touch(node).isClean && rhs.touch(node).isClean) Touch.Clean() else Touch.Multi()
 
   }
 

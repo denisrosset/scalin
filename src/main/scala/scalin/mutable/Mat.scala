@@ -9,6 +9,10 @@ trait Mat[A] extends scalin.Mat[A] with Mutable { lhs =>
 
   def :=(rhs: AbstractMat[A]): Unit
 
+  def intersectsMutable(mat: AbstractMat[_], rs: Range, cs: Range): Boolean = mat eq lhs
+
+  def intersectsMutable(vec: AbstractVec[_], ks: Range): Boolean = false
+
 }
 
 object Mat extends MatFactory[Mat, Dummy] {

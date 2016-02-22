@@ -11,11 +11,6 @@ trait RowVec[A] extends AbstractRowVec[A] {
 
   def length = col.length
 
-  def touch(node: AbstractNode) = col.touch(node) match {
-    case Touch.Clean() => Touch.Clean()
-    case _ => Touch.Multi()
-  }
-
   override def toString: String = col.toString + ".t"
 
 }
