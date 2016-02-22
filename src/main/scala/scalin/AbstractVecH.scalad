@@ -1,0 +1,47 @@
+package scalin
+
+import spire.algebra._
+
+/** A trait representing the hermitian conjugate of 
+  * a concrete vector, or a vector node in an abstract syntax tree. */
+case class AbstractVecH[A](vec: AbstractVec[A]) extends AbstractNode {
+
+  def touch(node: AbstractNode) = vec.touch(node)
+
+  def +(rhs: AbstractVecH[A])(implicit A: AdditiveSemigroup[A]): AbstractVecH[A] =
+    AbstractVecH(new ast.VecVec.Plus(vec, rhs.vec))
+
+  def -(rhs: AbstractVecH[A])(implicit A: AdditiveGroup[A]): AbstractVecH[A] =
+    AbstractVecH(new ast.VecVec.Minus(vec, rhs.vec))
+
+  def *:(lhs: A)(implicit A: MultiplicativeSemigroup[A]): AbstractVecH[A] =
+    AbstractVecH(new ast.Vec.LeftScalarTimes(lhs, vec))
+
+  def :*(rhs: A)(implicit A: MultiplicativeSemigroup[A]): AbstractVecH[A] =
+    AbstractVecH(new ast.Vec.RightScalarTimes(vec, rhs))
+
+  def unary_-(implicit A: AdditiveGroup[A]): AbstractVecH[A] =
+    AbstractVecH(new ast.Vec.Negate(vec))
+
+  def *(rhs: AbstractVec[A])(implicit A: Rig[A], invA: Involution[A]): A = {
+    import spire.syntax.ring._
+    require(vec.length == rhs.length)
+    var k = spire.math.min(
+      vec.nextNonZero(-1),
+      rhs.nextNonZero(-1)
+    )
+    val n = vec.length
+    var res = A.zero
+    while (k < n) {
+      res += invA.star(vec(k)) * rhs(k)
+      k = spire.math.min(
+        vec.nextNonZero(k),
+        rhs.nextNonZero(k)
+      )
+    }
+    res
+  }
+
+  def star: AbstractVec[A] = vec
+
+}
