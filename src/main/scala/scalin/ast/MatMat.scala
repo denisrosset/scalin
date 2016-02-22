@@ -5,31 +5,24 @@ import spire.algebra._
 
 object MatMat {
 
-  abstract class Linear[A] extends AbstractMat[A] {
-
-    def lhs: AbstractMat[A]
-    def rhs: AbstractMat[A]
+  case class Linear[A](lhs: AbstractMat[A], rhs: AbstractMat[A], op: (A, A) => A) extends AbstractMat[A] {
 
     require(lhs.rows == rhs.rows && lhs.cols == rhs.cols)
 
     def rows: Int = lhs.rows
+
     def cols: Int = lhs.cols
 
     def nextNonZeroInCol(r: Int, c: Int) =
       spire.math.min(lhs.nextNonZeroInCol(r, c), rhs.nextNonZeroInCol(r, c))
+
     def nextNonZeroInRow(r: Int, c: Int) =
       spire.math.min(lhs.nextNonZeroInRow(r, c), rhs.nextNonZeroInRow(r, c))
 
     def touch(node: AbstractNode) = lhs.touch(node).merge(rhs.touch(node))
 
-  }
+    def apply(r: Int, c: Int) = op(lhs(r, c), rhs(r, c))
 
-  case class Plus[A](lhs: AbstractMat[A], rhs: AbstractMat[A])(implicit A: AdditiveSemigroup[A]) extends Linear[A] {
-    def apply(r: Int, c: Int): A = A.plus(lhs(r, c), rhs(r, c))
-  }
-
-  case class Minus[A](lhs: AbstractMat[A], rhs: AbstractMat[A])(implicit A: AdditiveGroup[A]) extends Linear[A] {
-    def apply(r: Int, c: Int): A = A.minus(lhs(r, c), rhs(r, c))
   }
 
   case class Times[A](lhs: AbstractMat[A], rhs: AbstractMat[A])(implicit A: Semiring[A]) extends AbstractMat[A] {

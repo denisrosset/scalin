@@ -5,35 +5,27 @@ import spire.algebra._
 
 object Vec {
 
-  abstract class Linear[A] extends AbstractVec[A] {
-
-    def vec: AbstractVec[A]
+  case class Linear[A](vec: AbstractVec[A], f: A => A) extends AbstractVec[A] {
 
     def nextNonZero(k: Int) = vec.nextNonZero(k)
-    def length: Int = vec.length
+    def length = vec.length
+    def touch(node: AbstractNode) = vec.touch(node)
+    def apply(k: Int) = f(vec(k))
+
+  }
+
+  case class Elementwise[A, B](vec: AbstractVec[A], f: A => B) extends AbstractVec[B] {
+
+    def length = vec.length
+
+    def nextNonZero(k: Int) = k + 1
+
     def touch(node: AbstractNode) = vec.touch(node)
 
+    def apply(k: Int) = f(vec(k))
+
   }
 
-  case class Negate[A](vec: AbstractVec[A])(implicit A: AdditiveGroup[A]) extends Linear[A] {
-    def apply(k: Int): A = A.negate(vec(k))
-  }
-  
-  case class LeftScalarTimes[A](lhs: A, vec: AbstractVec[A])(implicit A: MultiplicativeSemigroup[A]) extends Linear[A] {
-    def apply(k: Int): A = A.times(lhs, vec(k))
-  }
-
-  case class RightScalarTimes[A](vec: AbstractVec[A], rhs: A)(implicit A: MultiplicativeSemigroup[A]) extends Linear[A] {
-    def apply(k: Int): A = A.times(vec(k), rhs)
-  }
-
-  case class RightScalarDiv[A](vec: AbstractVec[A], rhs: A)(implicit A: MultiplicativeGroup[A]) extends Linear[A] {
-    def apply(k: Int): A = A.div(vec(k), rhs)
-  }
-
-  case class Conj[A](vec: AbstractVec[A])(implicit A: Involution[A]) extends Linear[A] {
-    def apply(k: Int): A = A.dagger(vec(k))
-  }
 
   case class ColT[A](col: AbstractVec[A]) extends AbstractRowVec[A] { lhs =>
 

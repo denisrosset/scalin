@@ -1,10 +1,7 @@
 package scalin
 
 /** Concrete matrix trait. */
-trait Mat[A] extends AbstractMat[A] with Generic { lhs =>
-
-  type AsMutable <: mutable.Mat[A]
-  type AsImmutable <: immutable.Mat[A]
+trait Mat[A] extends AbstractMat[A] { lhs =>
 
   def touch(node: AbstractNode) = if (node eq Mat.this) Touch.AsIs() else Touch.Clean()
 

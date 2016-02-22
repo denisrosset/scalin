@@ -24,25 +24,25 @@ trait AbstractMat[A] extends AbstractNode { lhs =>
   def get[M[A] <: Mat[A]](implicit f: AbstractMat[A] => M[A]): M[A] = f(lhs)
 
   def +(rhs: AbstractMat[A])(implicit A: AdditiveSemigroup[A]): AbstractMat[A] =
-    ast.MatMat.Plus(lhs, rhs)
+    ast.MatMat.Linear(lhs, rhs, A.plus)
 
   def -(rhs: AbstractMat[A])(implicit A: AdditiveGroup[A]): AbstractMat[A] =
-    ast.MatMat.Minus(lhs, rhs)
+    ast.MatMat.Linear(lhs, rhs, A.minus)
 
   def *:(realLhs: A)(implicit A: MultiplicativeSemigroup[A]): AbstractMat[A] =
-    ast.Mat.LeftScalarTimes(realLhs, AbstractMat.this)
+    ast.Mat.Linear(lhs, a => A.times(realLhs, a))
 
   def :*(rhs: A)(implicit A: MultiplicativeSemigroup[A]): AbstractMat[A] =
-    ast.Mat.RightScalarTimes(lhs, rhs)
+    ast.Mat.Linear(lhs, a => A.times(a, rhs))
 
   def :/(rhs: A)(implicit A: MultiplicativeGroup[A]): AbstractMat[A] =
-    ast.Mat.RightScalarDiv(lhs, rhs)
+    ast.Mat.Linear(lhs, a => A.div(a, rhs))
 
   def *(rhs: AbstractMat[A])(implicit A: Semiring[A]): AbstractMat[A] =
     ast.MatMat.Times(lhs, rhs)
 
   def unary_-(implicit A: AdditiveGroup[A]): AbstractMat[A] =
-    ast.Mat.Negate(lhs)
+    ast.Mat.Linear(lhs, A.negate)
 
   def t: AbstractMat[A] = ast.Mat.Transpose(lhs)
 

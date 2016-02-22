@@ -1,12 +1,7 @@
 package scalin
 
 /** Concrete matrix trait. */
-trait Vec[A] extends AbstractVec[A] with Generic { self =>
-
-  type AsMutable <: mutable.Vec[A]
-  type AsImmutable <: immutable.Vec[A]
-
-  def touch(node: AbstractNode) = if (node eq Vec.this) Touch.AsIs() else Touch.Clean()
+trait Vec[A] extends AbstractVec[A] { self =>
 
   override def toString: String = Printer.vec(Vec.this)
 

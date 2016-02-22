@@ -24,7 +24,7 @@ object SliceVec {
   def apply[A](vec0: Vec[A], slice0: Seq[Int]): SliceVec[A] = new SliceVec[A] {
 
     def vec = vec0
-    
+
     def slice = slice0
 
   }

@@ -5,10 +5,7 @@ import spire.algebra._
 
 object VecVec {
 
-  abstract class Linear[A] extends AbstractVec[A] {
-
-    def lhs: AbstractVec[A]
-    def rhs: AbstractVec[A]
+  case class Linear[A](lhs: AbstractVec[A], rhs: AbstractVec[A], f: (A, A) => A) extends AbstractVec[A] {
 
     require(lhs.length == rhs.length)
 
@@ -19,14 +16,37 @@ object VecVec {
 
     def touch(node: AbstractNode) = lhs.touch(node).merge(rhs.touch(node))
 
+    def apply(k: Int): A = f(lhs(k), rhs(k))
+
   }
 
-  case class Plus[A](lhs: AbstractVec[A], rhs: AbstractVec[A])(implicit A: AdditiveSemigroup[A]) extends Linear[A] {
-    def apply(k: Int): A = A.plus(lhs(k), rhs(k))
+  case class ElementwiseProduct[A](lhs: AbstractVec[A], rhs: AbstractVec[A], f: (A, A) => A) extends AbstractVec[A] {
+
+    require(lhs.length == rhs.length)
+
+    def length: Int = lhs.length
+
+    def nextNonZero(k: Int) =
+      spire.math.max(lhs.nextNonZero(k), rhs.nextNonZero(k))
+
+    def touch(node: AbstractNode) = lhs.touch(node).merge(rhs.touch(node))
+
+    def apply(k: Int): A = f(lhs(k), rhs(k))
+
   }
 
-  case class Minus[A](lhs: AbstractVec[A], rhs: AbstractVec[A])(implicit A: AdditiveGroup[A]) extends Linear[A] {
-    def apply(k: Int): A = A.minus(lhs(k), rhs(k))
+  case class Elementwise[A, B](lhs: AbstractVec[A], rhs: AbstractVec[A], f: (A, A) => B) extends AbstractVec[B] {
+
+    require(lhs.length == rhs.length)
+
+    def length: Int = lhs.length
+
+    def nextNonZero(k: Int) = k + 1
+
+    def touch(node: AbstractNode) = lhs.touch(node).merge(rhs.touch(node))
+
+    def apply(k: Int) = f(lhs(k), rhs(k))
+
   }
 
   case class Outer[A](lhs: AbstractVec[A], rhs: AbstractRowVec[A])(implicit A: MultiplicativeSemigroup[A]) extends AbstractMat[A] {

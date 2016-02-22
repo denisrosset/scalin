@@ -1,7 +1,7 @@
 package scalin
 
 /** Concrete matrix trait. */
-trait RowVec[A] extends AbstractRowVec[A] with Generic {
+trait RowVec[A] extends AbstractRowVec[A] {
 
   val col: Vec[A]
 
@@ -15,12 +15,6 @@ trait RowVec[A] extends AbstractRowVec[A] with Generic {
     case Touch.Clean() => Touch.Clean()
     case _ => Touch.Multi()
   }
-
-  def mutableCopy = mutable.RowVec[A](col.mutableCopy)
-  def toImmutable = immutable.RowVec[A](col.toImmutable)
-
-  type AsMutable = mutable.RowVec[A]
-  type AsImmutable = immutable.RowVec[A]
 
   override def toString: String = col.toString + ".t"
 

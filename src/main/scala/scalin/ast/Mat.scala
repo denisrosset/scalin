@@ -28,32 +28,15 @@ object Mat {
     def apply(r: Int, c: Int) = A.dagger(mat(c, r))
   }
 
-  abstract class Linear[A] extends AbstractMat[A] {
-
-    def mat: AbstractMat[A]
+  case class Linear[A](mat: AbstractMat[A], f: A => A) extends AbstractMat[A] {
 
     def nextNonZeroInCol(r: Int, c: Int) = mat.nextNonZeroInCol(r, c)
     def nextNonZeroInRow(r: Int, c: Int) = mat.nextNonZeroInRow(r, c)
     def rows: Int = mat.rows
     def cols: Int = mat.cols
     def touch(node: AbstractNode) = mat.touch(node)
-
-  }
-
-  case class Negate[A](mat: AbstractMat[A])(implicit A: AdditiveGroup[A]) extends Linear[A] {
-    def apply(r: Int, c: Int): A = A.negate(mat(r, c))
-  }
-
-  case class LeftScalarTimes[A](lhs: A, mat: AbstractMat[A])(implicit A: MultiplicativeSemigroup[A]) extends Linear[A] {
-    def apply(r: Int, c: Int): A = A.times(lhs, mat(r, c))
-  }
-
-  case class RightScalarTimes[A](mat: AbstractMat[A], rhs: A)(implicit A: MultiplicativeSemigroup[A]) extends Linear[A] {
-    def apply(r: Int, c: Int): A = A.times(mat(r, c), rhs)
-  }
-
-  case class RightScalarDiv[A](mat: AbstractMat[A], rhs: A)(implicit A: MultiplicativeGroup[A]) extends Linear[A] {
-    def apply(r: Int, c: Int): A = A.div(mat(r, c), rhs)
+    def apply(r: Int, c: Int) = f(mat(r, c))
+    
   }
 
 }
