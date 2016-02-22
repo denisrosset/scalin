@@ -3,6 +3,11 @@ package scalin
 /** Describes which part of a matrix is used in the computation. */
 final class Touch(val raw: Long) extends AnyVal { lhs =>
 
+  def multiIfNotClean = lhs match {
+    case Touch.Clean() => Touch.Clean()
+    case _ => Touch.Multi()
+  }
+
   override def toString = lhs match {
     case Touch.Clean() => "Touch.Clean()"
     case Touch.Row(row) => s"Touch.Row($row)"

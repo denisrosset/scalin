@@ -67,8 +67,8 @@ object Printer {
     cforRange(0 until showRows) { r =>
       cforRange(0 until colWidths.size) { c =>
         val cell = if (mat(r, c) != null) mat(r, c).toString else "--"
-        rv.append(cell)
         rv.append(" " * (colWidths(c) - cell.length))
+        rv.append(cell)
       }
       if (colWidths.size < cols) {
         rv.append("...")

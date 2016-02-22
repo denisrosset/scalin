@@ -52,4 +52,8 @@ object Mat {
     def apply(r: Int, c: Int): A = A.times(mat(r, c), rhs)
   }
 
+  case class RightScalarDiv[A](mat: AbstractMat[A], rhs: A)(implicit A: MultiplicativeGroup[A]) extends Linear[A] {
+    def apply(r: Int, c: Int): A = A.div(mat(r, c), rhs)
+  }
+
 }

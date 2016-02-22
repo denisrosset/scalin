@@ -19,7 +19,7 @@ trait AbstractMat[A] extends AbstractNode { lhs =>
 
   def cols: Int
 
-  def value[M[A] <: Mat[A]](implicit f: AbstractMat[A] => M[A]): M[A] = f(lhs)
+  def get[M[A] <: Mat[A]](implicit f: AbstractMat[A] => M[A]): M[A] = f(lhs)
 
   def +(rhs: AbstractMat[A])(implicit A: AdditiveSemigroup[A]): AbstractMat[A] =
     ast.MatMat.Plus(lhs, rhs)
@@ -32,6 +32,9 @@ trait AbstractMat[A] extends AbstractNode { lhs =>
 
   def :*(rhs: A)(implicit A: MultiplicativeSemigroup[A]): AbstractMat[A] =
     ast.Mat.RightScalarTimes(lhs, rhs)
+
+  def :/(rhs: A)(implicit A: MultiplicativeGroup[A]): AbstractMat[A] =
+    ast.Mat.RightScalarDiv(lhs, rhs)
 
   def *(rhs: AbstractMat[A])(implicit A: Semiring[A]): AbstractMat[A] =
     ast.MatMat.Times(lhs, rhs)

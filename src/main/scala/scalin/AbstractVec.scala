@@ -12,7 +12,7 @@ trait AbstractVec[A] extends AbstractNode { lhs =>
 
   def length: Int
 
-  def value[V[A] <: Vec[A]](implicit f: AbstractVec[A] => V[A]): V[A] = f(lhs)
+  def get[V[A] <: Vec[A]](implicit f: AbstractVec[A] => V[A]): V[A] = f(lhs)
 
   def +(rhs: AbstractVec[A])(implicit A: AdditiveSemigroup[A]): AbstractVec[A] =
     ast.VecVec.Plus(lhs, rhs)
@@ -26,17 +26,16 @@ trait AbstractVec[A] extends AbstractNode { lhs =>
   def :*(rhs: A)(implicit A: MultiplicativeSemigroup[A]): AbstractVec[A] =
     ast.Vec.RightScalarTimes(lhs, rhs)
 
+  def :/(rhs: A)(implicit A: MultiplicativeGroup[A]): AbstractVec[A] =
+    ast.Vec.RightScalarDiv(lhs, rhs)
+
   def unary_-(implicit A: AdditiveGroup[A]): AbstractVec[A] =
     ast.Vec.Negate(lhs)
 
-//  def *(rhs: AbstractVecT[A])(implicit A: MultiplicativeSemigroup[A]): AbstractMat[A] =
-//    ast.VecVec.OuterT(lhs, rhs.vec)
+  def t: AbstractRowVec[A] = ast.Vec.ColT(lhs)
 
-//  def *(rhs: AbstractVecH[A])(implicit A: MultiplicativeSemigroup[A], invA: Involution[A]): AbstractMat[A] =
-//    ast.VecVec.OuterH(lhs, rhs.vec)
+  def dagger(implicit A: Involution[A]): AbstractRowVec[A] = ast.Vec.ColDagger(lhs)
 
-//  def star: AbstractVecH[A] = AbstractVecH(lhs)
-
-  def t: AbstractRowVec[A] = AbstractVecT(lhs)
+  def *(rhs: AbstractRowVec[A])(implicit A: MultiplicativeSemigroup[A]): AbstractMat[A] = ast.VecVec.Outer(lhs, rhs)
 
 }

@@ -29,22 +29,13 @@ object VecVec {
     def apply(k: Int): A = A.minus(lhs(k), rhs(k))
   }
 
-  abstract class Outer[A] extends AbstractMat[A] {
-    def lhs: AbstractVec[A]
-    def rhs: AbstractVec[A]
+  case class Outer[A](lhs: AbstractVec[A], rhs: AbstractRowVec[A])(implicit A: MultiplicativeSemigroup[A]) extends AbstractMat[A] {
     def rows = lhs.length
     def cols = rhs.length
     def nextNonZeroInRow(r: Int, c: Int) = rhs.nextNonZero(c)
     def nextNonZeroInCol(r: Int, c: Int) = lhs.nextNonZero(r)
-    def touch(node: AbstractNode) = lhs.touch(node).merge(rhs.touch(node))
-  }
-
-  case class OuterT[A](lhs: AbstractVec[A], rhs: AbstractVec[A])(implicit A: MultiplicativeSemigroup[A]) extends Outer[A] {
+    def touch(node: AbstractNode) = (lhs.touch(node).multiIfNotClean).merge(rhs.touch(node).multiIfNotClean)
     def apply(r: Int, c: Int) = A.times(lhs(r), rhs(c))
-  }
-
-  case class OuterH[A](lhs: AbstractVec[A], rhs: AbstractVec[A])(implicit A: MultiplicativeSemigroup[A], invA: Involution[A]) extends Outer[A] {
-    def apply(r: Int, c: Int) = A.times(lhs(r), invA.dagger(rhs(c)))
   }
 
 }
