@@ -5,7 +5,7 @@ import spire.syntax.cfor._
 
 class DenseVec[A](var data: Array[AnyRef]) extends scalin.DenseVec[A] with mutable.Vec[A] {
 
-  def update(k: Int, a: A): Unit = {
+  def set(k: Int, a: A): Unit = {
     data(k) = a.asInstanceOf[AnyRef]
   }
 

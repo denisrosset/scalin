@@ -3,15 +3,9 @@ package mutable
 
 import spire.algebra._
 
-trait Mat[A] extends scalin.Mat[A] with Mutable { lhs =>
+trait Mat[A] extends scalin.Mat[A] {
 
-  def update(r: Int, c: Int, a: A): Unit
-
-  def :=(rhs: AbstractMat[A]): Unit
-
-  def intersectsMutable(mat: AbstractMat[_], rs: Range, cs: Range): Boolean = mat eq lhs
-
-  def intersectsMutable(vec: AbstractVec[_], ks: Range): Boolean = false
+  def set(r: Int, c: Int, a: A): Unit
 
 }
 

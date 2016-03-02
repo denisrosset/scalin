@@ -5,7 +5,7 @@ import spire.syntax.cfor._
 
 class DenseMat[A](val rows: Int, val cols: Int, var data: Array[AnyRef]) extends scalin.DenseMat[A] with mutable.Mat[A] {
 
-  def update(r: Int, c: Int, a: A): Unit = {
+  def set(r: Int, c: Int, a: A): Unit = {
     data(r + c * rows) = a.asInstanceOf[AnyRef]
   }
 

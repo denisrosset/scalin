@@ -17,7 +17,4 @@ trait VecFactory[V[A] <: Vec[A], Extra[_]] {
   def ones[A:Extra:MultiplicativeMonoid](length: Int): V[A] =
     fill(length)(implicitly[MultiplicativeMonoid[A]].one)
 
-  implicit def fromAbstractVec[A:Extra](v: AbstractVec[A]): V[A] =
-    tabulate(v.length)(v.apply)
-
 }

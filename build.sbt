@@ -1,4 +1,7 @@
-libraryDependencies += "org.spire-math" %% "spire" % "0.11.0"
+libraryDependencies ++= Seq(
+  "org.scala-lang" % "scala-reflect" % scalaVersion.value % "provided",
+  "org.spire-math" %% "spire" % "0.11.0"
+)
 
 scalaVersion := "2.11.7"
 

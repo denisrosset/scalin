@@ -2,16 +2,21 @@ package scalin
 package mutable
 
 import spire.algebra._
+import spire.syntax.cfor._
 
-trait Vec[A] extends scalin.Vec[A] with mutable.AbstractVec[A] with Mutable { lhs =>
+trait Vec[A] extends scalin.Vec[A] { lhs =>
 
-  override def apply(indices: Seq[Int]): mutable.SliceVec[A] = mutable.SliceVec(lhs, indices)
+  def set(k: Int, a: A): Unit
 
-  override def apply(mask: scalin.AbstractVec[Boolean]): mutable.SliceVec[A] = apply(Util.maskToIndices(mask))
+  def setPlus(k: Int, a: A)(implicit A: AdditiveSemigroup[A]): Unit = set(k, A.plus(apply(k), a))
 
-  def intersectsMutable(mat: AbstractMat[_], rs: Range, cs: Range): Boolean = false
+  def setPlus(rhs: scalin.Vec[A])(implicit A: AdditiveSemigroup[A]): Unit = {
+    require(lhs.length == rhs.length)
+    cforRange(0 until length) { k =>
 
-  def intersectsMutable(vec: AbstractVec[_], ks: Range): Boolean = vec eq lhs
+//      set(k, A.plus(lhs.apply(k), rhs.apply(k)))
+    }
+  }
 
 }
 

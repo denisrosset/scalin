@@ -1,7 +1,13 @@
 package scalin
 
 /** Concrete matrix trait. */
-trait Mat[A] extends AbstractMat[A] { lhs =>
+trait Mat[A] { lhs =>
+
+  def apply(r: Int, c: Int): A
+
+  def rows: Int
+
+  def cols: Int
 
   override def toString: String = Printer.mat(Mat.this)
 

@@ -2,11 +2,7 @@ package scalin
 package immutable
 
 class DenseMat[A](val rows: Int, val cols: Int, val data: Array[AnyRef])
-    extends scalin.DenseMat[A] with scalin.immutable.Mat[A] {
-
-  def toImmutable = this
-
-}
+    extends scalin.DenseMat[A] with scalin.immutable.Mat[A]
 
 object DenseMat extends scalin.DenseMatFactory[DenseMat] {
 
