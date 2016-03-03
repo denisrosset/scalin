@@ -5,7 +5,11 @@ import spire.algebra._
 
 trait Mat[A] extends scalin.Mat[A] {
 
+  // one row, one column
+
   def set(r: Int, c: Int, a: A): Unit
+
+  // one row, many columns
 
 }
 

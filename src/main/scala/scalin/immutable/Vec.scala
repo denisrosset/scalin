@@ -1,7 +1,11 @@
 package scalin
 package immutable
 
-trait Vec[A] extends scalin.Vec[A]
+trait Vec[A] extends scalin.Vec[A] { lhs =>
+
+  def copyIfOverlap(obj: AnyRef) = lhs // immutable object can never overlap
+
+}
 
 object Vec extends VecFactory[immutable.Vec, Dummy] {
 

@@ -5,6 +5,12 @@ import spire.syntax.cfor._
 
 class DenseVec[A](var data: Array[AnyRef]) extends scalin.DenseVec[A] with mutable.Vec[A] {
 
+  type Sliced = mutable.DenseVec[A]
+
+  protected def build(newData: Array[AnyRef]): Sliced = new mutable.DenseVec[A](newData)
+
+  def copyIfOverlap(obj: AnyRef) = if (obj eq this) new DenseVec[A](data.clone) else this
+
   def set(k: Int, a: A): Unit = {
     data(k) = a.asInstanceOf[AnyRef]
   }

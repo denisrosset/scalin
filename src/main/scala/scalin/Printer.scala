@@ -11,7 +11,7 @@ object Printer {
   val newline = "\n"
 
   // TODO: allow for value elision when vector is too big
-  @inline def vec[A](vec: Vec[A]): String = {
+  def vec[A](vec: Vec[A]): String = {
     val sb = new StringBuilder
     sb.append("Vec(")
     var prefix = ""
@@ -24,7 +24,7 @@ object Printer {
     sb.toString
   }
 
-  @inline def mat[A](mat: Mat[A],
+  def mat[A](mat: Mat[A],
     maxLines: Int = terminalHeight,
     maxWidth: Int = terminalWidth): String = {
     val rows = mat.rows

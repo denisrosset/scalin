@@ -6,10 +6,12 @@ libraryDependencies ++= Seq(
 scalaVersion := "2.11.7"
 
 scalacOptions ++= Seq(
+  "-Yinline-warnings",
   "-unchecked",
   "-feature",
   "-deprecation",
   "-optimize",
   "-language:implicitConversions",
-  "-language:higherKinds"
+  "-language:higherKinds",
+  "-language:experimental.macros"
 )

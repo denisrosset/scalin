@@ -2,19 +2,26 @@ package scalin
 package mutable
 
 import spire.algebra._
+import spire.syntax.ring._
 import spire.syntax.cfor._
 
 trait Vec[A] extends scalin.Vec[A] { lhs =>
 
   def set(k: Int, a: A): Unit
 
-  def setPlus(k: Int, a: A)(implicit A: AdditiveSemigroup[A]): Unit = set(k, A.plus(apply(k), a))
+  def set(ind: Slice, rhs: A): Unit = {
+    val n = ind.length
+    cforRange(0 until ind.length) { k =>
+      set(ind(k), rhs)
+    }
+  }
 
-  def setPlus(rhs: scalin.Vec[A])(implicit A: AdditiveSemigroup[A]): Unit = {
-    require(lhs.length == rhs.length)
-    cforRange(0 until length) { k =>
-
-//      set(k, A.plus(lhs.apply(k), rhs.apply(k)))
+  def set(ind: Slice, givenRhs: Vec[A]): Unit = {
+    val rhs = givenRhs.copyIfOverlap(lhs)
+    val n = ind.length
+    require(n == rhs.length)
+    cforRange(0 until n) { k =>
+      set(ind(k), rhs(k))
     }
   }
 

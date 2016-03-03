@@ -9,13 +9,6 @@ trait MatFactory[M[A] <: Mat[A], Extra[_]] {
 
   def fill[A:Extra](rows: Int, cols: Int)(a: => A): M[A] = tabulate(rows, cols)( (r, c) => a )
 
-  def zeros[A:AdditiveMonoid:Extra](rows: Int, cols: Int): M[A] =
-    fill(rows, cols)(implicitly[AdditiveMonoid[A]].zero)
-
-  def ones[A:Extra:MultiplicativeMonoid](rows: Int, cols: Int): M[A] =
-    fill(rows, cols)(implicitly[MultiplicativeMonoid[A]].one)
-
-  def eye[A:Extra:Rig](n: Int): M[A] =
-    tabulate(n, n)( (r, c) => if (r == c) Rig[A].one else Rig[A].zero )
+  def verbatim[A:Extra](rows: Int, cols: Int)(elements: A*): M[A] = tabulate(rows, cols)( (r, c) => elements(r * cols + c) )
 
 }

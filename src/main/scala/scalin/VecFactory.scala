@@ -11,10 +11,4 @@ trait VecFactory[V[A] <: Vec[A], Extra[_]] {
 
   def fill[A:Extra](length: Int)(a: => A): V[A] = tabulate(length)( k => a )
 
-  def zeros[A:AdditiveMonoid:Extra](length: Int): V[A] =
-    fill(length)(implicitly[AdditiveMonoid[A]].zero)
-
-  def ones[A:Extra:MultiplicativeMonoid](length: Int): V[A] =
-    fill(length)(implicitly[MultiplicativeMonoid[A]].one)
-
 }

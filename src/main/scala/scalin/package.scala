@@ -1,77 +1,37 @@
-import scala.language.experimental.macros
-
-import spire.macros.compat.{termName, freshTermName, resetLocalAttrs, Context, setOrig}
+import scalin.algebra._
 
 package object scalin {
 
-  object Ops {
+  /* We split the type specification is two parts, so that Vec[A] can be inferred from
+   * whatever type class is available, *and* to avoid a path-dependent return type for
+   * REPL purposes.
+   */
+  implicit def zeros[A]: Zeros[A] = new Zeros[A](null)
 
-    def mergeParts(parts: Seq[String]): String = parts.map(_.capitalize).mkString("")
+  implicit def ones[A]: Ones[A] = new Ones[A](null)
 
-    def decodeIfNotEmpty(str: String): String =
-      if (str.isEmpty) str else spire.macros.Ops.operatorNames(str)
+  implicit def eye[A]: Eye[A] = new Eye[A](null)
 
-    def updateOp[B:c.WeakTypeTag](c: Context)(rhs: c.Expr[B]): c.Expr[Unit] = {
-      import c.universe._
-      val Pattern = """(.*)\$colon\$eq""".r
-      def transform(tn: TermName): TermName = {
-        val TermName(Pattern(op)) = tn//.toString
-        TermName("set" + decodeIfNotEmpty(op).capitalize)
-      }
-      c.macroApplication match {
-        case q"scalin.`package`.updateOps[$_]($lhs.apply(..$args)).$method[$_]($_)" =>
-          c.Expr[Unit](q"$lhs.${transform(method)}(..$args, $rhs)")
-        case q"scalin.`package`.updateOps[$_]($lhs).$method[$_]($_)" =>
-          c.Expr[Unit](q"$lhs.${transform(method)}($rhs)")
-        case _ => sys.error("Not implemented")
-      }
-    }
+  final class Zeros[A](val dummy: Null) extends AnyVal {
+
+    def apply[V[A] <: Vec[A]](length: Int)(implicit ev: VecRing[A, V]): V[A] = ev.zeros(length)
+
+    def apply[M[A] <: Mat[A]](rows: Int, cols: Int)(implicit ev: MatRing[A, M]): M[A] = ev.zeros(rows, cols)
 
   }
 
-  class UpdateOps[A](lhs: A) {
+  final class Ones[A](val dummy: Null) extends AnyVal {
 
-    def :=[B](rhs: B): Unit = macro Ops.updateOp[B]
+    def apply[V[A] <: Vec[A]](length: Int)(implicit ev: VecRing[A, V]): V[A] = ev.ones(length)
 
-    // Semigroup
-    def |+|:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-    def |-|:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-
-    // Ring
-    def +:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-    def -:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-    def *:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-    def **:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-
-    // EuclideanRing
-    def /~:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-    def %:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-
-    // Field
-    def /:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-
-    // BooleanAlgebra
-    def ^:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-    def |:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-    def &:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-
-    // BitString
-    def <<:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-    def >>:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-    def >>>:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-
-    // VectorSpace
-    def *::=[B](rhs: B): Unit = macro Ops.updateOp[B]
-    def :*:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-    def :/:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-
-    // GroupAction
-    def <|+|:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-    def <+:=[B](rhs: B): Unit = macro Ops.updateOp[B]
-    def <*:=[B](rhs: B): Unit = macro Ops.updateOp[B]
+    def apply[M[A] <: Mat[A]](rows: Int, cols: Int)(implicit ev: MatRing[A, M]): M[A] = ev.ones(rows, cols)
 
   }
 
-  implicit def updateOps[A](lhs: A): UpdateOps[A] = new UpdateOps[A](lhs)
+  final class Eye[A](val dummy: Null) extends AnyVal {
+
+    def apply[M[A] <: Mat[A]](n: Int)(implicit ev: MatRing[A, M]): M[A] = ev.eye(n)
+
+  }
 
 }
