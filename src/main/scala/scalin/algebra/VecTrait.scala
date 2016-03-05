@@ -13,6 +13,33 @@ trait VecTrait[A, V[A] <: Vec[A]] {
   implicit def extra: Extra[A]
   def factory: VecFactory[V, Extra]
 
+  def slice(vec: Vec[A], sub: Subscript): V[A] = {
+    val ind = sub.forLength(vec.length)
+    factory.tabulate(ind.length)( k => vec(ind(k)) )
+  }
+
+  def slice(mat: Mat[A], sub: Subscript): V[A] = {
+    val ind = sub.forLength(mat.rows * mat.cols)
+    factory.tabulate(ind.length) { k =>
+      val ik = ind(k)
+      val r = ik % mat.rows
+      val c = ik / mat.rows
+      mat(r, c)
+    }
+  }
+
+  /** Slices a vector from a matrix, for the row `r` and column subscript `cs`. */
+  def rowSlice(mat: Mat[A], r: Int, cs: Subscript): V[A] = {
+    val ci = cs.forLength(mat.cols)
+    factory.tabulate(ci.length)( k => mat(r, ci(k)) )
+  }
+
+  /** Slices a vector from a matrix, for the column `c` and the row subscript `rs`. */
+  def colSlice(mat: Mat[A], rs: Subscript, c: Int): V[A] = {
+    val ri = rs.forLength(mat.rows)
+    factory.tabulate(ri.length)( k => mat(ri(k), c) )
+  }
+
   def pointwiseUnary(lhs: Vec[A])(f: A => A) = factory.tabulate(lhs.length)(k => f(lhs(k)))
 
   def pointwiseBinary(lhs: Vec[A], rhs: Vec[A])(f: (A, A) => A): V[A] = {

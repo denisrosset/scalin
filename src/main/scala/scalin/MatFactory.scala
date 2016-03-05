@@ -11,4 +11,8 @@ trait MatFactory[M[A] <: Mat[A], Extra[_]] {
 
   def verbatim[A:Extra](rows: Int, cols: Int)(elements: A*): M[A] = tabulate(rows, cols)( (r, c) => elements(r * cols + c) )
 
+  def row[A:Extra](elements: A*): M[A] = verbatim(1, elements.size)(elements: _*)
+
+  def col[A:Extra](elements: A*): M[A] = verbatim(elements.size, 1)(elements: _*)
+
 }

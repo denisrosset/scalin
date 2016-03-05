@@ -50,7 +50,8 @@ trait Vec[A] { lhs =>
 
   def apply(k: Int): A
 
-  def apply(ks: Slice): Vec[A]
+  def apply[V[A] <: Vec[A]](sub: Subscript)(implicit ev: VecTrait[A, V]): V[A] =
+    ev.slice(lhs, sub)
 
   def pointwise: PointwiseVec[A] = new PointwiseVec[A](lhs)
 
@@ -70,7 +71,7 @@ trait Vec[A] { lhs =>
 
   def dot[V[A] <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, V]): A = ev.dot(lhs, rhs)
 
-  // multiplication by vector (dyadic product, which we don't call outer product, because we don't care about i.e. complex conjugation
+  // multiplication by vector (dyadic product), which we don't call outer product, because we don't care about i.e. complex conjugation
 
   def dyad[M[A] <: Mat[A]](rhs: Vec[A])(implicit ev: MatMultiplicativeMonoid[A, M]): M[A] = ev.dyad(lhs, rhs)
 

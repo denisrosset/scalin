@@ -9,14 +9,15 @@ trait Vec[A] extends scalin.Vec[A] { lhs =>
 
   def set(k: Int, a: A): Unit
 
-  def set(ind: Slice, rhs: A): Unit = {
-    val n = ind.length
+  def set(sub: Subscript, rhs: A): Unit = {
+    val ind = sub.forLength(length)
     cforRange(0 until ind.length) { k =>
       set(ind(k), rhs)
     }
   }
 
-  def set(ind: Slice, givenRhs: Vec[A]): Unit = {
+  def set(sub: Subscript, givenRhs: Vec[A]): Unit = {
+    val ind = sub.forLength(length)
     val rhs = givenRhs.copyIfOverlap(lhs)
     val n = ind.length
     require(n == rhs.length)

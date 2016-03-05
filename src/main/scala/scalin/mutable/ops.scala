@@ -1,9 +1,10 @@
 package scalin
+package mutable
 
 import algebra._
 import spire.algebra._
 
-// copy/pasted into mutable/ops.scala and immutable/ops.scala
+// copy/paste of scalin/ops.scala
 
 abstract class TraitOps {
 

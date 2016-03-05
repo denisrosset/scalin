@@ -14,12 +14,13 @@ object AssignMacro {
       case TermName(Pattern(op)) => TermName("set" + operatorNames(op).capitalize)
     }
     c.macroApplication match {
-      case q"$_.assignOps[$_]($lhs.apply(..$args)).$method[$_]($_)" =>
-        c.Expr[Unit](q"$lhs.${transform(method)}(..$args, $rhs)")
+      case q"$_.assignOps[$_]($lhs.apply[$_](...$args)).$method[$_]($_)" =>
+        c.Expr[Unit](q"$lhs.${transform(method)}(..${args.head}, $rhs)")
       case q"$_.assignOps[$_]($lhs).$method[$_]($_)" =>
         c.Expr[Unit](q"$lhs.${transform(method)}($rhs)")
       case _ =>
         sys.error(s"Not implemented for tree ${showRaw(c.macroApplication)} ${show(c.macroApplication)}")
+
     }
   }
 

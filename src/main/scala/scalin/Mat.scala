@@ -32,8 +32,22 @@ class PointwiseMat[A](val lhs: Mat[A]) extends AnyVal {
 
 }
 
-/** Concrete matrix trait. */
+/** Matrix trait. */
 trait Mat[A] { lhs =>
+
+  def count(implicit ev: A =:= Boolean): Int = {
+    import spire.syntax.cfor._
+    var sum = 0
+    cforRange(0 until rows) { r =>
+      cforRange(0 until cols) { c =>
+        if (apply(r, c): Boolean)
+          sum += 1
+      }
+    }
+    sum
+  }
+
+  override def toString: String = Printer.mat(Mat.this)
 
   def copyIfOverlap(obj: AnyRef): Mat[A]
 
@@ -41,15 +55,26 @@ trait Mat[A] { lhs =>
 
   def cols: Int
 
+  // 1x1
+
   def apply(r: Int, c: Int): A
 
-//  def apply(r: Int, cs: Slice): Vec[A]
+  // 1xn and nx1
+  def apply[V[A] <: Vec[A]](r: Int, cs: Subscript)(implicit ev: VecTrait[A, V]): V[A] =
+    ev.rowSlice(lhs, r, cs)
 
-//  def apply(rs: Slice, c: Int): Vec[A]
+  def apply[V[A] <: Vec[A]](rs: Subscript, c: Int)(implicit ev: VecTrait[A, V]): V[A] =
+    ev.colSlice(lhs, rs, c)
 
-//  def apply(rs: Slice, cs: Slice): Vec[A]
+  // nxn
 
-  override def toString: String = Printer.mat(Mat.this)
+  def apply[M[A] <: Mat[A]](rs: Subscript, cs: Subscript)(implicit ev: MatTrait[A, M]): M[A] =
+    ev.slice(lhs, rs, cs)
+
+  // flattening
+
+  def apply[V[A] <: Vec[A]](sub: Subscript)(implicit ev: VecTrait[A, V]): V[A] =
+    ev.slice(lhs, sub)
 
   def pointwise: PointwiseMat[A] = new PointwiseMat[A](lhs)
 

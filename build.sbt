@@ -15,3 +15,5 @@ scalacOptions ++= Seq(
   "-language:higherKinds",
   "-language:experimental.macros"
 )
+
+tutSettings

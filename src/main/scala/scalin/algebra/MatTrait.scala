@@ -13,6 +13,12 @@ trait MatTrait[A, M[A] <: Mat[A]] {
   implicit def extra: Extra[A]
   def factory: MatFactory[M, Extra]
 
+  def slice(mat: Mat[A], rs: Subscript, cs: Subscript): M[A] = {
+    val ri = rs.forLength(mat.rows)
+    val ci = cs.forLength(mat.cols)
+    factory.tabulate(ri.length, ci.length)( (k, l) => mat(ri(k), ci(l)) )
+  }
+
   def pointwiseUnary(lhs: Mat[A])(f: A => A) = factory.tabulate(lhs.rows, lhs.cols)( (r, c) => f(lhs(r, c)) )
 
   def pointwiseBinary(lhs: Mat[A], rhs: Mat[A])(f: (A, A) => A): M[A] = {

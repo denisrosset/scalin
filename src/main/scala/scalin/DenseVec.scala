@@ -13,18 +13,6 @@ abstract class DenseVec[A] extends scalin.Vec[A] {
     data(k).asInstanceOf[A]
   }
 
-  type Sliced <: DenseVec[A]
-  protected def build(newData: Array[AnyRef]): Sliced
-
-  def apply(ind: Slice): Sliced = {
-    val n = ind.length
-    val newData = new Array[AnyRef](n)
-    cforRange(0 until n) { k =>
-      newData(k) = data(ind(k))
-    }
-    build(newData)
-  }
-
 }
 
 abstract class DenseVecFactory[DV[A] <: DenseVec[A]] extends scalin.VecFactory[DV, Dummy] {
