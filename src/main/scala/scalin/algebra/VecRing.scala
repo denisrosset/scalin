@@ -3,7 +3,7 @@ package algebra
 
 import spire.algebra._
 
-trait VecRing[A, V[A] <: Vec[A]] extends VecMultiplicativeMonoid[A, V] {
+trait VecRing[A, VA <: Vec[A]] extends VecMultiplicativeMonoid[A, VA] {
   import spire.syntax.ring._
   import spire.syntax.cfor._
 
@@ -11,25 +11,25 @@ trait VecRing[A, V[A] <: Vec[A]] extends VecMultiplicativeMonoid[A, V] {
 
   // builder methods
 
-  def zeros(length: Int): V[A] =
+  def zeros(length: Int): VA =
     fill(length)(scalar.zero)
 
   // additive group methods
   
-  def plus(lhs: Vec[A], rhs: Vec[A]): V[A] = pointwiseBinary(lhs, rhs)(_ + _)
+  def plus(lhs: Vec[A], rhs: Vec[A]): VA = pointwiseBinary(lhs, rhs)(_ + _)
 
-  def negate(lhs: Vec[A]): V[A] = pointwiseUnary(lhs)(-_)
+  def negate(lhs: Vec[A]): VA = pointwiseUnary(lhs)(-_)
 
-  def minus(lhs: Vec[A], rhs: Vec[A]): V[A] = pointwiseBinary(lhs, rhs)(_ - _)
+  def minus(lhs: Vec[A], rhs: Vec[A]): VA = pointwiseBinary(lhs, rhs)(_ - _)
 
-  def pointwisePlus(lhs: Vec[A], rhs: A): V[A] = pointwiseUnary(lhs)(_ + rhs)
+  def pointwisePlus(lhs: Vec[A], rhs: A): VA = pointwiseUnary(lhs)(_ + rhs)
 
-  def pointwiseMinus(lhs: Vec[A], rhs: A): V[A] = pointwiseUnary(lhs)(_ - rhs)
+  def pointwiseMinus(lhs: Vec[A], rhs: A): VA = pointwiseUnary(lhs)(_ - rhs)
 
   // ring methods
 
   // the matrix-vector, vector-matrix products belong to VecRing because of the Vec factory
-  def times(lhs: Vec[A], rhs: Mat[A]): V[A] = {
+  def times(lhs: Vec[A], rhs: Mat[A]): VA = {
     val n = lhs.length
     require(n == rhs.rows)
     if (n == 0)
@@ -45,7 +45,7 @@ trait VecRing[A, V[A] <: Vec[A]] extends VecMultiplicativeMonoid[A, V] {
   }
 
 
-  def times(lhs: Mat[A], rhs: Vec[A]): V[A] = {
+  def times(lhs: Mat[A], rhs: Vec[A]): VA = {
     val n = rhs.length
     require(n == lhs.cols)
     if (n == 0)

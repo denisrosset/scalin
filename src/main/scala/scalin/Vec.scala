@@ -8,29 +8,37 @@ import algebra._
 
 class PointwiseVec[A](val lhs: Vec[A]) extends AnyVal {
 
-  def ==[V[A] <: Vec[A]](rhs: A)(implicit ev: VecTrait[Boolean, V]): V[Boolean] = ev.pointwiseEqual(lhs, rhs)
+  def ==[VB <: Vec[Boolean]](rhs: A)(implicit ev: VecTrait[Boolean, VB]): VB =
+    ev.pointwiseEqual(lhs, rhs)
 
-  def ==[V[A] <: Vec[A]](rhs: Vec[A])(implicit ev: VecTrait[Boolean, V]): V[Boolean] = ev.pointwiseEqual(lhs, rhs)
+  def ==[VB <: Vec[Boolean]](rhs: Vec[A])(implicit ev: VecTrait[Boolean, VB]): VB =
+    ev.pointwiseEqual(lhs, rhs)
 
-  def !=[V[A] <: Vec[A]](rhs: A)(implicit ev: VecTrait[Boolean, V]): V[Boolean] = ev.pointwiseNotEqual(lhs, rhs)
+  def !=[VB <: Vec[Boolean]](rhs: A)(implicit ev: VecTrait[Boolean, VB]): VB =
+    ev.pointwiseNotEqual(lhs, rhs)
 
-  def !=[V[A] <: Vec[A]](rhs: Vec[A])(implicit ev: VecTrait[Boolean, V]): V[Boolean] = ev.pointwiseNotEqual(lhs, rhs)
+  def !=[VB <: Vec[Boolean]](rhs: Vec[A])(implicit ev: VecTrait[Boolean, VB]): VB =
+    ev.pointwiseNotEqual(lhs, rhs)
 
-  def ===[V[A] <: Vec[A]](rhs: A)(implicit A: Eq[A], ev: VecTrait[Boolean, V]): V[Boolean] = ev.pointwiseEqv(lhs, rhs)
+  def ===[VB <: Vec[Boolean]](rhs: A)(implicit A: Eq[A], ev: VecTrait[Boolean, VB]): VB =
+    ev.pointwiseEqv(lhs, rhs)
 
-  def ===[V[A] <: Vec[A]](rhs: Vec[A])(implicit A: Eq[A], ev: VecTrait[Boolean, V]): V[Boolean] = ev.pointwiseEqv(lhs, rhs)
+  def ===[VB <: Vec[Boolean]](rhs: Vec[A])(implicit A: Eq[A], ev: VecTrait[Boolean, VB]): VB =
+    ev.pointwiseEqv(lhs, rhs)
 
-  def =!=[V[A] <: Vec[A]](rhs: A)(implicit A: Eq[A], ev: VecTrait[Boolean, V]): V[Boolean] = ev.pointwiseNeqv(lhs, rhs)
+  def =!=[VB <: Vec[Boolean]](rhs: A)(implicit A: Eq[A], ev: VecTrait[Boolean, VB]): VB =
+    ev.pointwiseNeqv(lhs, rhs)
 
-  def =!=[V[A] <: Vec[A]](rhs: Vec[A])(implicit A: Eq[A], ev: VecTrait[Boolean, V]): V[Boolean] = ev.pointwiseNeqv(lhs, rhs)
+  def =!=[VB <: Vec[Boolean]](rhs: Vec[A])(implicit A: Eq[A], ev: VecTrait[Boolean, VB]): VB =
+    ev.pointwiseNeqv(lhs, rhs)
 
-  def +[V[A] <: Vec[A]](rhs: A)(implicit ev: VecRing[A, V]): V[A] = ev.pointwisePlus(lhs, rhs)
+  def +[VA <: Vec[A]](rhs: A)(implicit ev: VecRing[A, VA]): VA = ev.pointwisePlus(lhs, rhs)
 
-  def -[V[A] <: Vec[A]](rhs: A)(implicit ev: VecRing[A, V]): V[A] = ev.pointwiseMinus(lhs, rhs)
+  def -[VA <: Vec[A]](rhs: A)(implicit ev: VecRing[A, VA]): VA = ev.pointwiseMinus(lhs, rhs)
 
-  def *[V[A] <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, V]): V[A] = ev.pointwiseTimes(lhs, rhs)
+  def *[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, VA]): VA = ev.pointwiseTimes(lhs, rhs)
 
-  def /[V[A] <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, V], field: Field[A]): V[A] = ev.pointwiseBinary(lhs, rhs)(field.div)
+  def /[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, VA], field: Field[A]): VA = ev.pointwiseBinary(lhs, rhs)(field.div)
 
 }
 
@@ -70,43 +78,43 @@ trait Vec[A] { lhs =>
 
   // slices
 
-  def apply[V[A] <: Vec[A]](sub: Subscript)(implicit ev: VecTrait[A, V]): V[A] =
+  def apply[VA <: Vec[A]](sub: Subscript)(implicit ev: VecTrait[A, VA]): VA =
     ev.slice(lhs, sub)
 
   // shuffle
 
-  def reshape[M[A] <: Mat[A]](rows: Int, cols: Int)(implicit ev: MatTrait[A, M]): M[A] =
+  def reshape[MA <: Mat[A]](rows: Int, cols: Int)(implicit ev: MatTrait[A, MA]): MA =
     ev.reshape(lhs, rows, cols)
 
   // additive group
 
-  def +[V[A] <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, V]): V[A] = ev.plus(lhs, rhs)
+  def +[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, VA]): VA = ev.plus(lhs, rhs)
 
-  def -[V[A] <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, V]): V[A] = ev.minus(lhs, rhs)
+  def -[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, VA]): VA = ev.minus(lhs, rhs)
 
-  def unary_-[V[A] <: Vec[A]](implicit ev: VecRing[A, V]): V[A] = ev.negate(lhs)
+  def unary_-[VA <: Vec[A]](implicit ev: VecRing[A, VA]): VA = ev.negate(lhs)
 
   // multiplication by scalar
 
-  def *[V[A] <: Vec[A]](rhs: A)(implicit ev: VecRing[A, V]): V[A] = ev.times(lhs, rhs)
+  def *[VA <: Vec[A]](rhs: A)(implicit ev: VecRing[A, VA]): VA = ev.times(lhs, rhs)
 
-  def *:[V[A] <: Vec[A]](realLhs: A)(implicit ev: VecRing[A, V]): V[A] = ev.times(realLhs, lhs)
+  def *:[VA <: Vec[A]](realLhs: A)(implicit ev: VecRing[A, VA]): VA = ev.times(realLhs, lhs)
 
   // vector-matrix product
 
-  def *[V[A] <: Vec[A]](rhs: Mat[A])(implicit ev: VecRing[A, V]): V[A] = ev.times(lhs, rhs)
+  def *[VA <: Vec[A]](rhs: Mat[A])(implicit ev: VecRing[A, VA]): VA = ev.times(lhs, rhs)
 
   // multiplication by vector (dot product)
 
-  def dot[V[A] <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, V]): A = ev.dot(lhs, rhs)
+  def dot[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, VA]): A = ev.dot(lhs, rhs)
 
   // multiplication by vector (dyadic product), which we don't call outer product, because we don't care about i.e. complex conjugation
 
-  def dyad[M[A] <: Mat[A]](rhs: Vec[A])(implicit ev: MatMultiplicativeMonoid[A, M]): M[A] = ev.dyad(lhs, rhs)
+  def dyad[MA <: Mat[A]](rhs: Vec[A])(implicit ev: MatMultiplicativeMonoid[A, MA]): MA = ev.dyad(lhs, rhs)
 
   // we do not use a VecField type class, rather we multiply by the inverse, which is probably faster
   // TODO: make a proper type class
-  def /[V[A] <: Vec[A]](rhs: A)(implicit ev: VecRing[A, V], field: Field[A]): V[A] = ev.times(lhs, field.reciprocal(rhs))
+  def /[VA <: Vec[A]](rhs: A)(implicit ev: VecRing[A, VA], field: Field[A]): VA = ev.times(lhs, field.reciprocal(rhs))
 
 }
 

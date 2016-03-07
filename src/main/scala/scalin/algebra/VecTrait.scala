@@ -5,15 +5,15 @@ import spire.algebra._
 import spire.syntax.order._
 import spire.syntax.cfor._
 
-trait VecTrait[A, V[A] <: Vec[A]] {
+trait VecTrait[A, VA <: Vec[A]] {
 
   // creation
 
-  def tabulate(length: Int)(f: Int => A): V[A] // = factory.tabulate[A](length)(f)
+  def tabulate(length: Int)(f: Int => A): VA // = factory.tabulate[A](length)(f)
 
-  def fill(length: Int)(a: => A): V[A] = tabulate(length)( k => a )
+  def fill(length: Int)(a: => A): VA = tabulate(length)( k => a )
 
-  def fromSeq(elements: Seq[A]): V[A] = tabulate(elements.size)( elements(_) )
+  def fromSeq(elements: Seq[A]): VA = tabulate(elements.size)( elements(_) )
 
   // shufflers
 
@@ -21,12 +21,12 @@ trait VecTrait[A, V[A] <: Vec[A]] {
 
   // slices
 
-  def slice(vec: Vec[A], sub: Subscript): V[A] = {
+  def slice(vec: Vec[A], sub: Subscript): VA = {
     val ind = sub.forLength(vec.length)
     tabulate(ind.length)( k => vec(ind(k)) )
   }
 
-  def slice(mat: Mat[A], sub: Subscript): V[A] = {
+  def slice(mat: Mat[A], sub: Subscript): VA = {
     val ind = sub.forLength(mat.rows * mat.cols)
     tabulate(ind.length) { k =>
       val ik = ind(k)
@@ -37,20 +37,20 @@ trait VecTrait[A, V[A] <: Vec[A]] {
   }
 
   /** Slices a vector from a matrix, for the row `r` and column subscript `cs`. */
-  def rowSlice(mat: Mat[A], r: Int, cs: Subscript): V[A] = {
+  def rowSlice(mat: Mat[A], r: Int, cs: Subscript): VA = {
     val ci = cs.forLength(mat.cols)
     tabulate(ci.length)( k => mat(r, ci(k)) )
   }
 
   /** Slices a vector from a matrix, for the column `c` and the row subscript `rs`. */
-  def colSlice(mat: Mat[A], rs: Subscript, c: Int): V[A] = {
+  def colSlice(mat: Mat[A], rs: Subscript, c: Int): VA = {
     val ri = rs.forLength(mat.rows)
     tabulate(ri.length)( k => mat(ri(k), c) )
   }
 
   def pointwiseUnary(lhs: Vec[A])(f: A => A) = tabulate(lhs.length)(k => f(lhs(k)))
 
-  def pointwiseBinary(lhs: Vec[A], rhs: Vec[A])(f: (A, A) => A): V[A] = {
+  def pointwiseBinary(lhs: Vec[A], rhs: Vec[A])(f: (A, A) => A): VA = {
     require(lhs.length == rhs.length)
     tabulate(lhs.length)( k =>  f(lhs(k), rhs(k)) )
   }
@@ -63,9 +63,9 @@ trait VecTrait[A, V[A] <: Vec[A]] {
       true
     }
 
-  def pointwiseBooleanUnary[B](lhs: Vec[B])(f: B => Boolean)(implicit ev: Boolean =:= A): V[A] = tabulate(lhs.length)( k => f(lhs(k)) )
+  def pointwiseBooleanUnary[B](lhs: Vec[B])(f: B => Boolean)(implicit ev: Boolean =:= A): VA = tabulate(lhs.length)( k => f(lhs(k)) )
 
-  def pointwiseBooleanBinary[B](lhs: Vec[B], rhs: Vec[B])(f: (B, B) => Boolean)(implicit ev: Boolean =:= A): V[A] = {
+  def pointwiseBooleanBinary[B](lhs: Vec[B], rhs: Vec[B])(f: (B, B) => Boolean)(implicit ev: Boolean =:= A): VA = {
     require(lhs.length == rhs.length)
     tabulate(lhs.length)( k => f(lhs(k), rhs(k)) )
   }
@@ -74,28 +74,28 @@ trait VecTrait[A, V[A] <: Vec[A]] {
 
   def eqv(lhs: Vec[A], rhs: Vec[A])(implicit eqv: Eq[A]): Boolean = booleanBinaryAnd(lhs, rhs)(_ === _)
 
-  def pointwiseEqual[B](lhs: Vec[B], rhs: B)(implicit ev: Boolean =:= A): V[A] =
+  def pointwiseEqual[B](lhs: Vec[B], rhs: B)(implicit ev: Boolean =:= A): VA =
     pointwiseBooleanUnary(lhs)(_ == rhs)
 
-  def pointwiseEqual[B](lhs: Vec[B], rhs: Vec[B])(implicit ev: Boolean =:= A): V[A] =
+  def pointwiseEqual[B](lhs: Vec[B], rhs: Vec[B])(implicit ev: Boolean =:= A): VA =
     pointwiseBooleanBinary(lhs, rhs)(_ == _)
 
-  def pointwiseNotEqual[B](lhs: Vec[B], rhs: B)(implicit ev: Boolean =:= A): V[A] =
+  def pointwiseNotEqual[B](lhs: Vec[B], rhs: B)(implicit ev: Boolean =:= A): VA =
     pointwiseBooleanUnary(lhs)(_ != rhs)
 
-  def pointwiseNotEqual[B](lhs: Vec[B], rhs: Vec[B])(implicit ev: Boolean =:= A): V[A] =
+  def pointwiseNotEqual[B](lhs: Vec[B], rhs: Vec[B])(implicit ev: Boolean =:= A): VA =
     pointwiseBooleanBinary(lhs, rhs)(_ != _)
 
-  def pointwiseEqv[B](lhs: Vec[B], rhs: B)(implicit B: Eq[B], ev: Boolean =:= A): V[A] =
+  def pointwiseEqv[B](lhs: Vec[B], rhs: B)(implicit B: Eq[B], ev: Boolean =:= A): VA =
     pointwiseBooleanUnary(lhs)(_ === rhs)
 
-  def pointwiseEqv[B](lhs: Vec[B], rhs: Vec[B])(implicit B: Eq[B], ev: Boolean =:= A): V[A] =
+  def pointwiseEqv[B](lhs: Vec[B], rhs: Vec[B])(implicit B: Eq[B], ev: Boolean =:= A): VA =
     pointwiseBooleanBinary(lhs, rhs)(_ === _)
 
-  def pointwiseNeqv[B](lhs: Vec[B], rhs: B)(implicit B: Eq[B], ev: Boolean =:= A): V[A] =
+  def pointwiseNeqv[B](lhs: Vec[B], rhs: B)(implicit B: Eq[B], ev: Boolean =:= A): VA =
     pointwiseBooleanUnary(lhs)(_ =!= rhs)
 
-  def pointwiseNeqv[B](lhs: Vec[B], rhs: Vec[B])(implicit B: Eq[B], ev: Boolean =:= A): V[A] =
+  def pointwiseNeqv[B](lhs: Vec[B], rhs: Vec[B])(implicit B: Eq[B], ev: Boolean =:= A): VA =
     pointwiseBooleanBinary(lhs, rhs)(_ =!= _)
 
   def hashCode(lhs: Vec[A]): Int = ???

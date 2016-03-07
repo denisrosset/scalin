@@ -3,7 +3,7 @@ package algebra
 
 import spire.algebra._
 
-trait MatMultiplicativeMonoid[A, M[A] <: Mat[A]] extends MatTrait[A, M] {
+trait MatMultiplicativeMonoid[A, MA <: Mat[A]] extends MatTrait[A, MA] {
 
   implicit def scalar: MultiplicativeMonoid[A]
 
@@ -11,15 +11,15 @@ trait MatMultiplicativeMonoid[A, M[A] <: Mat[A]] extends MatTrait[A, M] {
 
   // builder methods
 
-  def ones(rows: Int, cols: Int): M[A] =
+  def ones(rows: Int, cols: Int): MA =
     fill(rows, cols)(scalar.one)
 
-  def times(lhs: A, rhs: Mat[A]): M[A] = pointwiseUnary(rhs)(lhs * _)
+  def times(lhs: A, rhs: Mat[A]): MA = pointwiseUnary(rhs)(lhs * _)
 
-  def times(lhs: Mat[A], rhs: A): M[A] = pointwiseUnary(lhs)(_ * rhs)
+  def times(lhs: Mat[A], rhs: A): MA = pointwiseUnary(lhs)(_ * rhs)
 
-  def pointwiseTimes(lhs: Mat[A], rhs: Mat[A]): M[A] = pointwiseBinary(lhs, rhs)(_ * _)
+  def pointwiseTimes(lhs: Mat[A], rhs: Mat[A]): MA = pointwiseBinary(lhs, rhs)(_ * _)
 
-  def dyad(lhs: Vec[A], rhs: Vec[A]): M[A] = tabulate(lhs.length, rhs.length) { (r, c) => lhs(r) * rhs(c) }
+  def dyad(lhs: Vec[A], rhs: Vec[A]): MA = tabulate(lhs.length, rhs.length) { (r, c) => lhs(r) * rhs(c) }
 
 }

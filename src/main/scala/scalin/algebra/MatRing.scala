@@ -3,7 +3,7 @@ package algebra
 
 import spire.algebra._
 
-trait MatRing[A, M[A] <: Mat[A]] extends MatMultiplicativeMonoid[A, M] {
+trait MatRing[A, MA <: Mat[A]] extends MatMultiplicativeMonoid[A, MA] {
 
   implicit def scalar: Ring[A]
 
@@ -11,27 +11,27 @@ trait MatRing[A, M[A] <: Mat[A]] extends MatMultiplicativeMonoid[A, M] {
 
   // builder methods
 
-  def zeros(rows: Int, cols: Int): M[A] =
+  def zeros(rows: Int, cols: Int): MA =
     fill(rows, cols)(scalar.zero)
 
-  def eye(n: Int): M[A] =
+  def eye(n: Int): MA =
     tabulate(n, n)( (r, c) => if (r == c) scalar.one else scalar.zero )
 
   // additive group methods
 
-  def plus(lhs: Mat[A], rhs: Mat[A]): M[A] = pointwiseBinary(lhs, rhs)(_ + _)
+  def plus(lhs: Mat[A], rhs: Mat[A]): MA = pointwiseBinary(lhs, rhs)(_ + _)
 
-  def negate(lhs: Mat[A]): M[A] = pointwiseUnary(lhs)(-_)
+  def negate(lhs: Mat[A]): MA = pointwiseUnary(lhs)(-_)
 
-  def minus(lhs: Mat[A], rhs: Mat[A]): M[A] = pointwiseBinary(lhs, rhs)(_ - _)
+  def minus(lhs: Mat[A], rhs: Mat[A]): MA = pointwiseBinary(lhs, rhs)(_ - _)
 
-  def pointwisePlus(lhs: Mat[A], rhs: A): M[A] = pointwiseUnary(lhs)(_ + rhs)
+  def pointwisePlus(lhs: Mat[A], rhs: A): MA = pointwiseUnary(lhs)(_ + rhs)
 
-  def pointwiseMinus(lhs: Mat[A], rhs: A): M[A] = pointwiseUnary(lhs)(_ - rhs)
+  def pointwiseMinus(lhs: Mat[A], rhs: A): MA = pointwiseUnary(lhs)(_ - rhs)
 
   // ring methods
 
-  def times(lhs: Mat[A], rhs: Mat[A]): M[A] = {
+  def times(lhs: Mat[A], rhs: Mat[A]): MA = {
     import spire.syntax.cfor._
     val n = lhs.cols
     require(n == rhs.rows)
