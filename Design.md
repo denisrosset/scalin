@@ -63,3 +63,23 @@ The following operations are possible on vectors, without requiring any implicit
   by the syntax helper in `scalin.syntax.assign` to `v.set(ind, el)`. The type of
   `el` can either be a scalar `A` or a vector `scalin.Vec[A]` of compatible size.
 
+To be completed
+
+Where is the code for operation X
+---------------------------------
+
+The location of the code performing an operation depends on the type of the 
+result of the operation:
+
+- if the result is an instance of `Vec[A]`, the code is located in a `VecTrait[A, VA]`/`VecRing[A, VA]` 
+  implicit for some `VA <: Vec[A]`, the exact `VA` type depends on the selected implicit,
+- if the result is an instance of `Mat[A]`, the code is located in a `MatTrait[A, MA]`/`MatRing[A, MA]`
+  implicit for some `MA <: Mat[A]`, the exact `MA` type depends on the selected implicit,
+- if the result is a scalar `A` and the operation involves a single `Vec[A]` or `Mat[A]` instance, the
+  code is located in the method in `Vec[A]` or `Mat[A]`,
+- if the result is a scalar `A` and the operation involves two `Vec[A]`, or two `Mat[A]` instances, a
+  `VecXXX[A, _]` or `MatXXX[A, _]` implicit is used,
+- if the result is a scalar `A` and the operation involves mixed arguments, for example one `Vec[A]` and
+  one `Mat[A]`, the code is located in a `MatXXX[A, _]` implicit (`Mat[A]` is supposedly the
+  most complex object involved, which would benefit most from optimizations).
+
