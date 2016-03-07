@@ -7,9 +7,9 @@ trait Mat[A] extends scalin.Mat[A] { lhs =>
 
 }
 
-object Mat extends MatFactory[Mat, Dummy] {
+object Mat {
 
-  def tabulate[A:Dummy](rows: Int, cols: Int)( f: (Int, Int) => A ): Mat[A] =
+  def tabulate[A](rows: Int, cols: Int)( f: (Int, Int) => A ): Mat[A] =
     DenseMat.tabulate[A](rows, cols)(f)
 
 }

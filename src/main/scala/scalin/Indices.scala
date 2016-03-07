@@ -20,9 +20,37 @@ object Subscript {
 
   implicit def all(arg: ::.type): Subscript = All
 
+  implicit def vecWrap(vec: Vec[Int]): Subscript = new Indices.VecWrap(vec)
+
   implicit def seqWrap(seq: Seq[Int]): Subscript = new Indices.SeqWrap(seq)
 
   implicit def arrayWrap(array: Array[Int]): Subscript = new Indices.ArrayWrap(array)
+
+  implicit def fromMask(mask: Vec[Boolean]): Subscript = {
+    val array = new Array[Int](mask.count)
+    var ak = 0
+    cforRange(0 until mask.length) { mk =>
+      if (mask(mk)) {
+        array(ak) = mk
+        ak += 1
+      }
+    }
+    new Indices.ArrayWrap(array)
+  }
+
+  implicit def fromMask(mask: Mat[Boolean]): Subscript = {
+    val array = new Array[Int](mask.count)
+    var ak = 0
+    cforRange(0 until mask.rows) { rk =>
+      cforRange(0 until mask.cols) { ck =>
+        if (mask(rk, ck)) {
+          array(ak) = rk + ck * mask.rows
+          ak += 1
+        }
+      }
+    }
+    new Indices.ArrayWrap(array)
+  }
 
 }
 
@@ -65,30 +93,12 @@ object Indices {
 
   }
 
-  implicit def fromMask(mask: Vec[Boolean]): Indices = {
-    val array = new Array[Int](mask.count)
-    var ak = 0
-    cforRange(0 until mask.length) { mk =>
-      if (mask(mk)) {
-        array(ak) = mk
-        ak += 1
-      }
-    }
-    new ArrayWrap(array)
-  }
+  final class VecWrap(vec: Vec[Int]) extends Indices {
 
-  implicit def fromMask(mask: Mat[Boolean]): Indices = {
-    val array = new Array[Int](mask.count)
-    var ak = 0
-    cforRange(0 until mask.rows) { rk =>
-      cforRange(0 until mask.cols) { ck =>
-        if (mask(rk, ck)) {
-          array(ak) = rk + ck * mask.rows
-          ak += 1
-        }
-      }
-    }
-    new ArrayWrap(array)
+    override def toString = (0 until vec.length).map(vec(_)).mkString("Indices(", ", ", ")")
+    def length = vec.length
+    def apply(k: Int) = vec(k)
+
   }
 
 }

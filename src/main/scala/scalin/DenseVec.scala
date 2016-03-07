@@ -15,11 +15,11 @@ abstract class DenseVec[A] extends scalin.Vec[A] {
 
 }
 
-abstract class DenseVecFactory[DV[A] <: DenseVec[A]] extends scalin.VecFactory[DV, Dummy] {
+abstract class DenseVecFactory[DV[A] <: DenseVec[A]] {
 
   protected def build[A](data: Array[AnyRef]): DV[A]
 
-  def tabulate[A:Dummy](length: Int)(f: Int => A): DV[A] = {
+  def tabulate[A](length: Int)(f: Int => A): DV[A] = {
     val data = new Array[AnyRef](length)
     cforRange(0 until length) { k =>
       data(k) = f(k).asInstanceOf[AnyRef]

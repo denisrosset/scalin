@@ -12,10 +12,10 @@ trait MatRing[A, M[A] <: Mat[A]] extends MatMultiplicativeMonoid[A, M] {
   // builder methods
 
   def zeros(rows: Int, cols: Int): M[A] =
-    factory.fill(rows, cols)(scalar.zero)
+    fill(rows, cols)(scalar.zero)
 
   def eye(n: Int): M[A] =
-    factory.tabulate(n, n)( (r, c) => if (r == c) scalar.one else scalar.zero )
+    tabulate(n, n)( (r, c) => if (r == c) scalar.one else scalar.zero )
 
   // additive group methods
 
@@ -38,7 +38,7 @@ trait MatRing[A, M[A] <: Mat[A]] extends MatMultiplicativeMonoid[A, M] {
     if (n == 0)
       zeros(lhs.rows, rhs.cols)
     else
-      factory.tabulate(lhs.rows, rhs.cols) { (r, c) =>
+      tabulate(lhs.rows, rhs.cols) { (r, c) =>
         var sum = lhs(r, 0) * rhs(0, c)
         cforRange(1 until lhs.cols) { k =>
           sum += lhs(r, k) * rhs(k, c)

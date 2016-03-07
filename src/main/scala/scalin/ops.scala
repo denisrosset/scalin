@@ -1,44 +1,9 @@
-package scalin
+object ops extends scalin.algebra.ops[scalin.Vec, scalin.Mat] {
 
-import algebra._
-import spire.algebra._
+  def defaultTabulate[A](length: Int)(f: Int => A): scalin.Vec[A] =
+    scalin.Vec.tabulate(length)(f)
 
-// copy/pasted into mutable/ops.scala and immutable/ops.scala
-
-abstract class TraitOps {
-
-  implicit def vecTrait[A]: VecTrait.Aux[A, Vec, Dummy] = new VecTrait[A, Vec] {
-    def scalar = null
-    type Extra[A] = Dummy[A]
-    def extra: Extra[A] = null
-    def factory = Vec
-  }
-
-  implicit def matTrait[A]: MatTrait.Aux[A, Mat, Dummy] = new MatTrait[A, Mat] {
-    def scalar = null
-    type Extra[A] = Dummy[A]
-    def extra: Extra[A] = null
-    def factory = Mat
-  }
+  def defaultTabulate[A](rows: Int, cols: Int)(f: (Int, Int) => A): scalin.Mat[A] =
+    scalin.Mat.tabulate(rows, cols)(f)
 
 }
-
-abstract class RingOps extends TraitOps {
-
-    implicit def vecRing[A](implicit A: Ring[A]): VecRing[A, Vec] = new VecRing[A, Vec] {
-    def scalar = A
-    type Extra[A] = Dummy[A]
-    def extra: Extra[A] = null
-    def factory = Vec
-  }
-
-  implicit def matRing[A](implicit A: Ring[A]): MatRing[A, Mat] = new MatRing[A, Mat] {
-    def scalar = A
-    type Extra[A] = Dummy[A]
-    def extra: Extra[A] = null
-    def factory = Mat
-  }
-
-}
-
-object ops extends RingOps

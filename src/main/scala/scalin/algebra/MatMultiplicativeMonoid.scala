@@ -12,7 +12,7 @@ trait MatMultiplicativeMonoid[A, M[A] <: Mat[A]] extends MatTrait[A, M] {
   // builder methods
 
   def ones(rows: Int, cols: Int): M[A] =
-    factory.fill(rows, cols)(scalar.one)
+    fill(rows, cols)(scalar.one)
 
   def times(lhs: A, rhs: Mat[A]): M[A] = pointwiseUnary(rhs)(lhs * _)
 
@@ -20,6 +20,6 @@ trait MatMultiplicativeMonoid[A, M[A] <: Mat[A]] extends MatTrait[A, M] {
 
   def pointwiseTimes(lhs: Mat[A], rhs: Mat[A]): M[A] = pointwiseBinary(lhs, rhs)(_ * _)
 
-  def dyad(lhs: Vec[A], rhs: Vec[A]): M[A] = factory.tabulate(lhs.length, rhs.length) { (r, c) => lhs(r) * rhs(c) }
+  def dyad(lhs: Vec[A], rhs: Vec[A]): M[A] = tabulate(lhs.length, rhs.length) { (r, c) => lhs(r) * rhs(c) }
 
 }

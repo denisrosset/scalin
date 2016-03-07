@@ -7,9 +7,9 @@ trait Vec[A] extends scalin.Vec[A] { lhs =>
 
 }
 
-object Vec extends VecFactory[immutable.Vec, Dummy] {
+object Vec {
 
-  def tabulate[A:Dummy](length: Int)( f: Int => A ): immutable.Vec[A] =
+  def tabulate[A](length: Int)( f: Int => A ): immutable.Vec[A] =
     immutable.DenseVec.tabulate[A](length)(f)
 
 }

@@ -6,21 +6,21 @@ import algebra._
 
 class PointwiseMat[A](val lhs: Mat[A]) extends AnyVal {
 
-  def ==[M[A] <: Mat[A], Extra[_]](rhs: A)(implicit ev: MatTrait.Aux[A, M, Extra], extra: Extra[Boolean]): M[Boolean] = ev.pointwiseEqual(lhs, rhs)
+  def ==[M[A] <: Mat[A]](rhs: A)(implicit ev: MatTrait[Boolean, M]): M[Boolean] = ev.pointwiseEqual(lhs, rhs)
 
-  def ==[M[A] <: Mat[A], Extra[_]](rhs: Mat[A])(implicit ev: MatTrait.Aux[A, M, Extra], extra: Extra[Boolean]): M[Boolean] = ev.pointwiseEqual(lhs, rhs)
+  def ==[M[A] <: Mat[A]](rhs: Mat[A])(implicit ev: MatTrait[Boolean, M]): M[Boolean] = ev.pointwiseEqual(lhs, rhs)
 
-  def !=[M[A] <: Mat[A], Extra[_]](rhs: A)(implicit ev: MatTrait.Aux[A, M, Extra], extra: Extra[Boolean]): M[Boolean] = ev.pointwiseNotEqual(lhs, rhs)
+  def !=[M[A] <: Mat[A]](rhs: A)(implicit ev: MatTrait[Boolean, M]): M[Boolean] = ev.pointwiseNotEqual(lhs, rhs)
 
-  def !=[M[A] <: Mat[A], Extra[_]](rhs: Mat[A])(implicit ev: MatTrait.Aux[A, M, Extra], extra: Extra[Boolean]): M[Boolean] = ev.pointwiseNotEqual(lhs, rhs)
+  def !=[M[A] <: Mat[A]](rhs: Mat[A])(implicit ev: MatTrait[Boolean, M]): M[Boolean] = ev.pointwiseNotEqual(lhs, rhs)
 
-  def ===[M[A] <: Mat[A], Extra[_]](rhs: A)(implicit A: Eq[A], ev: MatTrait.Aux[A, M, Extra], extra: Extra[Boolean]): M[Boolean] = ev.pointwiseEqv(lhs, rhs)
+  def ===[M[A] <: Mat[A]](rhs: A)(implicit A: Eq[A], ev: MatTrait[Boolean, M]): M[Boolean] = ev.pointwiseEqv(lhs, rhs)
 
-  def ===[M[A] <: Mat[A], Extra[_]](rhs: Mat[A])(implicit A: Eq[A], ev: MatTrait.Aux[A, M, Extra], extra: Extra[Boolean]): M[Boolean] = ev.pointwiseEqv(lhs, rhs)
+  def ===[M[A] <: Mat[A]](rhs: Mat[A])(implicit A: Eq[A], ev: MatTrait[Boolean, M]): M[Boolean] = ev.pointwiseEqv(lhs, rhs)
 
-  def =!=[M[A] <: Mat[A], Extra[_]](rhs: A)(implicit A: Eq[A], ev: MatTrait.Aux[A, M, Extra], extra: Extra[Boolean]): M[Boolean] = ev.pointwiseNeqv(lhs, rhs)
+  def =!=[M[A] <: Mat[A]](rhs: A)(implicit A: Eq[A], ev: MatTrait[Boolean, M]): M[Boolean] = ev.pointwiseNeqv(lhs, rhs)
 
-  def =!=[M[A] <: Mat[A], Extra[_]](rhs: Mat[A])(implicit A: Eq[A], ev: MatTrait.Aux[A, M, Extra], extra: Extra[Boolean]): M[Boolean] = ev.pointwiseNeqv(lhs, rhs)
+  def =!=[M[A] <: Mat[A]](rhs: Mat[A])(implicit A: Eq[A], ev: MatTrait[Boolean, M]): M[Boolean] = ev.pointwiseNeqv(lhs, rhs)
 
   def +[M[A] <: Mat[A]](rhs: A)(implicit ev: MatRing[A, M]): M[A] = ev.pointwisePlus(lhs, rhs)
 
@@ -76,6 +76,10 @@ trait Mat[A] { lhs =>
   def apply[V[A] <: Vec[A]](sub: Subscript)(implicit ev: VecTrait[A, V]): V[A] =
     ev.slice(lhs, sub)
 
+  // shuffle
+
+  def t[M[A] <: Mat[A]](implicit ev: MatTrait[A, M]): M[A] = ev.t(lhs)
+
   def pointwise: PointwiseMat[A] = new PointwiseMat[A](lhs)
 
   def +[M[A] <: Mat[A]](rhs: Mat[A])(implicit ev: MatRing[A, M]): M[A] = ev.plus(lhs, rhs)
@@ -86,6 +90,12 @@ trait Mat[A] { lhs =>
 
   def *[M[A] <: Mat[A]](rhs: Mat[A])(implicit ev: MatRing[A, M]): M[A] = ev.times(lhs, rhs)
 
+  // matrix-vector product
+
+  def *[V[A] <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, V]): V[A] = ev.times(lhs, rhs)
+
+  // product by scalar
+
   def *[M[A] <: Mat[A]](rhs: A)(implicit ev: MatRing[A, M]): M[A] = ev.times(lhs, rhs)
 
   def *:[M[A] <: Mat[A]](realLhs: A)(implicit ev: MatRing[A, M]): M[A] = ev.times(realLhs, lhs)
@@ -95,9 +105,9 @@ trait Mat[A] { lhs =>
 
 }
 
-object Mat extends MatFactory[Mat, Dummy] {
+object Mat {
 
-  def tabulate[A:Dummy](rows: Int, cols: Int)( f: (Int, Int) => A ): Mat[A] =
+  def tabulate[A](rows: Int, cols: Int)(f: (Int, Int) => A): Mat[A] =
     immutable.DenseMat.tabulate[A](rows, cols)(f)
 
 }

@@ -7,19 +7,17 @@ import spire.syntax.cfor._
 
 trait VecTrait[A, V[A] <: Vec[A]] {
 
-  def scalar: Any
-
-  type Extra[_]
-  implicit def extra: Extra[A]
-  def factory: VecFactory[V, Extra]
-
   // creation
 
-  def tabulate(length: Int)(f: Int => A): V[A] = factory.tabulate[A](length)(f)
+  def tabulate(length: Int)(f: Int => A): V[A] // = factory.tabulate[A](length)(f)
 
   def fill(length: Int)(a: => A): V[A] = tabulate(length)( k => a )
 
   def fromSeq(elements: Seq[A]): V[A] = tabulate(elements.size)( elements(_) )
+
+  // shufflers
+
+  // TODO: permute, ipermute
 
   // slices
 
@@ -101,11 +99,5 @@ trait VecTrait[A, V[A] <: Vec[A]] {
     pointwiseBooleanBinary(lhs, rhs)(_ =!= _)
 
   def hashCode(lhs: Vec[A]): Int = ???
-
-}
-
-object VecTrait {
-
-  type Aux[A, V[A] <: Vec[A], Extra0[_]] = VecTrait[A, V] { type Extra[A] = Extra0[A] }
 
 }

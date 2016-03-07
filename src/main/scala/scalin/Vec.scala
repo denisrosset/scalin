@@ -1,6 +1,8 @@
 package scalin
 
 import spire.algebra._
+import spire.syntax.ring._
+import spire.syntax.cfor._
 
 import algebra._
 
@@ -37,6 +39,8 @@ trait Vec[A] { lhs =>
 
   override def toString: String = Printer.vec(Vec.this)
 
+  def pointwise: PointwiseVec[A] = new PointwiseVec[A](lhs)
+
   def count(implicit ev: A =:= Boolean): Int = {
     import spire.syntax.cfor._
     var sum = 0
@@ -44,16 +48,37 @@ trait Vec[A] { lhs =>
     sum
   }
 
+  def product(implicit A: MultiplicativeMonoid[A]): A =
+    if (length == 0) A.one else {
+      var p = apply(0)
+      cforRange(1 until length) { k => p *= apply(k) }
+      p
+    }
+
+  def sum(implicit A: AdditiveMonoid[A]): A =
+    if (length == 0) A.zero else {
+      var s = apply(0)
+      cforRange(1 until length) { k => s += apply(k) }
+      s
+    }
+
   def copyIfOverlap(obj: AnyRef): Vec[A]
 
   def length: Int
 
   def apply(k: Int): A
 
+  // slices
+
   def apply[V[A] <: Vec[A]](sub: Subscript)(implicit ev: VecTrait[A, V]): V[A] =
     ev.slice(lhs, sub)
 
-  def pointwise: PointwiseVec[A] = new PointwiseVec[A](lhs)
+  // shuffle
+
+  def reshape[M[A] <: Mat[A]](rows: Int, cols: Int)(implicit ev: MatTrait[A, M]): M[A] =
+    ev.reshape(lhs, rows, cols)
+
+  // additive group
 
   def +[V[A] <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, V]): V[A] = ev.plus(lhs, rhs)
 
@@ -66,6 +91,10 @@ trait Vec[A] { lhs =>
   def *[V[A] <: Vec[A]](rhs: A)(implicit ev: VecRing[A, V]): V[A] = ev.times(lhs, rhs)
 
   def *:[V[A] <: Vec[A]](realLhs: A)(implicit ev: VecRing[A, V]): V[A] = ev.times(realLhs, lhs)
+
+  // vector-matrix product
+
+  def *[V[A] <: Vec[A]](rhs: Mat[A])(implicit ev: VecRing[A, V]): V[A] = ev.times(lhs, rhs)
 
   // multiplication by vector (dot product)
 
@@ -81,10 +110,8 @@ trait Vec[A] { lhs =>
 
 }
 
-object Vec extends VecFactory[Vec, Dummy] {
+object Vec {
 
-  def fill(length: Int)(a: => A)
-  def tabulate[A:Dummy](length: Int)( f: Int => A ): Vec[A] =
-    immutable.DenseVec.tabulate[A](length)(f)
+  def tabulate[A](length: Int)(f: Int => A): Vec[A] = immutable.DenseVec.tabulate[A](length)(f)
 
 }
