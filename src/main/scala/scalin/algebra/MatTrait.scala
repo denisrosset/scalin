@@ -98,6 +98,7 @@ trait MatTrait[A, MA <: Mat[A]] {
 
   // equality functions
 
+    // TODO: remove, and keep only the `equals` default Java method ?
   def equal(lhs: Mat[A], rhs: Mat[A]): Boolean = booleanBinaryAnd(lhs, rhs)(_ == _)
 
   def eqv(lhs: Mat[A], rhs: Mat[A])(implicit eqv: Eq[A]): Boolean = booleanBinaryAnd(lhs, rhs)(_ === _)

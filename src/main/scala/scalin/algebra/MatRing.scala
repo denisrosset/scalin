@@ -3,6 +3,8 @@ package algebra
 
 import spire.algebra._
 
+import spire.syntax.cfor._
+
 trait MatRing[A, MA <: Mat[A]] extends MatMultiplicativeMonoid[A, MA] {
 
   implicit def scalar: Ring[A]
@@ -45,6 +47,33 @@ trait MatRing[A, MA <: Mat[A]] extends MatMultiplicativeMonoid[A, MA] {
         }
         sum
       }
+  }
+
+  def frobenius(lhs: Mat[A], rhs: Mat[A]): A = {
+    val nr = lhs.rows
+    require(nr == rhs.rows)
+    val nc = lhs.cols
+    require(nc == rhs.cols)
+    import spire.syntax.cfor._
+    var sum = scalar.zero
+    cforRange(0 until nr) { r =>
+      cforRange(0 until nc) { c =>
+        sum += lhs(r, c) * rhs(r, c)
+      }
+    }
+    sum
+  }
+
+  def trace(lhs: Mat[A]): A = {
+    val n = lhs.rows
+    require(n == lhs.cols)
+    if (n == 0) scalar.zero else {
+      var sum = lhs(0, 0)
+      cforRange(1 until n) { k =>
+        sum += lhs(k, k)
+      }
+      sum
+    }
   }
 
 }

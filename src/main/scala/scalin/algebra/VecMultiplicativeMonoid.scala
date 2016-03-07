@@ -20,4 +20,11 @@ trait VecMultiplicativeMonoid[A, VA <: Vec[A]] extends VecTrait[A, VA] {
 
   def pointwiseTimes(lhs: Vec[A], rhs: Vec[A]): VA = pointwiseBinary(lhs, rhs)(_ * _)
 
+  def kron(lhs: Vec[A], rhs: Vec[A]): VA =
+    tabulate(lhs.length * rhs.length) { i =>
+      val ri = i % rhs.length
+      val li = i / rhs.length
+      lhs(li) * rhs(ri)
+    }
+
 }

@@ -1,8 +1,8 @@
 package scalin
 
 import spire.algebra._
-import spire.syntax.ring._
 import spire.syntax.cfor._
+import spire.syntax.ring._
 
 import algebra._
 
@@ -46,6 +46,16 @@ class PointwiseVec[A](val lhs: Vec[A]) extends AnyVal {
 trait Vec[A] { lhs =>
 
   override def toString: String = Printer.vec(Vec.this)
+
+  override def equals(any: Any): Boolean = any match {
+    case rhs: Vec[_] => (lhs.length == rhs.length) && {
+      cforRange(0 until lhs.length) { k =>
+        if (lhs(k) != rhs(k)) return false
+      }
+      true
+    }
+    case _ => false
+  }
 
   def pointwise: PointwiseVec[A] = new PointwiseVec[A](lhs)
 
@@ -104,6 +114,10 @@ trait Vec[A] { lhs =>
 
   def *[VA <: Vec[A]](rhs: Mat[A])(implicit ev: VecRing[A, VA]): VA = ev.times(lhs, rhs)
 
+  // kronecker product
+
+  def kron[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecMultiplicativeMonoid[A, VA]): VA = ev.kron(lhs, rhs)
+
   // multiplication by vector (dot product)
 
   def dot[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, VA]): A = ev.dot(lhs, rhs)
@@ -116,10 +130,48 @@ trait Vec[A] { lhs =>
   // TODO: make a proper type class
   def /[VA <: Vec[A]](rhs: A)(implicit ev: VecRing[A, VA], field: Field[A]): VA = ev.times(lhs, field.reciprocal(rhs))
 
+  /** Flatten the vector. */
+  def flatten[AA](implicit U: Vec.Unpack.AuxA[A, AA], ev: VecTrait[AA, _ <: Vec[AA]]): Vec[AA] = { // TODO: enhance return type
+    import U.proof
+    ev.flatten[U.V[U.A]](lhs)
+  }
+
+  /** Maps the values of the elements. */
+  def map[B, VB <: Vec[B]](f: A => B)(implicit ev: VecTrait[B, VB]): VB =
+    ev.map[A](lhs)(f)
+
+  /** scala.collection-like flatMap. */
+  def flatMap[B, VB <: Vec[B]](f: A => Vec[B])(implicit ev: VecTrait[B, VB]): VB = 
+    ev.flatMap[A](lhs)(f)
+
 }
 
 object Vec {
 
   def tabulate[A](length: Int)(f: Int => A): Vec[A] = immutable.DenseVec.tabulate[A](length)(f)
 
+  trait Unpack[VA] {
+    type V[A] <: Vec[A]
+    type A
+    implicit def proof: Vec[VA] =:= Vec[V[A]]
+  }
+
+
+  object Unpack {
+    type AuxA[VA, A0] = Unpack[VA] { type A = A0 }
+    def apply[VA](implicit U: Unpack[VA]): U.type {
+      type V[A] = U.V[A]
+      type A = U.A
+    } = U
+    implicit def unpack[V0[X] <: Vec[X], A0]: Unpack[V0[A0]] {
+      type V[X] = V0[X]
+      type A = A0
+    } = new Unpack[V0[A0]] {
+      type V[X] = V0[X]
+      type A = A0
+      def proof = implicitly
+    }
+  }
+
 }
+

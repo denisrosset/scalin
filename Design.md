@@ -76,7 +76,7 @@ result of the operation:
 - if the result is an instance of `Mat[A]`, the code is located in a `MatTrait[A, MA]`/`MatRing[A, MA]`
   implicit for some `MA <: Mat[A]`, the exact `MA` type depends on the selected implicit,
 - if the result is a scalar `A` and the operation involves a single `Vec[A]` or `Mat[A]` instance, the
-  code is located in the method in `Vec[A]` or `Mat[A]`,
+  code is located in the method in an implicit `VecXXX[A, _]` or `MatXXX[A, _]`,
 - if the result is a scalar `A` and the operation involves two `Vec[A]`, or two `Mat[A]` instances, a
   `VecXXX[A, _]` or `MatXXX[A, _]` implicit is used,
 - if the result is a scalar `A` and the operation involves mixed arguments, for example one `Vec[A]` and

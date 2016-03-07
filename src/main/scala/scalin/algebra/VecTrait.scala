@@ -9,6 +9,8 @@ trait VecTrait[A, VA <: Vec[A]] {
 
   // creation
 
+  def empty: VA = tabulate(0)(sys.error("Cannot be called"))
+
   def tabulate(length: Int)(f: Int => A): VA // = factory.tabulate[A](length)(f)
 
   def fill(length: Int)(a: => A): VA = tabulate(length)( k => a )
@@ -18,6 +20,42 @@ trait VecTrait[A, VA <: Vec[A]] {
   // shufflers
 
   // TODO: permute, ipermute
+
+  // monadic-like
+
+  def map[B](lhs: Vec[B])(f: B => A): VA = tabulate(lhs.length)( k => f(lhs(k)) )
+
+  def flatMap[B](lhs: Vec[B])(f: B => Vec[A]): VA =
+    if (lhs.length == 0) empty
+    else if (lhs.length == 1) map[A](f(lhs(0)))(identity)
+    else {
+      var acc: VA = cat(f(lhs(0)), f(lhs(1)))
+      cforRange(2 until lhs.length) { k =>
+        acc = cat(acc, f(lhs(k)))
+      }
+      acc
+    }
+
+  def cat[L <: Vec[A], R <: Vec[A]](lhs: L, rhs: R): VA = {
+    val vl = lhs: Vec[A]
+    val vr = rhs: Vec[A]
+    val nl = vl.length
+    val nr = vr.length
+    tabulate(nl + nr)( k => if (k < nl) vl(k) else vr(k - nl) )
+  }
+
+  // TODO: accelerate in subclasses, or find some other construction method like tabulate
+  // that works well
+  def flatten[B <: Vec[A]](lhs: Vec[B]): VA =
+    if (lhs.length == 0) empty
+    else if (lhs.length == 1) map[A](lhs(0))(identity)
+    else {
+      var acc = cat(lhs(0), lhs(1))
+      cforRange(2 until lhs.length) { k =>
+        acc = cat(acc, lhs(k))
+      }
+      acc
+    }
 
   // slices
 
@@ -70,6 +108,7 @@ trait VecTrait[A, VA <: Vec[A]] {
     tabulate(lhs.length)( k => f(lhs(k), rhs(k)) )
   }
 
+  // TODO: remove, and keep only the `equals` default Java method ?
   def equal(lhs: Vec[A], rhs: Vec[A]): Boolean = booleanBinaryAnd(lhs, rhs)(_ == _)
 
   def eqv(lhs: Vec[A], rhs: Vec[A])(implicit eqv: Eq[A]): Boolean = booleanBinaryAnd(lhs, rhs)(_ === _)
