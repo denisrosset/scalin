@@ -6,21 +6,21 @@ import algebra._
 
 class PointwiseVec[A](val lhs: Vec[A]) extends AnyVal {
 
-  def ==[V[A] <: Vec[A], Extra[_]](rhs: A)(implicit ev: VecTrait.Aux[A, V, Extra], extra: Extra[Boolean]): V[Boolean] = ev.pointwiseEqual(lhs, rhs)
+  def ==[V[A] <: Vec[A]](rhs: A)(implicit ev: VecTrait[Boolean, V]): V[Boolean] = ev.pointwiseEqual(lhs, rhs)
 
-  def ==[V[A] <: Vec[A], Extra[_]](rhs: Vec[A])(implicit ev: VecTrait.Aux[A, V, Extra], extra: Extra[Boolean]): V[Boolean] = ev.pointwiseEqual(lhs, rhs)
+  def ==[V[A] <: Vec[A]](rhs: Vec[A])(implicit ev: VecTrait[Boolean, V]): V[Boolean] = ev.pointwiseEqual(lhs, rhs)
 
-  def !=[V[A] <: Vec[A], Extra[_]](rhs: A)(implicit ev: VecTrait.Aux[A, V, Extra], extra: Extra[Boolean]): V[Boolean] = ev.pointwiseNotEqual(lhs, rhs)
+  def !=[V[A] <: Vec[A]](rhs: A)(implicit ev: VecTrait[Boolean, V]): V[Boolean] = ev.pointwiseNotEqual(lhs, rhs)
 
-  def !=[V[A] <: Vec[A], Extra[_]](rhs: Vec[A])(implicit ev: VecTrait.Aux[A, V, Extra], extra: Extra[Boolean]): V[Boolean] = ev.pointwiseNotEqual(lhs, rhs)
+  def !=[V[A] <: Vec[A]](rhs: Vec[A])(implicit ev: VecTrait[Boolean, V]): V[Boolean] = ev.pointwiseNotEqual(lhs, rhs)
 
-  def ===[V[A] <: Vec[A], Extra[_]](rhs: A)(implicit A: Eq[A], ev: VecTrait.Aux[A, V, Extra], extra: Extra[Boolean]): V[Boolean] = ev.pointwiseEqv(lhs, rhs)
+  def ===[V[A] <: Vec[A]](rhs: A)(implicit A: Eq[A], ev: VecTrait[Boolean, V]): V[Boolean] = ev.pointwiseEqv(lhs, rhs)
 
-  def ===[V[A] <: Vec[A], Extra[_]](rhs: Vec[A])(implicit A: Eq[A], ev: VecTrait.Aux[A, V, Extra], extra: Extra[Boolean]): V[Boolean] = ev.pointwiseEqv(lhs, rhs)
+  def ===[V[A] <: Vec[A]](rhs: Vec[A])(implicit A: Eq[A], ev: VecTrait[Boolean, V]): V[Boolean] = ev.pointwiseEqv(lhs, rhs)
 
-  def =!=[V[A] <: Vec[A], Extra[_]](rhs: A)(implicit A: Eq[A], ev: VecTrait.Aux[A, V, Extra], extra: Extra[Boolean]): V[Boolean] = ev.pointwiseNeqv(lhs, rhs)
+  def =!=[V[A] <: Vec[A]](rhs: A)(implicit A: Eq[A], ev: VecTrait[Boolean, V]): V[Boolean] = ev.pointwiseNeqv(lhs, rhs)
 
-  def =!=[V[A] <: Vec[A], Extra[_]](rhs: Vec[A])(implicit A: Eq[A], ev: VecTrait.Aux[A, V, Extra], extra: Extra[Boolean]): V[Boolean] = ev.pointwiseNeqv(lhs, rhs)
+  def =!=[V[A] <: Vec[A]](rhs: Vec[A])(implicit A: Eq[A], ev: VecTrait[Boolean, V]): V[Boolean] = ev.pointwiseNeqv(lhs, rhs)
 
   def +[V[A] <: Vec[A]](rhs: A)(implicit ev: VecRing[A, V]): V[A] = ev.pointwisePlus(lhs, rhs)
 
@@ -83,6 +83,7 @@ trait Vec[A] { lhs =>
 
 object Vec extends VecFactory[Vec, Dummy] {
 
+  def fill(length: Int)(a: => A)
   def tabulate[A:Dummy](length: Int)( f: Int => A ): Vec[A] =
     immutable.DenseVec.tabulate[A](length)(f)
 

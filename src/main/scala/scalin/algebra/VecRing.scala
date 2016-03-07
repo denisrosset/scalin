@@ -12,7 +12,7 @@ trait VecRing[A, V[A] <: Vec[A]] extends VecMultiplicativeMonoid[A, V] {
   // builder methods
 
   def zeros(length: Int): V[A] =
-    factory.fill(length)(scalar.zero)
+    fill(length)(scalar.zero)
 
   // additive group methods
   
@@ -35,7 +35,7 @@ trait VecRing[A, V[A] <: Vec[A]] extends VecMultiplicativeMonoid[A, V] {
     if (n == 0)
       zeros(rhs.cols)
     else 
-      factory.tabulate(rhs.cols) { c =>
+      tabulate(rhs.cols) { c =>
         var sum = lhs(0) * rhs(0, c)
         cforRange(1 until n) { r =>
           sum += lhs(r) * rhs(r, c)
@@ -51,7 +51,7 @@ trait VecRing[A, V[A] <: Vec[A]] extends VecMultiplicativeMonoid[A, V] {
     if (n == 0)
       zeros(lhs.rows)
     else
-      factory.tabulate(lhs.rows) { r =>
+      tabulate(lhs.rows) { r =>
         var sum = lhs(r, 0) * rhs(0)
         cforRange(1 until n) { c =>
           sum += lhs(r, c) * rhs(c)

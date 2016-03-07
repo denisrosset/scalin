@@ -90,8 +90,7 @@ trait Mat[A] { lhs =>
 
   def *:[M[A] <: Mat[A]](realLhs: A)(implicit ev: MatRing[A, M]): M[A] = ev.times(realLhs, lhs)
 
-  // we do not use a MatField type class, rather we multiply by the inverse, which is probably faster
-  // TODO: make a proper type class
+  // we do not use a MatField type class, rather we multiply by the inverse, which is probably faster anyway
   def /[M[A] <: Mat[A]](rhs: A)(implicit ev: MatRing[A, M], field: Field[A]): M[A] = ev.times(lhs, field.reciprocal(rhs))
 
 }

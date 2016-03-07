@@ -12,7 +12,7 @@ trait VecMultiplicativeMonoid[A, V[A] <: Vec[A]] extends VecTrait[A, V] {
   // builder methods
 
   def ones(length: Int): V[A] =
-    factory.fill(length)(scalar.one)
+    fill(length)(scalar.one)
 
   def times(lhs: A, rhs: Vec[A]): V[A] = pointwiseUnary(rhs)(lhs * _)
 
