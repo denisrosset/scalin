@@ -170,11 +170,49 @@ trait Mat[A] { lhs =>
     */
   def /[MA <: Mat[A]](rhs: A)(implicit ev: MatRing[A, MA], field: Field[A]): MA = ev.times(lhs, field.reciprocal(rhs))
 
+  /** Flatten the matrix. */
+  def flatten[AA](implicit U: Mat.Unpack.AuxA[A, AA], ev: MatTrait[AA, MAA] forSome { type MAA <: Mat[AA] }): ev.Ret = {
+    import U.proof
+    // type MAA has been lost, however, if we make MAA a type parameter of flatten, the implicit search fails,
+    // probably because we look twice for an instance of Mat[_]
+    // this hack recovers the correct return type
+    // same hack used in Vec
+    ev.flatten[U.M[U.A]](lhs).asInstanceOf[ev.Ret]
+  }
+
+  /** Maps the values of the elements. */
+  def map[B, MB <: Mat[B]](f: A => B)(implicit ev: MatTrait[B, MB]): MB =
+    ev.map[A](lhs)(f)
+
+  /** scala.collection-like flatMap. */
+  def flatMap[B, MB <: Mat[B]](f: A => Mat[B])(implicit ev: MatTrait[B, MB]): MB =
+    ev.flatMap[A](lhs)(f)
+
+
 }
 
 object Mat {
 
-  def tabulate[A](rows: Int, cols: Int)(f: (Int, Int) => A): Mat[A] =
-    immutable.DenseMat.tabulate[A](rows, cols)(f)
+  trait Unpack[MA] {
+    type M[A] <: Mat[A]
+    type A
+    implicit def proof: Mat[MA] =:= Mat[M[A]]
+  }
+
+  object Unpack {
+    type AuxA[MA, A0] = Unpack[MA] { type A = A0 }
+    def apply[MA](implicit U: Unpack[MA]): U.type {
+      type M[A] = U.M[A]
+      type A = U.A
+    } = U
+    implicit def unpack[M0[X] <: Mat[X], A0]: Unpack[M0[A0]] {
+      type M[X] = M0[X]
+      type A = A0
+    } = new Unpack[M0[A0]] {
+      type M[X] = M0[X]
+      type A = A0
+      def proof = implicitly
+    }
+  }
 
 }

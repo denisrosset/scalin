@@ -28,9 +28,3 @@ trait Vec[A] extends scalin.Vec[A] { lhs =>
 
 }
 
-object Vec {
-
-  def tabulate[A](length: Int)( f: Int => A ): Vec[A] =
-    DenseVec.tabulate[A](length)(f)
-
-}

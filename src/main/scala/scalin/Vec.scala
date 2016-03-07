@@ -131,9 +131,13 @@ trait Vec[A] { lhs =>
   def /[VA <: Vec[A]](rhs: A)(implicit ev: VecRing[A, VA], field: Field[A]): VA = ev.times(lhs, field.reciprocal(rhs))
 
   /** Flatten the vector. */
-  def flatten[AA](implicit U: Vec.Unpack.AuxA[A, AA], ev: VecTrait[AA, _ <: Vec[AA]]): Vec[AA] = { // TODO: enhance return type
+  def flatten[AA](implicit U: Vec.Unpack.AuxA[A, AA], ev: VecTrait[AA, VAA] forSome { type VAA <: Vec[AA] }): ev.Ret = {
     import U.proof
-    ev.flatten[U.V[U.A]](lhs)
+    // type VAA has been lost, however, if we make VAA a type parameter of flatten, the implicit search fails,
+    // probably because we look twice for an instance of Vec[_]
+    // this hack recovers the correct return type
+    // same hack used in Mat
+    ev.flatten[U.V[U.A]](lhs).asInstanceOf[ev.Ret]
   }
 
   /** Maps the values of the elements. */
@@ -148,14 +152,11 @@ trait Vec[A] { lhs =>
 
 object Vec {
 
-  def tabulate[A](length: Int)(f: Int => A): Vec[A] = immutable.DenseVec.tabulate[A](length)(f)
-
   trait Unpack[VA] {
     type V[A] <: Vec[A]
     type A
     implicit def proof: Vec[VA] =:= Vec[V[A]]
   }
-
 
   object Unpack {
     type AuxA[VA, A0] = Unpack[VA] { type A = A0 }

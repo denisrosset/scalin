@@ -7,6 +7,8 @@ import spire.syntax.cfor._
 
 trait MatTrait[A, MA <: Mat[A]] {
 
+  type Ret = MA
+
   // builders
 
   def tabulate(rows: Int, cols: Int)(f: (Int, Int) => A): MA // TODO = factory.tabulate[A](rows, cols)(f)
@@ -26,6 +28,73 @@ trait MatTrait[A, MA <: Mat[A]] {
   def rowMat(elements: A*): MA = rowMajor(1, elements.size)(elements: _*)
 
   def colMat(elements: A*): MA = colMajor(elements.size, 1)(elements: _*)
+
+  // monadic-like
+
+  def map[B](lhs: Mat[B])(f: B => A): MA = tabulate(lhs.rows, lhs.cols)( (r, c) => f(lhs(r, c)) )
+
+
+  def horzcat[L <: Mat[A], R <: Mat[A]](lhs: L, rhs: R): MA = {
+    val m = lhs.rows
+    require(m == rhs.rows)
+    val nl = lhs.cols
+    val nr = rhs.cols
+    tabulate(m, nl + nr)( (r, c) => if (c < nl) lhs(r, c) else rhs(r, c - nl) )
+  }
+
+  def vertcat[L <: Mat[A], R <: Mat[A]](lhs: L, rhs: R): MA = {
+    val n = lhs.cols
+    require(n == rhs.cols)
+    val ml = lhs.rows
+    val mr = rhs.rows
+    tabulate(ml + mr, n)( (r, c) => if (r < ml) lhs(r, c) else rhs(r - ml, c) )
+  }
+
+  def flatten[B <: Mat[A]](lhs: Mat[B]): MA =
+    if (lhs.rows == 0 || lhs.cols == 0) sys.error("Cannot flatten matrix with 0 rows or zero cols.")
+    else {
+      def flatRow(r: Int): MA = {
+        if (lhs.cols == 1) map(lhs(r, 0))(identity)
+        else {
+          var accRow = horzcat(lhs(r, 0), lhs(r, 1))
+          cforRange(2 until lhs.cols) { c =>
+            accRow = horzcat(accRow, lhs(r, c))
+          }
+          accRow
+        }
+      }
+      if (lhs.rows == 1) flatRow(0)
+      else {
+        var acc = vertcat(flatRow(0), flatRow(1))
+        cforRange(2 until lhs.rows) { r =>
+          acc = vertcat(acc, flatRow(r))
+        }
+        acc
+      }
+    }
+
+  def flatMap[B](lhs: Mat[B])(f: B => Mat[A]): MA =
+    if (lhs.rows == 0 || lhs.cols == 0) sys.error("Cannot flatten matrix with 0 rows or zero cols.")
+    else {
+      def flatRow(r: Int): MA = {
+        if (lhs.cols == 1) map(f(lhs(r, 0)))(identity)
+        else {
+          var accRow = horzcat(f(lhs(r, 0)), f(lhs(r, 1)))
+          cforRange(2 until lhs.cols) { c =>
+            accRow = horzcat(accRow, f(lhs(r, c)))
+          }
+          accRow
+        }
+      }
+      if (lhs.rows == 1) flatRow(0)
+      else {
+        var acc = vertcat(flatRow(0), flatRow(1))
+        cforRange(2 until lhs.rows) { r =>
+          acc = vertcat(acc, flatRow(r))
+        }
+        acc
+      }
+    }
 
   // shufflers
 

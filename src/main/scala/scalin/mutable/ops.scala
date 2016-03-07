@@ -7,9 +7,9 @@ object ops extends scalin.algebra.ops[mutable.Vec, mutable.Mat] {
   import spire.algebra._
 
   def defaultTabulate[A](length: Int)(f: Int => A): mutable.Vec[A] =
-    mutable.Vec.tabulate(length)(f)
+    mutable.DenseVec.tabulate(length)(f)
 
   def defaultTabulate[A](rows: Int, cols: Int)(f: (Int, Int) => A): mutable.Mat[A] =
-    mutable.Mat.tabulate(rows, cols)(f)
+    mutable.DenseMat.tabulate(rows, cols)(f)
 
 }

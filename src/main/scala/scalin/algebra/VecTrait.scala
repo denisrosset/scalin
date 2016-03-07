@@ -7,6 +7,8 @@ import spire.syntax.cfor._
 
 trait VecTrait[A, VA <: Vec[A]] {
 
+  type Ret = VA
+
   // creation
 
   def empty: VA = tabulate(0)(sys.error("Cannot be called"))
@@ -25,6 +27,12 @@ trait VecTrait[A, VA <: Vec[A]] {
 
   def map[B](lhs: Vec[B])(f: B => A): VA = tabulate(lhs.length)( k => f(lhs(k)) )
 
+  def cat[L <: Vec[A], R <: Vec[A]](lhs: L, rhs: R): VA = {
+    val nl = lhs.length
+    val nr = rhs.length
+    tabulate(nl + nr)( k => if (k < nl) lhs(k) else rhs(k - nl) )
+  }
+
   def flatMap[B](lhs: Vec[B])(f: B => Vec[A]): VA =
     if (lhs.length == 0) empty
     else if (lhs.length == 1) map[A](f(lhs(0)))(identity)
@@ -35,14 +43,6 @@ trait VecTrait[A, VA <: Vec[A]] {
       }
       acc
     }
-
-  def cat[L <: Vec[A], R <: Vec[A]](lhs: L, rhs: R): VA = {
-    val vl = lhs: Vec[A]
-    val vr = rhs: Vec[A]
-    val nl = vl.length
-    val nr = vr.length
-    tabulate(nl + nr)( k => if (k < nl) vl(k) else vr(k - nl) )
-  }
 
   // TODO: accelerate in subclasses, or find some other construction method like tabulate
   // that works well
