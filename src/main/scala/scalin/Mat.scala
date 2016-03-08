@@ -188,7 +188,6 @@ trait Mat[A] { lhs =>
   def flatMap[B, MB <: Mat[B]](f: A => Mat[B])(implicit ev: MatTrait[B, MB]): MB =
     ev.flatMap[A](lhs)(f)
 
-
 }
 
 object Mat {
