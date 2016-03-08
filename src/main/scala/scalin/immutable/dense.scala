@@ -1,10 +1,7 @@
 package scalin
 package immutable
 
-object ops extends scalin.algebra.ops[immutable.Vec, immutable.Mat] {
-
-  import algebra._
-  import spire.algebra._
+trait DenseOps extends scalin.algebra.ops[immutable.Vec, immutable.Mat] {
 
   def defaultTabulate[A](length: Int)(f: Int => A): immutable.Vec[A] =
     immutable.DenseVec.tabulate(length)(f)
@@ -13,3 +10,5 @@ object ops extends scalin.algebra.ops[immutable.Vec, immutable.Mat] {
     immutable.DenseMat.tabulate(rows, cols)(f)
 
 }
+
+object dense extends DenseOps

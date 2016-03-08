@@ -1,6 +1,6 @@
 package scalin
 
-object ops extends algebra.ops[scalin.Vec, scalin.Mat] {
+trait DenseOps extends algebra.ops[scalin.Vec, scalin.Mat] {
 
   def defaultTabulate[A](length: Int)(f: Int => A): scalin.Vec[A] =
     scalin.immutable.DenseVec.tabulate[A](length)(f)
@@ -9,3 +9,5 @@ object ops extends algebra.ops[scalin.Vec, scalin.Mat] {
     scalin.immutable.DenseMat.tabulate[A](rows, cols)(f)
 
 }
+
+object dense extends DenseOps
