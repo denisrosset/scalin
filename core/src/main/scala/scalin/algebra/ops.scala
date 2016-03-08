@@ -11,7 +11,7 @@ abstract class ops0[V[A] <: Vec[A], M[A] <: Mat[A]] {
 
   def defaultTabulate[A](rows: Int, cols: Int)(f: (Int, Int) => A): M[A]
 
-  implicit def vecFactory[A]: VecFactory[A, V[A]] = new VecFactory[A, V[A]] {
+  implicit def vecFactory[A]: VecFactory[A, V[A]] = new impl.func.VecFactory[A, V[A]] {
     def tabulate(length: Int)(f: Int => A): V[A] = defaultTabulate[A](length)(f)
   }
 
@@ -23,7 +23,7 @@ abstract class ops0[V[A] <: Vec[A], M[A] <: Mat[A]] {
 
 abstract class ops1[V[A] <: Vec[A], M[A] <: Mat[A]] extends ops0[V, M] {
 
-  implicit def vecRing[A](implicit A: Ring[A]): VecRing[A, V[A]] = new VecRing[A, V[A]] {
+  implicit def vecRing[A](implicit A: Ring[A]): VecRing[A, V[A]] = new impl.func.VecRing[A, V[A]] {
     def scalar = A
     def tabulate(length: Int)(f: Int => A): V[A] = defaultTabulate[A](length)(f)
   }
@@ -37,7 +37,7 @@ abstract class ops1[V[A] <: Vec[A], M[A] <: Mat[A]] extends ops0[V, M] {
 
 abstract class ops2[V[A] <: Vec[A], M[A] <: Mat[A]] extends ops1[V, M] {
 
-  implicit def vecEuclideanRing[A](implicit A: EuclideanRing[A]): VecEuclideanRing[A, V[A]] = new VecEuclideanRing[A, V[A]] {
+  implicit def vecEuclideanRing[A](implicit A: EuclideanRing[A]): VecEuclideanRing[A, V[A]] = new impl.func.VecEuclideanRing[A, V[A]] {
     def scalar = A
     def tabulate(length: Int)(f: Int => A): V[A] = defaultTabulate[A](length)(f)
   }
@@ -51,7 +51,7 @@ abstract class ops2[V[A] <: Vec[A], M[A] <: Mat[A]] extends ops1[V, M] {
 
 abstract class ops[V[A] <: Vec[A], M[A] <: Mat[A]] extends ops2[V, M] {
 
-  implicit def vecField[A](implicit A: Field[A]): VecField[A, V[A]] = new VecField[A, V[A]] {
+  implicit def vecField[A](implicit A: Field[A]): VecField[A, V[A]] = new impl.func.VecField[A, V[A]] {
     def scalar = A
     def tabulate(length: Int)(f: Int => A): V[A] = defaultTabulate[A](length)(f)
   }
