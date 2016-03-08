@@ -7,28 +7,28 @@ import algebra._
 
 class PointwiseVec[A](val lhs: Vec[A]) extends AnyVal {
 
-  def ==[VB <: Vec[Boolean]](rhs: A)(implicit ev: VecFactory[Boolean, VB]): VB =
+  def ==[VB <: Vec[Boolean]](rhs: A)(implicit ev: VecEngine[Boolean, VB]): VB =
     ev.pointwiseEqual(lhs, rhs)
 
-  def ==[VB <: Vec[Boolean]](rhs: Vec[A])(implicit ev: VecFactory[Boolean, VB]): VB =
+  def ==[VB <: Vec[Boolean]](rhs: Vec[A])(implicit ev: VecEngine[Boolean, VB]): VB =
     ev.pointwiseEqual(lhs, rhs)
 
-  def !=[VB <: Vec[Boolean]](rhs: A)(implicit ev: VecFactory[Boolean, VB]): VB =
+  def !=[VB <: Vec[Boolean]](rhs: A)(implicit ev: VecEngine[Boolean, VB]): VB =
     ev.pointwiseNotEqual(lhs, rhs)
 
-  def !=[VB <: Vec[Boolean]](rhs: Vec[A])(implicit ev: VecFactory[Boolean, VB]): VB =
+  def !=[VB <: Vec[Boolean]](rhs: Vec[A])(implicit ev: VecEngine[Boolean, VB]): VB =
     ev.pointwiseNotEqual(lhs, rhs)
 
-  def ===[VB <: Vec[Boolean]](rhs: A)(implicit A: Eq[A], ev: VecFactory[Boolean, VB]): VB =
+  def ===[VB <: Vec[Boolean]](rhs: A)(implicit A: Eq[A], ev: VecEngine[Boolean, VB]): VB =
     ev.pointwiseEqv(lhs, rhs)
 
-  def ===[VB <: Vec[Boolean]](rhs: Vec[A])(implicit A: Eq[A], ev: VecFactory[Boolean, VB]): VB =
+  def ===[VB <: Vec[Boolean]](rhs: Vec[A])(implicit A: Eq[A], ev: VecEngine[Boolean, VB]): VB =
     ev.pointwiseEqv(lhs, rhs)
 
-  def =!=[VB <: Vec[Boolean]](rhs: A)(implicit A: Eq[A], ev: VecFactory[Boolean, VB]): VB =
+  def =!=[VB <: Vec[Boolean]](rhs: A)(implicit A: Eq[A], ev: VecEngine[Boolean, VB]): VB =
     ev.pointwiseNeqv(lhs, rhs)
 
-  def =!=[VB <: Vec[Boolean]](rhs: Vec[A])(implicit A: Eq[A], ev: VecFactory[Boolean, VB]): VB =
+  def =!=[VB <: Vec[Boolean]](rhs: Vec[A])(implicit A: Eq[A], ev: VecEngine[Boolean, VB]): VB =
     ev.pointwiseNeqv(lhs, rhs)
 
   def +[VA <: Vec[A]](rhs: A)(implicit ev: VecRing[A, VA]): VA = ev.pointwisePlus(lhs, rhs)
@@ -73,12 +73,12 @@ trait Vec[A] { lhs =>
 
   // slices
 
-  def apply[VA <: Vec[A]](sub: Subscript)(implicit ev: VecFactory[A, VA]): VA =
+  def apply[VA <: Vec[A]](sub: Subscript)(implicit ev: VecEngine[A, VA]): VA =
     ev.slice(lhs, sub)
 
   // shuffle
 
-  def reshape[MA <: Mat[A]](rows: Int, cols: Int)(implicit ev: MatFactory[A, MA]): MA =
+  def reshape[MA <: Mat[A]](rows: Int, cols: Int)(implicit ev: MatEngine[A, MA]): MA =
     ev.reshape(lhs, rows, cols)
 
   // additive group
@@ -114,7 +114,7 @@ trait Vec[A] { lhs =>
   def /[VA <: Vec[A]](rhs: A)(implicit ev: VecField[A, VA]): VA = ev.div(lhs, rhs)
 
   /** Flatten the vector. */
-  def flatten[AA](implicit U: Vec.Unpack.AuxA[A, AA], ev: VecFactory[AA, VAA] forSome { type VAA <: Vec[AA] }): ev.Ret = {
+  def flatten[AA](implicit U: Vec.Unpack.AuxA[A, AA], ev: VecEngine[AA, VAA] forSome { type VAA <: Vec[AA] }): ev.Ret = {
     import U.proof
     // type VAA has been lost, however, if we make VAA a type parameter of flatten, the implicit search fails,
     // probably because we look twice for an instance of Vec[_]
@@ -124,20 +124,20 @@ trait Vec[A] { lhs =>
   }
 
   /** Maps the values of the elements. */
-  def map[B, VB <: Vec[B]](f: A => B)(implicit ev: VecFactory[B, VB]): VB =
+  def map[B, VB <: Vec[B]](f: A => B)(implicit ev: VecEngine[B, VB]): VB =
     ev.map[A](lhs)(f)
 
   /** scala.collection-like flatMap. */
-  def flatMap[B, VB <: Vec[B]](f: A => Vec[B])(implicit ev: VecFactory[B, VB]): VB = 
+  def flatMap[B, VB <: Vec[B]](f: A => Vec[B])(implicit ev: VecEngine[B, VB]): VB = 
     ev.flatMap[A](lhs)(f)
 
-  def count(f: A => Boolean)(implicit ev: VecFactory[A, _]): Int = ev.count(lhs)(f)
+  def count(f: A => Boolean)(implicit ev: VecEngine[A, _]): Int = ev.count(lhs)(f)
 
-  def fold[A1 >: A](z: A1)(op: (A1, A1) => A1)(implicit ev: VecFactory[A, _]): A1 = ev.fold[A1](lhs)(z)(op)
+  def fold[A1 >: A](z: A1)(op: (A1, A1) => A1)(implicit ev: VecEngine[A, _]): A1 = ev.fold[A1](lhs)(z)(op)
 
-  def toRowMat[MA <: Mat[A]](implicit ev: MatFactory[A, MA]): MA = ev.toRowMat(lhs)
+  def toRowMat[MA <: Mat[A]](implicit ev: MatEngine[A, MA]): MA = ev.toRowMat(lhs)
 
-  def toColMat[MA <: Mat[A]](implicit ev: MatFactory[A, MA]): MA = ev.toColMat(lhs)
+  def toColMat[MA <: Mat[A]](implicit ev: MatEngine[A, MA]): MA = ev.toColMat(lhs)
 
   def nnz(implicit ev: VecRing[A, _], eq: Eq[A]): Int = ev.nnz(lhs)
 

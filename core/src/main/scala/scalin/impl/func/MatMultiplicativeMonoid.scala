@@ -6,7 +6,7 @@ import spire.algebra._
 
 trait MatMultiplicativeMonoid[A, MA <: Mat[A]]
     extends scalin.algebra.MatMultiplicativeMonoid[A, MA]
-    with scalin.impl.func.MatFactory[A, MA] {
+    with scalin.impl.func.MatEngine[A, MA] {
 
   implicit def scalar: MultiplicativeMonoid[A]
 

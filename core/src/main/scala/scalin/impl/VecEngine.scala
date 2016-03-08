@@ -6,7 +6,7 @@ import spire.syntax.eq._
 import spire.syntax.cfor._
 
 /** Non-optimized default implementation. */
-trait VecFactory[A, VA <: Vec[A]] extends scalin.algebra.VecFactory[A, VA] {
+trait VecEngine[A, VA <: Vec[A]] extends scalin.algebra.VecEngine[A, VA] {
 
   //// Helpers methods
 

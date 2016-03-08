@@ -10,7 +10,7 @@ import scalin.syntax.assign._
 
 trait VecMultiplicativeMonoid[A, VA <: Vec[A], UA <: mutable.Vec[A]]
     extends scalin.impl.VecMultiplicativeMonoid[A, VA]
-    with scalin.impl.builder.VecFactory[A, VA, UA] {
+    with scalin.impl.builder.VecEngine[A, VA, UA] {
 
   //// With `MultiplicativeMonoid[A]`, returning vector
 

@@ -5,14 +5,14 @@ import algebra._
 
 final class ColMajorOps[A](val dummy: Null) extends AnyVal {
 
-  def apply[MA <: Mat[A]](rows: Int, cols: Int)(elements: A*)(implicit ev: MatFactory[A, MA]): MA =
+  def apply[MA <: Mat[A]](rows: Int, cols: Int)(elements: A*)(implicit ev: MatEngine[A, MA]): MA =
     ev.colMajor(rows, cols)(elements: _*)
 
 }
 
 final class ColMatOps[A](val dummy: Null) extends AnyVal {
 
-  def apply[MA <: Mat[A]](elements: A*)(implicit ev: MatFactory[A, MA]): MA = ev.colMat(elements: _*)
+  def apply[MA <: Mat[A]](elements: A*)(implicit ev: MatEngine[A, MA]): MA = ev.colMat(elements: _*)
 
 }
 
@@ -24,9 +24,9 @@ final class EyeOps[A](val dummy: Null) extends AnyVal {
 
 final class FillOps[A](val dummy: Null) extends AnyVal {
 
-  def apply[VA <: Vec[A]](length: Int)(a: => A)(implicit ev: VecFactory[A, VA]): VA = ev.fill(length)(a)
+  def apply[VA <: Vec[A]](length: Int)(a: => A)(implicit ev: VecEngine[A, VA]): VA = ev.fill(length)(a)
 
-  def apply[MA <: Mat[A]](rows: Int, cols: Int)(a: => A)(implicit ev: MatFactory[A, MA]): MA = ev.fill(rows, cols)(a)
+  def apply[MA <: Mat[A]](rows: Int, cols: Int)(a: => A)(implicit ev: MatEngine[A, MA]): MA = ev.fill(rows, cols)(a)
 
 }
 
@@ -40,19 +40,19 @@ final class OnesOps[A](val dummy: Null) extends AnyVal {
 
 final class RowMajorOps[A](val dummy: Null) extends AnyVal {
 
-  def apply[MA <: Mat[A]](rows: Int, cols: Int)(elements: A*)(implicit ev: MatFactory[A, MA]): MA = ev.rowMajor(rows, cols)(elements: _*)
+  def apply[MA <: Mat[A]](rows: Int, cols: Int)(elements: A*)(implicit ev: MatEngine[A, MA]): MA = ev.rowMajor(rows, cols)(elements: _*)
 
 }
 
 final class RowMatOps[A](val dummy: Null) extends AnyVal {
 
-  def apply[MA <: Mat[A]](elements: A*)(implicit ev: MatFactory[A, MA]): MA = ev.rowMat(elements: _*)
+  def apply[MA <: Mat[A]](elements: A*)(implicit ev: MatEngine[A, MA]): MA = ev.rowMat(elements: _*)
 
 }
 
 final class VecOps[A](val dummy: Null) extends AnyVal {
 
-  def apply[VA <: Vec[A]](elements: A*)(implicit ev: VecFactory[A, VA]): VA = ev.fromSeq(elements)
+  def apply[VA <: Vec[A]](elements: A*)(implicit ev: VecEngine[A, VA]): VA = ev.fromSeq(elements)
 
 }
 

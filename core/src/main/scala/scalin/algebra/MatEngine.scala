@@ -4,7 +4,7 @@ package algebra
 import spire.algebra._
 
 /** Builder for matrices with an arbitrary scalar type `A`. */
-trait MatFactory[A, MA <: Mat[A]] {
+trait MatEngine[A, MA <: Mat[A]] {
 
   type Ret = MA // hack for the return type of Mat.flatten
 
@@ -32,7 +32,7 @@ trait MatFactory[A, MA <: Mat[A]] {
 
   def equal(lhs: Mat[A], rhs: Mat[A]): Boolean
 
-  /** Hashcode compatible with the reference algorithm provided in scalin.impl.VecFactory. */
+  /** Hashcode compatible with the reference algorithm provided in scalin.impl.VecEngine. */
   def hashCode(lhs: Mat[A]): Int
 
   //// Collection-like methods

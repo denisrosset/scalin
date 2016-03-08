@@ -5,7 +5,7 @@ import spire.algebra.MultiplicativeMonoid
 
 trait VecMultiplicativeMonoid[A, VA <: Vec[A]]
     extends scalin.algebra.VecMultiplicativeMonoid[A, VA]
-    with scalin.impl.VecFactory[A, VA] {
+    with scalin.impl.VecEngine[A, VA] {
 
   import spire.syntax.multiplicativeMonoid._
 

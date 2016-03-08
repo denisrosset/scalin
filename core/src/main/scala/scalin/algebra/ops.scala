@@ -11,11 +11,11 @@ abstract class ops0[V[A] <: Vec[A], M[A] <: Mat[A]] {
 
   def defaultTabulate[A](rows: Int, cols: Int)(f: (Int, Int) => A): M[A]
 
-  implicit def vecFactory[A]: VecFactory[A, V[A]] = new impl.func.VecFactory[A, V[A]] {
+  implicit def vecEngine[A]: VecEngine[A, V[A]] = new impl.func.VecEngine[A, V[A]] {
     def tabulate(length: Int)(f: Int => A): V[A] = defaultTabulate[A](length)(f)
   }
 
-  implicit def matFactory[A]: MatFactory[A, M[A]] = new impl.func.MatFactory[A, M[A]] {
+  implicit def matEngine[A]: MatEngine[A, M[A]] = new impl.func.MatEngine[A, M[A]] {
     def tabulate(rows: Int, cols: Int)(f: (Int, Int) => A): M[A] = defaultTabulate[A](rows, cols)(f)
   }
 

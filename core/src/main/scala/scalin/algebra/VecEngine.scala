@@ -3,7 +3,7 @@ package algebra
 
 import spire.algebra._
 
-trait VecFactory[A, VA <: Vec[A]] {
+trait VecEngine[A, VA <: Vec[A]] {
 
   type Ret = VA // hack for the return type of Vec.flatten
 
@@ -25,7 +25,7 @@ trait VecFactory[A, VA <: Vec[A]] {
 
   def equal(lhs: Vec[A], rhs: Vec[A]): Boolean
 
-  /** Hashcode compatible with the reference algorithm provided in scalin.impl.VecFactory. */
+  /** Hashcode compatible with the reference algorithm provided in scalin.impl.VecEngine. */
   def hashCode(lhs: Vec[A]): Int
 
   //// Collection-like methods

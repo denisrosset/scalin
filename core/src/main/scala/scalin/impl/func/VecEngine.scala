@@ -4,7 +4,7 @@ package func
 
 import spire.syntax.cfor._
 
-trait VecFactory[A, VA <: Vec[A]] extends scalin.impl.VecFactory[A, VA] {
+trait VecEngine[A, VA <: Vec[A]] extends scalin.impl.VecEngine[A, VA] {
 
   //// Creation
 

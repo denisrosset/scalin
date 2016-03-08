@@ -6,10 +6,8 @@ import spire.algebra._
 import spire.syntax.order._
 import spire.syntax.cfor._
 
-trait MatFactory[A, MA <: Mat[A]] extends scalin.algebra.MatFactory[A, MA] {
+trait MatEngine[A, MA <: Mat[A]] extends scalin.algebra.MatEngine[A, MA] {
 
-  def hashCode(mat: Mat[A]): Int = ??? // TODO: hashCode
-  
   def tabulate(rows: Int, cols: Int)(f: (Int, Int) => A): MA
 
   def fill(rows: Int, cols: Int)(a: => A): MA = tabulate(rows, cols)( (i, j) => a )

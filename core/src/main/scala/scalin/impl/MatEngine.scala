@@ -3,7 +3,7 @@ package impl
 
 import spire.syntax.cfor._
 
-trait MatFactory[A, MA <: Mat[A]] extends scalin.algebra.MatFactory[A, MA] {
+trait MatEngine[A, MA <: Mat[A]] extends scalin.algebra.MatEngine[A, MA] {
 
 
   //// Creation
