@@ -29,6 +29,10 @@ trait MatTrait[A, MA <: Mat[A]] {
 
   def colMat(elements: A*): MA = colMajor(elements.size, 1)(elements: _*)
 
+  def toRowMat(lhs: Vec[A]): MA = tabulate(1, lhs.length)( (r, c) => lhs(c) )
+
+  def toColMat(lhs: Vec[A]): MA = tabulate(lhs.length, 1)( (r, c) => lhs(r) )
+
   // monadic-like
 
   def map[B](lhs: Mat[B])(f: B => A): MA = tabulate(lhs.rows, lhs.cols)( (r, c) => f(lhs(r, c)) )

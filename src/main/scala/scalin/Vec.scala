@@ -148,6 +148,10 @@ trait Vec[A] { lhs =>
   def flatMap[B, VB <: Vec[B]](f: A => Vec[B])(implicit ev: VecTrait[B, VB]): VB = 
     ev.flatMap[A](lhs)(f)
 
+  def toRowMat[MA <: Mat[A]](implicit ev: MatTrait[A, MA]): MA = ev.toRowMat(lhs)
+
+  def toColMat[MA <: Mat[A]](implicit ev: MatTrait[A, MA]): MA = ev.toColMat(lhs)
+
 }
 
 object Vec {
