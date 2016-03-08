@@ -24,9 +24,9 @@ final class EyeOps[A](val dummy: Null) extends AnyVal {
 
 final class FillOps[A](val dummy: Null) extends AnyVal {
 
-  def apply[A, VA <: Vec[A]](length: Int)(a: => A)(implicit ev: VecFactory[A, VA]): VA = ev.fill(length)(a)
+  def apply[VA <: Vec[A]](length: Int)(a: => A)(implicit ev: VecFactory[A, VA]): VA = ev.fill(length)(a)
 
-  def apply[A, MA <: Mat[A]](rows: Int, cols: Int)(a: => A)(implicit ev: MatFactory[A, MA]): MA = ev.fill(rows, cols)(a)
+  def apply[MA <: Mat[A]](rows: Int, cols: Int)(a: => A)(implicit ev: MatFactory[A, MA]): MA = ev.fill(rows, cols)(a)
 
 }
 
