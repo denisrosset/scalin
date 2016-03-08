@@ -7,30 +7,33 @@ trait MatMultiplicativeMonoid[A, MA <: Mat[A]] extends MatFactory[A, MA] {
 
   implicit def scalar: MultiplicativeMonoid[A]
 
-  import spire.syntax.multiplicativeMonoid._
+  //// Creation
 
-  // builder methods
+  def ones(rows: Int, cols: Int): MA
 
-  def ones(rows: Int, cols: Int): MA =
-    fill(rows, cols)(scalar.one)
+  //// With `MultiplicativeMonoid[A]`, returning scalar
 
-  def times(lhs: A, rhs: Mat[A]): MA = pointwiseUnary(rhs)(lhs * _)
+  def product(lhs: Mat[A]): A
 
-  def times(lhs: Mat[A], rhs: A): MA = pointwiseUnary(lhs)(_ * rhs)
+  //// With `MultiplicativeMonoid[A]`, returning matrix
 
-  def pointwiseTimes(lhs: Mat[A], rhs: Mat[A]): MA = pointwiseBinary(lhs, rhs)(_ * _)
+  /** Scalar-matrix product. */
+  def times(lhs: A, rhs: Mat[A]): MA
 
-  def dyad(lhs: Vec[A], rhs: Vec[A]): MA = tabulate(lhs.length, rhs.length) { (r, c) => lhs(r) * rhs(c) }
+  /** Matrix-scalar product. */
+  def times(lhs: Mat[A], rhs: A): MA
 
-  def kron(lhs: Mat[A], rhs: Mat[A]): MA =
-    tabulate(lhs.rows * rhs.rows, lhs.cols * rhs.cols) { (r, c) =>
-      val rr = r % rhs.rows
-      val rl = r / rhs.rows
-      val cr = c % rhs.cols
-      val cl = c / rhs.cols
-      lhs(rl, cl) * rhs(rr, cr)
-    }
+  /** Pointwise multiplication, i.e. Hadamard product, see https://en.wikipedia.org/wiki/Hadamard_product_%28matrices%29 . */
+  def pointwiseTimes(lhs: Mat[A], rhs: Mat[A]): MA
 
-  def product(lhs: Mat[A]): A = fold(lhs)(scalar.one)(scalar.times)
+  /** Dyadic product, see https://en.wikipedia.org/wiki/Dyadics#Dyadic.2C_outer.2C_and_tensor_products . 
+    * 
+    * Equivalent to the outer product when the scalars are reals (no complex conjugation is performed on
+    * the inputs).
+    */
+  def dyad(lhs: Vec[A], rhs: Vec[A]): MA
+
+  /** Kronecker product. */
+  def kron(lhs: Mat[A], rhs: Mat[A]): MA
 
 }

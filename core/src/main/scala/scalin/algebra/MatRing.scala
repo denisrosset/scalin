@@ -1,84 +1,55 @@
 package scalin
 package algebra
 
-import spire.algebra._
-import spire.syntax.cfor._
+import spire.algebra.{Eq, Ring}
 
 trait MatRing[A, MA <: Mat[A]] extends MatMultiplicativeMonoid[A, MA] {
 
   implicit def scalar: Ring[A]
 
-  import spire.syntax.ring._
+  //// Creation
 
-  // builder methods
+  /** Matrix filled with zeroes. */
+  def zeros(rows: Int, cols: Int): MA
 
-  def zeros(rows: Int, cols: Int): MA =
-    fill(rows, cols)(scalar.zero)
+  /** Identity matrix. */
+  def eye(n: Int): MA
 
-  def eye(n: Int): MA =
-    tabulate(n, n)( (r, c) => if (r == c) scalar.one else scalar.zero )
+  //// Additive group methods
 
-  // additive group methods
+  def plus(lhs: Mat[A], rhs: Mat[A]): MA
 
-  def plus(lhs: Mat[A], rhs: Mat[A]): MA = pointwiseBinary(lhs, rhs)(_ + _)
+  def negate(lhs: Mat[A]): MA
 
-  def negate(lhs: Mat[A]): MA = pointwiseUnary(lhs)(-_)
+  def minus(lhs: Mat[A], rhs: Mat[A]): MA
 
-  def minus(lhs: Mat[A], rhs: Mat[A]): MA = pointwiseBinary(lhs, rhs)(_ - _)
+  def pointwisePlus(lhs: Mat[A], rhs: A): MA
 
-  def pointwisePlus(lhs: Mat[A], rhs: A): MA = pointwiseUnary(lhs)(_ + rhs)
+  def pointwiseMinus(lhs: Mat[A], rhs: A): MA
 
-  def pointwiseMinus(lhs: Mat[A], rhs: A): MA = pointwiseUnary(lhs)(_ - rhs)
+  /** Computes the sum of all the matrix elements. */
+  def sum(lhs: Mat[A]): A
 
-  // ring methods
+  //// Ring methods
 
-  def times(lhs: Mat[A], rhs: Mat[A]): MA = {
-    import spire.syntax.cfor._
-    val n = lhs.cols
-    require(n == rhs.rows)
-    if (n == 0)
-      zeros(lhs.rows, rhs.cols)
-    else
-      tabulate(lhs.rows, rhs.cols) { (r, c) =>
-        var sum = lhs(r, 0) * rhs(0, c)
-        cforRange(1 until lhs.cols) { k =>
-          sum += lhs(r, k) * rhs(k, c)
-        }
-        sum
-      }
-  }
+  /** Matrix-matrix product. Requires `lhs.cols == rhs.rows`. */
+  def times(lhs: Mat[A], rhs: Mat[A]): MA
 
-  def frobenius(lhs: Mat[A], rhs: Mat[A]): A = {
-    val nr = lhs.rows
-    require(nr == rhs.rows)
-    val nc = lhs.cols
-    require(nc == rhs.cols)
-    import spire.syntax.cfor._
-    var sum = scalar.zero
-    cforRange(0 until nr) { r =>
-      cforRange(0 until nc) { c =>
-        sum += lhs(r, c) * rhs(r, c)
-      }
-    }
-    sum
-  }
+  /** Frobenius product, sum of the Hadamard product elements.
+    * 
+    * See https://en.wikipedia.org/wiki/Matrix_multiplication#Frobenius_product .*/
+  def frobenius(lhs: Mat[A], rhs: Mat[A]): A
 
-  def trace(lhs: Mat[A]): A = {
-    val n = lhs.rows
-    require(n == lhs.cols)
-    if (n == 0) scalar.zero else {
-      var sum = lhs(0, 0)
-      cforRange(1 until n) { k =>
-        sum += lhs(k, k)
-      }
-      sum
-    }
-  }
+  /** Trace of the matrix, equal to the sum of diagonal entries.
+    * 
+    * Requires a square matrix.
+    */
+  def trace(lhs: Mat[A]): A
 
-  def determinant(lhs: Mat[A]): A = ??? // TODO
+  /** Computes the matrix determinant. */
+  def determinant(lhs: Mat[A]): A
 
-  def sum(lhs: Mat[A]): A = fold(lhs)(scalar.zero)(scalar.plus)
-
-  def nnz(lhs: Mat[A])(implicit ev: Eq[A]): Int = count(lhs)(scalar.isZero(_))
+  /** Returns the number of non-zero elements in the matrix. */
+  def nnz(lhs: Mat[A])(implicit ev: Eq[A]): Int
 
 }

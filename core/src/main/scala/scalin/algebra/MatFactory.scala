@@ -2,204 +2,98 @@ package scalin
 package algebra
 
 import spire.algebra._
-import spire.syntax.order._
-import spire.syntax.cfor._
 
+/** Builder for matrices with an arbitrary scalar type `A`. */
 trait MatFactory[A, MA <: Mat[A]] {
 
-  type Ret = MA
+  type Ret = MA // hack for the return type of Mat.flatten
 
-  // builders
+  //// Creation
 
-  def tabulate(rows: Int, cols: Int)(f: (Int, Int) => A): MA // TODO = factory.tabulate[A](rows, cols)(f)
+  // empty matrix is an ill-defined object (0x0, nx0 and 0xn are all empty)
 
-  def fill(rows: Int, cols: Int)(a: => A): MA = tabulate(rows, cols)( (i, j) => a )
+  def tabulate(rows: Int, cols: Int)(f: (Int, Int) => A): MA
 
-  def colMajor(rows: Int, cols: Int)(elements: A*): MA = {
-    require(elements.size == rows * cols)
-    tabulate(rows, cols)( (r, c) => elements(r + c * rows) )
-  }
+  def fill(rows: Int, cols: Int)(a: => A): MA
 
-  def rowMajor(rows: Int, cols: Int)(elements: A*): MA = {
-    require(elements.size == rows * cols)
-    tabulate(rows, cols)( (r, c) => elements(c + r * cols) )
-  }
+  def colMajor(rows: Int, cols: Int)(elements: A*): MA
 
-  def rowMat(elements: A*): MA = rowMajor(1, elements.size)(elements: _*)
+  def rowMajor(rows: Int, cols: Int)(elements: A*): MA
 
-  def colMat(elements: A*): MA = colMajor(elements.size, 1)(elements: _*)
+  def rowMat(elements: A*): MA
 
-  def toRowMat(lhs: Vec[A]): MA = tabulate(1, lhs.length)( (r, c) => lhs(c) )
+  def colMat(elements: A*): MA
 
-  def toColMat(lhs: Vec[A]): MA = tabulate(lhs.length, 1)( (r, c) => lhs(r) )
+  def toRowMat(lhs: Vec[A]): MA
 
-  // collection-like
+  def toColMat(lhs: Vec[A]): MA
 
-  def count(lhs: Mat[A])(f: A => Boolean): Int = {
-    var n = 0
-    cforRange(0 until lhs.rows) { r =>
-      cforRange(0 until lhs.cols) { c =>
-        if (f(lhs(r, c)))
-          n += 1
-      }
-    }
-    n
-  }
 
-  def fold[A1 >: A](lhs: Mat[A])(z: A1)(op: (A1, A1) => A1): A1 =
-    if (lhs.rows == 0 || lhs.cols == 0) z
-    else if (lhs.rows == 1 && lhs.cols == 1) lhs(0, 0)
-    else {
-      var acc = z // could be optimized
-      var i = 0
-      // in column-major order
-      cforRange(0 until lhs.cols) { c =>
-        cforRange(0 until lhs.rows) { r =>
-          acc = op(acc, lhs(r, c))
-        }
-      }
-      acc
-    }
+  //// Standard Java methods
 
+  def equal(lhs: Mat[A], rhs: Mat[A]): Boolean
+
+  def hashCode(lhs: Mat[A]): Int
+
+  //// Collection-like methods
+
+  /** Returns the number of elements satisfying the predicate `f`. */
+  def count(lhs: Mat[A])(f: A => Boolean): Int
+
+  /** Folds the elements of the matrix using the specified associative binary operator.
+    * 
+    * The order in which operations are performed on elements is unspecified and 
+    * may be nondeterministic. 
+    */
+  def fold[A1 >: A](lhs: Mat[A])(z: A1)(op: (A1, A1) => A1): A1
+
+  /** Builds a new matrix by applying a function to all elements of this matrix. */
   def map[B](lhs: Mat[B])(f: B => A): MA = tabulate(lhs.rows, lhs.cols)( (r, c) => f(lhs(r, c)) )
 
-  def horzcat[L <: Mat[A], R <: Mat[A]](lhs: L, rhs: R): MA = {
-    val m = lhs.rows
-    require(m == rhs.rows)
-    val nl = lhs.cols
-    val nr = rhs.cols
-    tabulate(m, nl + nr)( (r, c) => if (c < nl) lhs(r, c) else rhs(r, c - nl) )
-  }
+  /** Returns the horizontal concatenation of two matrices with the same number of rows. */
+  def horzcat(lhs: Mat[A], rhs: Mat[A]): MA
 
-  def vertcat[L <: Mat[A], R <: Mat[A]](lhs: L, rhs: R): MA = {
-    val n = lhs.cols
-    require(n == rhs.cols)
-    val ml = lhs.rows
-    val mr = rhs.rows
-    tabulate(ml + mr, n)( (r, c) => if (r < ml) lhs(r, c) else rhs(r - ml, c) )
-  }
+  /** Returns the vertical concatenation of two matrices with the same number of columns. */
+  def vertcat(lhs: Mat[A], rhs: Mat[A]): MA
 
-  def flatten[B <: Mat[A]](lhs: Mat[B]): MA =
-    if (lhs.rows == 0 || lhs.cols == 0) sys.error("Cannot flatten matrix with 0 rows or zero cols.")
-    else {
-      def flatRow(r: Int): MA = {
-        if (lhs.cols == 1) map(lhs(r, 0))(identity)
-        else {
-          var accRow = horzcat(lhs(r, 0), lhs(r, 1))
-          cforRange(2 until lhs.cols) { c =>
-            accRow = horzcat(accRow, lhs(r, c))
-          }
-          accRow
-        }
-      }
-      if (lhs.rows == 1) flatRow(0)
-      else {
-        var acc = vertcat(flatRow(0), flatRow(1))
-        cforRange(2 until lhs.rows) { r =>
-          acc = vertcat(acc, flatRow(r))
-        }
-        acc
-      }
-    }
+  /** Flatten a block matrix. Not defined if the matrix is empty. */
+  def flatten[B <: Mat[A]](lhs: Mat[B]): MA
 
-  def flatMap[B](lhs: Mat[B])(f: B => Mat[A]): MA =
-    if (lhs.rows == 0 || lhs.cols == 0) sys.error("Cannot flatten matrix with 0 rows or zero cols.")
-    else {
-      def flatRow(r: Int): MA = {
-        if (lhs.cols == 1) map(f(lhs(r, 0)))(identity)
-        else {
-          var accRow = horzcat(f(lhs(r, 0)), f(lhs(r, 1)))
-          cforRange(2 until lhs.cols) { c =>
-            accRow = horzcat(accRow, f(lhs(r, c)))
-          }
-          accRow
-        }
-      }
-      if (lhs.rows == 1) flatRow(0)
-      else {
-        var acc = vertcat(flatRow(0), flatRow(1))
-        cforRange(2 until lhs.rows) { r =>
-          acc = vertcat(acc, flatRow(r))
-        }
-        acc
-      }
-    }
+  /** Returns the flattened block matrix specified by `lhs.map(f)`. Not defined if the matrix is empty. */
+  def flatMap[B](lhs: Mat[B])(f: B => Mat[A]): MA
 
-  // shufflers
+  //// Shuffling elements around
 
-  def t(mat: Mat[A]): MA = tabulate(mat.cols, mat.rows)( (i, j) => mat(j, i) )
+  /** Returns the matrix transpose. Does not conjuagates complex numbers. */
+  def t(mat: Mat[A]): MA
 
-  def reshape(vec: Vec[A], rows1: Int, cols1: Int): MA = {
-    require(vec.length == rows1 * cols1)
-    tabulate(rows1, cols1)( (r1, c1) => vec(r1 + c1 * rows1) )
-  }
+  /** Reshapes a vector in a matrix shape, using column-major ordering of elements. */ 
+  def reshape(vec: Vec[A], rows1: Int, cols1: Int): MA
 
-  // slicers
+  /** Returns a matrix slice of a matrix. 
+    * The return value is a copy (i.e. not read- or write-through as in scala.breeze). */
+  def slice(mat: Mat[A], rs: Subscript, cs: Subscript): MA
 
-  def slice(mat: Mat[A], rs: Subscript, cs: Subscript): MA = {
-    val ri = rs.forLength(mat.rows)
-    val ci = cs.forLength(mat.cols)
-    tabulate(ri.length, ci.length)( (k, l) => mat(ri(k), ci(l)) )
-  }
+  //// With `Boolean =:= A`
 
-  // pointwise functions
+  def pointwiseEqual[B](lhs: Mat[B], rhs: B)(implicit ev: Boolean =:= A): MA
 
-  def pointwiseUnary(lhs: Mat[A])(f: A => A) = tabulate(lhs.rows, lhs.cols)( (r, c) => f(lhs(r, c)) )
+  def pointwiseEqual[B](lhs: Mat[B], rhs: Mat[B])(implicit ev: Boolean =:= A): MA
 
-  def pointwiseBinary(lhs: Mat[A], rhs: Mat[A])(f: (A, A) => A): MA = {
-    require(lhs.rows == rhs.rows)
-    require(lhs.cols == rhs.cols)
-    tabulate(lhs.rows, lhs.cols)( (r, c) => f(lhs(r, c), rhs(r, c)) )
-  }
+  def pointwiseNotEqual[B](lhs: Mat[B], rhs: B)(implicit ev: Boolean =:= A): MA
 
-  def booleanBinaryAnd(lhs: Mat[A], rhs: Mat[A])(f: (A, A) => Boolean): Boolean =
-    (lhs.rows == rhs.rows && lhs.cols == rhs.cols) && {
-      cforRange(0 until lhs.rows) { r =>
-        cforRange(0 until lhs.cols) { c =>
-          if (!f(lhs(r, c), rhs(r, c))) return false
-        }
-      }
-      true
-    }
+  def pointwiseNotEqual[B](lhs: Mat[B], rhs: Mat[B])(implicit ev: Boolean =:= A): MA
 
-  def pointwiseBooleanUnary[B](lhs: Mat[B])(f: B => Boolean)(implicit ev: Boolean =:= A): MA =
-    tabulate(lhs.rows, lhs.cols)( (r, c) =>  f(lhs(r, c)) )
+  def pointwiseEqv[B](lhs: Mat[B], rhs: B)(implicit B: Eq[B], ev: Boolean =:= A): MA
 
-  def pointwiseBooleanBinary[B](lhs: Mat[B], rhs: Mat[B])(f: (B, B) => Boolean)(implicit ev: Boolean =:= A): MA = {
-    require(lhs.rows == rhs.rows && lhs.cols == rhs.cols)
-    tabulate(lhs.rows, lhs.cols)( (r, c) =>  f(lhs(r, c), rhs(r, c)) )
-  }
+  def pointwiseEqv[B](lhs: Mat[B], rhs: Mat[B])(implicit B: Eq[B], ev: Boolean =:= A): MA
 
-  def pointwiseEqual[B](lhs: Mat[B], rhs: B)(implicit ev: Boolean =:= A): MA =
-    pointwiseBooleanUnary(lhs)(_ == rhs)
+  def pointwiseNeqv[B](lhs: Mat[B], rhs: B)(implicit B: Eq[B], ev: Boolean =:= A): MA
 
-  def pointwiseEqual[B](lhs: Mat[B], rhs: Mat[B])(implicit ev: Boolean =:= A): MA =
-    pointwiseBooleanBinary(lhs, rhs)(_ == _)
+  def pointwiseNeqv[B](lhs: Mat[B], rhs: Mat[B])(implicit B: Eq[B], ev: Boolean =:= A): MA
 
-  def pointwiseNotEqual[B](lhs: Mat[B], rhs: B)(implicit ev: Boolean =:= A): MA =
-    pointwiseBooleanUnary(lhs)(_ != rhs)
+  //// With `Eq[A]`
 
-  def pointwiseNotEqual[B](lhs: Mat[B], rhs: Mat[B])(implicit ev: Boolean =:= A): MA =
-    pointwiseBooleanBinary(lhs, rhs)(_ != _)
+  def eqv(lhs: Mat[A], rhs: Mat[A])(implicit eqv: Eq[A]): Boolean
 
-  def pointwiseEqv[B](lhs: Mat[B], rhs: B)(implicit B: Eq[B], ev: Boolean =:= A): MA =
-    pointwiseBooleanUnary(lhs)(_ === rhs)
-
-  def pointwiseEqv[B](lhs: Mat[B], rhs: Mat[B])(implicit B: Eq[B], ev: Boolean =:= A): MA =
-    pointwiseBooleanBinary(lhs, rhs)(_ === _)
-
-  def pointwiseNeqv[B](lhs: Mat[B], rhs: B)(implicit B: Eq[B], ev: Boolean =:= A): MA =
-    pointwiseBooleanUnary(lhs)(_ =!= rhs)
-
-  def pointwiseNeqv[B](lhs: Mat[B], rhs: Mat[B])(implicit B: Eq[B], ev: Boolean =:= A): MA =
-    pointwiseBooleanBinary(lhs, rhs)(_ =!= _)
-
-  // equality functions
-
-    // TODO: remove, and keep only the `equals` default Java method ?
-  def equal(lhs: Mat[A], rhs: Mat[A]): Boolean = booleanBinaryAnd(lhs, rhs)(_ == _)
-
-  def eqv(lhs: Mat[A], rhs: Mat[A])(implicit eqv: Eq[A]): Boolean = booleanBinaryAnd(lhs, rhs)(_ === _)
-
-  // def hashCode
 }

@@ -11,11 +11,11 @@ trait VecMultiplicativeMonoid[A, VA <: Vec[A]] extends VecFactory[A, VA] {
 
   def ones(length: Int): VA
 
-  //// With multiplicative monoid, returning scalar
+  //// With `MultiplicativeMonoid[A]`, returning scalar
 
   def product(lhs: Vec[A]): A
 
-  //// With multiplicative monoid, returning vector
+  //// With `MultiplicativeMonoid[A]`, returning vector
 
   def times(lhs: A, rhs: Vec[A]): VA
 

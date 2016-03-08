@@ -1,22 +1,21 @@
 package scalin
 package algebra
 
-import spire.algebra._
-import spire.syntax.cfor._
+import spire.algebra.Field
 
 trait MatField[A, MA <: Mat[A]] extends MatEuclideanRing[A, MA] {
 
   implicit def scalar: Field[A]
 
-  import spire.syntax.field._
+  def pointwiseDiv(lhs: Mat[A], rhs: Mat[A]): MA
 
-  def pointwiseDiv(lhs: Mat[A], rhs: Mat[A]): MA = pointwiseBinary(lhs, rhs)(_ / _)
+  def div(lhs: Mat[A], rhs: A): MA
 
-  def div(lhs: Mat[A], rhs: A): MA = pointwiseUnary(lhs)(_ / rhs)
+  def luDecomposition(lhs: Mat[A]): LUDecomposition[A]
 
-  def luDecomposition(lhs: Mat[A]): LUDecomposition[A] = ???
-
-  // inverse of matrix
-  def inverse(lhs: Mat[A]): MA = ???
+  /** Matrix inverse. Requires the matrix to be invertible, throws
+    * an exception otherwise.
+    */
+  def inverse(lhs: Mat[A]): MA
 
 }

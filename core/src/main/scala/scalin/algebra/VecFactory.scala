@@ -5,7 +5,7 @@ import spire.algebra._
 
 trait VecFactory[A, VA <: Vec[A]] {
 
-  type Ret = VA
+  type Ret = VA // hack for the return type of Vec.flatten
 
   //// Creation
 

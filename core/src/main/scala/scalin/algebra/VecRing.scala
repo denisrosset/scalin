@@ -23,6 +23,8 @@ trait VecRing[A, VA <: Vec[A]] extends VecMultiplicativeMonoid[A, VA] {
 
   def pointwiseMinus(lhs: Vec[A], rhs: A): VA
 
+  def sum(lhs: Vec[A]): A
+
   //// Ring methods
 
   def times(lhs: Vec[A], rhs: Mat[A]): VA
@@ -31,8 +33,6 @@ trait VecRing[A, VA <: Vec[A]] extends VecMultiplicativeMonoid[A, VA] {
 
   /** Dot product. Equivalent to the real inner product, but not the complex inner product.*/
   def dot(lhs: Vec[A], rhs: Vec[A]): A
-
-  def sum(lhs: Vec[A]): A
 
   def nnz(lhs: Vec[A])(implicit ev: Eq[A]): Int
 

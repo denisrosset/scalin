@@ -1,8 +1,6 @@
 package scalin
 package mutable
 
-import spire.syntax.cfor._
-
 class DenseMat[A](val rows: Int, val cols: Int, var data: Array[AnyRef]) extends scalin.DenseMat[A] with mutable.Mat[A] {
 
   def copyIfOverlap(obj: AnyRef) = if (obj eq this) new DenseMat[A](rows, cols, data.clone) else this

@@ -39,31 +39,20 @@ Valid scalars
 To avoid combinatorial explosion of the type classes, vectors and matrics can be constructed out
 of the following scalar types:
 
+- generic objects the vectors and matrices are then dumb containers,
 - (non-commutative or commutative) multiplicative monoids,
 - (non-commutative or commutative) rings,
-- real or complex fields.
+- Euclidean rings,
+- real fields.
 
-Operation classes
------------------
+There is (yet) no special support for complex rings/fields such as Gaussian integers, rationals or 
+cyclotomics. However, we try to avoid ambiguities in methods: the "dot product" operation is named
+"dot product" and not "inner product"; the product of a column vector with its transpose is called
+"dyadic product" and not "outer product".
 
-### Opaque elements
-
-For these operations, vectors and matrices are simple containers, and Scalin vectors are not much
-different from `IndexedSeq`s, except that the storage of Scalin vectors can be optimized depending
-on the content (sparsity, element type).
-
-The following operations are possible on vectors, without requiring any implicits:
-
-- on `scalin.Vec[A]`: element retrieval using `v(ind)` where `ind` can be an `Int`, 
-  a `Seq[Int]` or a mask `Vec[Boolean]`. This is translated by the Scala compiler
-  to a call to the overloaded `apply` method: `v.apply(ind)`.
-  
-- on `scalin.mutable.Vec[A]` : assignment is done using the syntax `v(ind) := el`, where `ind`
-  can again be an `Int`, a `Seq[Int]` or a mask `Vec[Boolean]`. This is translated
-  by the syntax helper in `scalin.syntax.assign` to `v.set(ind, el)`. The type of
-  `el` can either be a scalar `A` or a vector `scalin.Vec[A]` of compatible size.
-
-To be completed
+Operations that combine a type class in the hierarchy above and another instance such as `Order` or
+`Eq` are defined as methods that take additional evidence; we thus avoid combinatorial explosion of
+instances such as `MatRing[A, MA] with MatEq[A, MA]`, `MatRing[A, MA] with MatOrder[A, MA]`, etc...
 
 Where is the code for operation X
 ---------------------------------

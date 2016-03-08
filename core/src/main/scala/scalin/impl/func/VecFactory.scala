@@ -8,6 +8,8 @@ import spire.syntax.cfor._
 
 trait VecFactory[A, VA <: Vec[A]] extends scalin.algebra.VecFactory[A, VA] {
 
+  def hashCode(vec: Vec[A]): Int = ??? // TODO: hashCode
+
   // creation
 
   def empty: VA = tabulate(0)(sys.error("Cannot be called"))
@@ -155,7 +157,5 @@ trait VecFactory[A, VA <: Vec[A]] extends scalin.algebra.VecFactory[A, VA] {
 
   def pointwiseNeqv[B](lhs: Vec[B], rhs: Vec[B])(implicit B: Eq[B], ev: Boolean =:= A): VA =
     pointwiseBooleanBinary(lhs, rhs)(_ =!= _)
-
-  def hashCode(lhs: Vec[A]): Int = ???
 
 }
