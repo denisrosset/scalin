@@ -8,7 +8,7 @@ import spire.syntax.cfor._
 /** Non-optimized default implementation. */
 trait VecEngine[A, VA <: Vec[A]] extends scalin.algebra.VecEngine[A, VA] {
 
-  //// Helpers methods
+  //// Helper methods
 
   protected def pointwiseUnary(lhs: Vec[A])(f: A => A) = tabulate(lhs.length)(k => f(lhs(k)))
 
