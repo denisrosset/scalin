@@ -38,7 +38,7 @@ class PointwiseVec[A](val lhs: Vec[A]) extends AnyVal {
 
   def *[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, VA]): VA = ev.pointwiseTimes(lhs, rhs)
 
-  def /[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, VA], field: Field[A]): VA = ev.pointwiseBinary(lhs, rhs)(field.div)
+  def /[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecField[A, VA]): VA = ev.pointwiseDiv(lhs, rhs)
 
 }
 
@@ -59,26 +59,12 @@ trait Vec[A] { lhs =>
 
   def pointwise: PointwiseVec[A] = new PointwiseVec[A](lhs)
 
-  def count(implicit ev: A =:= Boolean): Int = {
+  def countTrue(implicit ev: A =:= Boolean): Int = {
     import spire.syntax.cfor._
     var sum = 0
     cforRange(0 until length) { k => if (apply(k): Boolean) sum += 1 }
     sum
   }
-
-  def product(implicit A: MultiplicativeMonoid[A]): A =
-    if (length == 0) A.one else {
-      var p = apply(0)
-      cforRange(1 until length) { k => p *= apply(k) }
-      p
-    }
-
-  def sum(implicit A: AdditiveMonoid[A]): A =
-    if (length == 0) A.zero else {
-      var s = apply(0)
-      cforRange(1 until length) { k => s += apply(k) }
-      s
-    }
 
   def copyIfOverlap(obj: AnyRef): Vec[A]
 
@@ -126,9 +112,7 @@ trait Vec[A] { lhs =>
 
   def dyad[MA <: Mat[A]](rhs: Vec[A])(implicit ev: MatMultiplicativeMonoid[A, MA]): MA = ev.dyad(lhs, rhs)
 
-  // we do not use a VecField type class, rather we multiply by the inverse, which is probably faster
-  // TODO: make a proper type class
-  def /[VA <: Vec[A]](rhs: A)(implicit ev: VecRing[A, VA], field: Field[A]): VA = ev.times(lhs, field.reciprocal(rhs))
+  def /[VA <: Vec[A]](rhs: A)(implicit ev: VecField[A, VA]): VA = ev.div(lhs, rhs)
 
   /** Flatten the vector. */
   def flatten[AA](implicit U: Vec.Unpack.AuxA[A, AA], ev: VecTrait[AA, VAA] forSome { type VAA <: Vec[AA] }): ev.Ret = {
@@ -148,9 +132,23 @@ trait Vec[A] { lhs =>
   def flatMap[B, VB <: Vec[B]](f: A => Vec[B])(implicit ev: VecTrait[B, VB]): VB = 
     ev.flatMap[A](lhs)(f)
 
+  def count(f: A => Boolean)(implicit ev: VecTrait[A, _]): Int = ev.count(lhs)(f)
+
+  def fold[A1 >: A](z: A1)(op: (A1, A1) => A1)(implicit ev: VecTrait[A, _]): A1 = ev.fold[A1](lhs)(z)(op)
+
   def toRowMat[MA <: Mat[A]](implicit ev: MatTrait[A, MA]): MA = ev.toRowMat(lhs)
 
   def toColMat[MA <: Mat[A]](implicit ev: MatTrait[A, MA]): MA = ev.toColMat(lhs)
+
+  def nnz(implicit ev: VecRing[A, _], eq: Eq[A]): Int = ev.nnz(lhs)
+
+  def sum(implicit ev: VecRing[A, _]): A = ev.sum(lhs)
+
+  def product(implicit ev: VecMultiplicativeMonoid[A, _]): A = ev.product(lhs)
+
+  def gcd(implicit ev: VecEuclideanRing[A, _]): A = ev.gcd(lhs)
+
+  def lcm(implicit ev: VecEuclideanRing[A, _]): A = ev.lcm(lhs)
 
 }
 

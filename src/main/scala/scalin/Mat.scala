@@ -37,7 +37,7 @@ class PointwiseMat[A](val lhs: Mat[A]) extends AnyVal {
 
   def *[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatRing[A, MA]): MA = ev.pointwiseTimes(lhs, rhs)
 
-  def /[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatRing[A, MA], field: Field[A]): MA = ev.pointwiseBinary(lhs, rhs)(field.div)
+  def /[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatField[A, MA]): MA = ev.pointwiseDiv(lhs, rhs)
 
 }
 
@@ -54,7 +54,7 @@ trait Mat[A] { lhs =>
 
   //// TODO: move somewhere
 
-  def count(implicit ev: A =:= Boolean): Int = {
+  def countTrue(implicit ev: A =:= Boolean): Int = {
     import spire.syntax.cfor._
     var sum = 0
     cforRange(0 until rows) { r =>
@@ -159,7 +159,7 @@ trait Mat[A] { lhs =>
   def trace(implicit ev: MatRing[A, _]): A = ev.trace(lhs)
 
   /** Determinant. Requires a square matrix. */
-  def determinant(implicit ev: Determinant[A]): A = ev.determinant(lhs)
+  def determinant(implicit ev: MatRing[A, _]): A = ev.determinant(lhs)
 
   //// Methods for `A:Field`
 
@@ -187,6 +187,20 @@ trait Mat[A] { lhs =>
   /** scala.collection-like flatMap. */
   def flatMap[B, MB <: Mat[B]](f: A => Mat[B])(implicit ev: MatTrait[B, MB]): MB =
     ev.flatMap[A](lhs)(f)
+
+  def count(f: A => Boolean)(implicit ev: MatTrait[A, _]): Int = ev.count(lhs)(f)
+
+  def fold[A1 >: A](z: A1)(op: (A1, A1) => A1)(implicit ev: MatTrait[A, _]): A1 = ev.fold[A1](lhs)(z)(op)
+
+  def nnz(implicit ev: MatRing[A, _], eq: Eq[A]): Int = ev.nnz(lhs)
+
+  def sum(implicit ev: MatRing[A, _]): A = ev.sum(lhs)
+
+  def product(implicit ev: MatMultiplicativeMonoid[A, _]): A = ev.product(lhs)
+
+  def gcd(implicit ev: MatEuclideanRing[A, _]): A = ev.gcd(lhs)
+
+  def lcm(implicit ev: MatEuclideanRing[A, _]): A = ev.lcm(lhs)
 
 }
 

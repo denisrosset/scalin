@@ -9,6 +9,8 @@ trait VecTrait[A, VA <: Vec[A]] {
 
   type Ret = VA
 
+  type TC[A1, VA1 <: Vec[A1]] <: VecTrait[A1, VA1]
+
   // creation
 
   def empty: VA = tabulate(0)(sys.error("Cannot be called"))
@@ -23,7 +25,27 @@ trait VecTrait[A, VA <: Vec[A]] {
 
   // TODO: permute, ipermute
 
-  // monadic-like
+  // collection-like
+
+  def count(lhs: Vec[A])(f: A => Boolean): Int = {
+    var n = 0
+    cforRange(0 until lhs.length) { k =>
+      if (f(lhs(k)))
+        n += 1
+    }
+    n
+  }
+
+  def fold[A1 >: A](lhs: Vec[A])(z: A1)(op: (A1, A1) => A1): A1 =
+    if (lhs.length == 0) z
+    else if (lhs.length == 1) lhs(0)
+    else {
+      var acc = op(lhs(0), lhs(1))
+      cforRange(0 until lhs.length) { k =>
+        acc = op(acc, lhs(k))
+      }
+      acc
+    }
 
   def map[B](lhs: Vec[B])(f: B => A): VA = tabulate(lhs.length)( k => f(lhs(k)) )
 

@@ -2,7 +2,6 @@ package scalin
 package algebra
 
 import spire.algebra._
-
 import spire.syntax.cfor._
 
 trait MatRing[A, MA <: Mat[A]] extends MatMultiplicativeMonoid[A, MA] {
@@ -75,5 +74,11 @@ trait MatRing[A, MA <: Mat[A]] extends MatMultiplicativeMonoid[A, MA] {
       sum
     }
   }
+
+  def determinant(lhs: Mat[A]): A = ??? // TODO
+
+  def sum(lhs: Mat[A]): A = fold(lhs)(scalar.zero)(scalar.plus)
+
+  def nnz(lhs: Mat[A])(implicit ev: Eq[A]): Int = count(lhs)(scalar.isZero(_))
 
 }

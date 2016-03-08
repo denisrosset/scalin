@@ -5,6 +5,8 @@ import spire.algebra._
 
 trait VecMultiplicativeMonoid[A, VA <: Vec[A]] extends VecTrait[A, VA] {
 
+  type TC[A1, VA1 <: Vec[A1]] <: VecMultiplicativeMonoid[A1, VA1]
+
   implicit def scalar: MultiplicativeMonoid[A]
 
   import spire.syntax.multiplicativeMonoid._
@@ -26,5 +28,7 @@ trait VecMultiplicativeMonoid[A, VA <: Vec[A]] extends VecTrait[A, VA] {
       val li = i / rhs.length
       lhs(li) * rhs(ri)
     }
+
+  def product(lhs: Vec[A]): A = fold(lhs)(scalar.one)(scalar.times)
 
 }

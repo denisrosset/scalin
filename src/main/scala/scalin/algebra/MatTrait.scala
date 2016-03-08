@@ -33,10 +33,35 @@ trait MatTrait[A, MA <: Mat[A]] {
 
   def toColMat(lhs: Vec[A]): MA = tabulate(lhs.length, 1)( (r, c) => lhs(r) )
 
-  // monadic-like
+  // collection-like
+
+  def count(lhs: Mat[A])(f: A => Boolean): Int = {
+    var n = 0
+    cforRange(0 until lhs.rows) { r =>
+      cforRange(0 until lhs.cols) { c =>
+        if (f(lhs(r, c)))
+          n += 1
+      }
+    }
+    n
+  }
+
+  def fold[A1 >: A](lhs: Mat[A])(z: A1)(op: (A1, A1) => A1): A1 =
+    if (lhs.rows == 0 || lhs.cols == 0) z
+    else if (lhs.rows == 1 && lhs.cols == 1) lhs(0, 0)
+    else {
+      var acc = z // could be optimized
+      var i = 0
+      // in column-major order
+      cforRange(0 until lhs.cols) { c =>
+        cforRange(0 until lhs.rows) { r =>
+          acc = op(acc, lhs(r, c))
+        }
+      }
+      acc
+    }
 
   def map[B](lhs: Mat[B])(f: B => A): MA = tabulate(lhs.rows, lhs.cols)( (r, c) => f(lhs(r, c)) )
-
 
   def horzcat[L <: Mat[A], R <: Mat[A]](lhs: L, rhs: R): MA = {
     val m = lhs.rows

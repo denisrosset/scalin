@@ -31,4 +31,6 @@ trait MatMultiplicativeMonoid[A, MA <: Mat[A]] extends MatTrait[A, MA] {
       lhs(rl, cl) * rhs(rr, cr)
     }
 
+  def product(lhs: Mat[A]): A = fold(lhs)(scalar.one)(scalar.times)
+
 }

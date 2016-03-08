@@ -4,6 +4,9 @@ package algebra
 import spire.algebra._
 
 trait VecRing[A, VA <: Vec[A]] extends VecMultiplicativeMonoid[A, VA] {
+
+  type TC[A1, VA1 <: Vec[A1]] <: VecRing[A1, VA1]
+
   import spire.syntax.ring._
   import spire.syntax.cfor._
 
@@ -75,5 +78,9 @@ trait VecRing[A, VA <: Vec[A]] extends VecMultiplicativeMonoid[A, VA] {
       sum
     }
   }
+
+  def sum(lhs: Vec[A]): A = fold(lhs)(scalar.zero)(scalar.plus)
+
+  def nnz(lhs: Vec[A])(implicit ev: Eq[A]): Int = count(lhs)(scalar.isZero(_))
 
 }
