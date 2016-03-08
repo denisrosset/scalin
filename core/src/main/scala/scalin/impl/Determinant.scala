@@ -30,11 +30,8 @@ object Determinant {
         cforRange(0 to v) { u =>
           cforRange(0 to 1) { p =>
             cforRange(u + 1 until n) { w =>
-              // TODO: move macros to separate subproject, and restore syntax below
-              //                    next(p)(u,w) := next(p)(u, w) + current(p)(u, v) * lhs(v, w)
-              //                    next(1-p)(w,w) := next(1-p)(w,w) + current(p)(u,v) * lhs(v,u)
-              next(p).set(u,w,next(p)(u, w) + current(p)(u, v) * lhs(v, w))
-              next(1-p).set(w,w, next(1-p)(w,w) + current(p)(u,v) * lhs(v,u))
+              next(p)(u,w) := next(p)(u, w) + current(p)(u, v) * lhs(v, w)
+              next(1-p)(w,w) := next(1-p)(w,w) + current(p)(u,v) * lhs(v,u)
             }
           }
         }
@@ -44,8 +41,7 @@ object Determinant {
       cforRange(0 until n) { v =>
         cforRange(0 until n) { u =>
           cforRange(0 to 1) { p =>
-            //                  temp(p)(u,v) := scalar.zero
-            temp(p).set(u,v, scalar.zero)
+            temp(p)(u,v) := scalar.zero
           }
         }
       }

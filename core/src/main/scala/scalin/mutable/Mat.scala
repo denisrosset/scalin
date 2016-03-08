@@ -1,7 +1,6 @@
 package scalin
 package mutable
 
-import spire.algebra._
 import spire.syntax.cfor._
 
 trait Mat[A] extends scalin.Mat[A] {

@@ -3,7 +3,7 @@ package algebra
 
 import spire.algebra._
 
-trait VecMultiplicativeMonoid[A, VA <: Vec[A]] extends VecTrait[A, VA] {
+trait VecMultiplicativeMonoid[A, VA <: Vec[A]] extends VecFactory[A, VA] {
 
   type TC[A1, VA1 <: Vec[A1]] <: VecMultiplicativeMonoid[A1, VA1]
 

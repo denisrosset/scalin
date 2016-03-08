@@ -1,7 +1,5 @@
 package scalin
 
-import scalin.algebra._
-
 /** LU Decomposition.
   * For an m-by-n matrix A with m >= n, the LU decomposition is an m-by-n
   * unit lower triangular matrix L, an n-by-n upper triangular matrix U,

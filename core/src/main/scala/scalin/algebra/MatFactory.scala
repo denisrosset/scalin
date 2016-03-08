@@ -5,7 +5,7 @@ import spire.algebra._
 import spire.syntax.order._
 import spire.syntax.cfor._
 
-trait MatTrait[A, MA <: Mat[A]] {
+trait MatFactory[A, MA <: Mat[A]] {
 
   type Ret = MA
 

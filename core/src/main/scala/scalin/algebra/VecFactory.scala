@@ -5,11 +5,11 @@ import spire.algebra._
 import spire.syntax.order._
 import spire.syntax.cfor._
 
-trait VecTrait[A, VA <: Vec[A]] {
+trait VecFactory[A, VA <: Vec[A]] {
 
   type Ret = VA
 
-  type TC[A1, VA1 <: Vec[A1]] <: VecTrait[A1, VA1]
+  type TC[A1, VA1 <: Vec[A1]] <: VecFactory[A1, VA1]
 
   // creation
 

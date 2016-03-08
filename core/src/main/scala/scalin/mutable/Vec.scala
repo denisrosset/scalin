@@ -1,8 +1,6 @@
 package scalin
 package mutable
 
-import spire.algebra._
-import spire.syntax.ring._
 import spire.syntax.cfor._
 
 trait Vec[A] extends scalin.Vec[A] { lhs =>
@@ -27,4 +25,3 @@ trait Vec[A] extends scalin.Vec[A] { lhs =>
   }
 
 }
-

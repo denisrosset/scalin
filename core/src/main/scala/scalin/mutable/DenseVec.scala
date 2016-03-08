@@ -1,8 +1,6 @@
 package scalin
 package mutable
 
-import spire.syntax.cfor._
-
 class DenseVec[A](var data: Array[AnyRef]) extends scalin.DenseVec[A] with mutable.Vec[A] {
 
   def copyIfOverlap(obj: AnyRef) = if (obj eq this) new DenseVec[A](data.clone) else this

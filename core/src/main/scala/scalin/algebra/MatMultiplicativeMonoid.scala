@@ -3,7 +3,7 @@ package algebra
 
 import spire.algebra._
 
-trait MatMultiplicativeMonoid[A, MA <: Mat[A]] extends MatTrait[A, MA] {
+trait MatMultiplicativeMonoid[A, MA <: Mat[A]] extends MatFactory[A, MA] {
 
   implicit def scalar: MultiplicativeMonoid[A]
 
