@@ -23,17 +23,21 @@ trait VecRing[A, VA <: Vec[A]] extends VecMultiplicativeMonoid[A, VA] {
 
   def pointwiseMinus(lhs: Vec[A], rhs: A): VA
 
+  /** Sum of all the elements in the vector. */
   def sum(lhs: Vec[A]): A
 
   //// Ring methods
 
+  /** Vector-matrix product. The vector is interpreted as a row vector. */
   def times(lhs: Vec[A], rhs: Mat[A]): VA
 
+  /** Matrix-vector product. The vector is interpreted as a column vector. */
   def times(lhs: Mat[A], rhs: Vec[A]): VA
 
   /** Dot product. Equivalent to the real inner product, but not the complex inner product.*/
   def dot(lhs: Vec[A], rhs: Vec[A]): A
 
+  /** Number of contained non-zero elements. */
   def nnz(lhs: Vec[A])(implicit ev: Eq[A]): Int
 
 }

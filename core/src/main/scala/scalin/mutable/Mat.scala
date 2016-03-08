@@ -18,7 +18,7 @@ trait Mat[A] extends scalin.Mat[A] {
     }
   }
 
-  def set(r: Int, cs: Subscript, rhs: Vec[A]): Unit = {
+  def set(r: Int, cs: Subscript, rhs: scalin.Vec[A]): Unit = {
     val ci = cs.forLength(cols)
     val n = ci.length
     require(n == rhs.length)
@@ -34,7 +34,7 @@ trait Mat[A] extends scalin.Mat[A] {
     }
   }
 
-  def set(rs: Subscript, c: Int, rhs: Vec[A]): Unit = {
+  def set(rs: Subscript, c: Int, rhs: scalin.Vec[A]): Unit = {
     val ri = rs.forLength(rows)
     val n = ri.length
     require(n == rhs.length)
@@ -55,7 +55,7 @@ trait Mat[A] extends scalin.Mat[A] {
     }
   }
 
-  def set(rs: Subscript, cs: Subscript, rhs: Mat[A]): Unit = {
+  def set(rs: Subscript, cs: Subscript, rhs: scalin.Mat[A]): Unit = {
     val ri = rs.forLength(rows)
     val ci = cs.forLength(cols)
     require(ri.length == rhs.rows)
@@ -79,7 +79,7 @@ trait Mat[A] extends scalin.Mat[A] {
     }
   }
 
-  def set(sub: Subscript, rhs: Vec[A]): Unit = {
+  def set(sub: Subscript, rhs: scalin.Vec[A]): Unit = {
     val ind = sub.forLength(rows * cols)
     require(rhs.length == ind.length)
     cforRange(0 until ind.length) { k =>

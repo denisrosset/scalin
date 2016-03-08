@@ -28,11 +28,11 @@ trait MatFactory[A, MA <: Mat[A]] {
 
   def toColMat(lhs: Vec[A]): MA
 
-
   //// Standard Java methods
 
   def equal(lhs: Mat[A], rhs: Mat[A]): Boolean
 
+  /** Hashcode compatible with the reference algorithm provided in scalin.impl.VecFactory. */
   def hashCode(lhs: Mat[A]): Int
 
   //// Collection-like methods

@@ -14,7 +14,7 @@ trait Vec[A] extends scalin.Vec[A] { lhs =>
     }
   }
 
-  def set(sub: Subscript, givenRhs: Vec[A]): Unit = {
+  def set(sub: Subscript, givenRhs: scalin.Vec[A]): Unit = {
     val ind = sub.forLength(length)
     val rhs = givenRhs.copyIfOverlap(lhs)
     val n = ind.length

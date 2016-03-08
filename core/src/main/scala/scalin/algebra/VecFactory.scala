@@ -15,12 +15,17 @@ trait VecFactory[A, VA <: Vec[A]] {
 
   def fill(length: Int)(a: => A): VA
 
+  def fillConstant(length: Int)(a: A): VA
+
   def fromSeq(elements: Seq[A]): VA
+
+  def fromVec(vec: Vec[A]): VA
 
   //// Standard Java methods
 
   def equal(lhs: Vec[A], rhs: Vec[A]): Boolean
 
+  /** Hashcode compatible with the reference algorithm provided in scalin.impl.VecFactory. */
   def hashCode(lhs: Vec[A]): Int
 
   //// Collection-like methods
