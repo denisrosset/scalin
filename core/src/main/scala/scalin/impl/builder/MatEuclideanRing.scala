@@ -31,6 +31,7 @@ trait MatEuclideanRing[A, MA <: Mat[A]]
 
   def orthogonalized(lhs: Mat[A]) = {
     val res = UMA.fromMat(lhs)
+    orthogonalize(res)
     result(res)
   }
 
