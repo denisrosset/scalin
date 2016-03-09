@@ -7,9 +7,9 @@ import spire.syntax.ring._
 
 import scalin.syntax.assign._
 
-trait VecRing[A, VA <: Vec[A], UA <: mutable.Vec[A]]
+trait VecRing[A, VA <: Vec[A]]
     extends scalin.impl.VecRing[A, VA]
-    with scalin.impl.builder.VecMultiplicativeMonoid[A, VA, UA] {
+    with scalin.impl.builder.VecMultiplicativeMonoid[A, VA] {
 
   def times(lhs: Vec[A], rhs: Mat[A]): VA = {
     val n = lhs.length

@@ -41,6 +41,8 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.algebra.MatEngine[A, MA] {
 
   def fill(rows: Int, cols: Int)(a: => A): MA = tabulate(rows, cols)( (i, j) => a )
 
+  def fromMat(mat: Mat[A]): MA = tabulate(mat.rows, mat.cols)( (r, c) => mat(r, c) )
+
   def colMajor(rows: Int, cols: Int)(elements: A*): MA = {
     require(elements.size == rows * cols)
     tabulate(rows, cols)( (r, c) => elements(r + c * rows) )
@@ -58,37 +60,6 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.algebra.MatEngine[A, MA] {
   def toRowMat(lhs: Vec[A]): MA = tabulate(1, lhs.length)( (r, c) => lhs(c) )
 
   def toColMat(lhs: Vec[A]): MA = tabulate(lhs.length, 1)( (r, c) => lhs(r) )
-
-  //// Standard Java methods
-
-  /** Tests if the two given matrices are equal. */
-  def equal(lhs: Mat[A], rhs: Mat[A]): Boolean = booleanBinaryAnd(lhs, rhs)(_ == _)
-
-  def hashCode(lhs: Mat[A]): Int = {
-    import scala.util.hashing.MurmurHash3._
-    val seed = 0x3CA7198A
-    var a = 0
-    var b = 1L
-    var n = 0
-    cforRange(0 until lhs.rows) { r =>
-      cforRange(0 until lhs.cols) { c =>
-        val hv = lhs(r, c).##
-        if (hv != 0) {
-          val hkv = (r * 41 + c) * 41 + hv
-          a += hkv
-          b *= (hkv | 1)
-          n += 1
-        }
-      }
-    }
-    var h = seed
-    h = mix(h, lhs.rows)
-    h = mix(h, lhs.cols)
-    h = mix(h, a)
-    h = mix(h, b.toInt)
-    h = mixLast(h, (b >> 32).toInt)
-    finalizeHash(h, n)
-  }
 
   //// Collection-like methods
 

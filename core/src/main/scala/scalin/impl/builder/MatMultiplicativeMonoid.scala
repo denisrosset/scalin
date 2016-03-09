@@ -7,11 +7,12 @@ import scalin.syntax.assign._
 import spire.syntax.cfor._
 import spire.syntax.multiplicativeMonoid._
 
-trait MatMultiplicativeMonoid[A, MA <: Mat[A], UA <: mutable.Mat[A]]
+trait MatMultiplicativeMonoid[A, MA <: Mat[A]]
     extends scalin.impl.MatMultiplicativeMonoid[A, MA]
-    with scalin.impl.builder.MatEngine[A, MA, UA] {
+    with scalin.impl.builder.MatEngine[A, MA] {
 
-  implicit def UA: scalin.algebra.MatMultiplicativeMonoid[A, UA]
+  implicit def UMA: scalin.algebra.MatMultiplicativeMonoid[A, UMA]
+  implicit def UVA: scalin.algebra.VecMultiplicativeMonoid[A, UVA]
 
   def kron(x: Mat[A], y: Mat[A]): MA = {
     val nrx = x.rows

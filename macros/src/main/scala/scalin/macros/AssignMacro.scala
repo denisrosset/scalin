@@ -22,7 +22,6 @@ object AssignMacro {
         c.Expr[Unit](q"$lhs.${transform(method)}($rhs)")
       case _ =>
         sys.error(s"Not implemented for tree ${showRaw(c.macroApplication)} ${show(c.macroApplication)}")
-
     }
   }
 

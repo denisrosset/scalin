@@ -8,9 +8,9 @@ import spire.syntax.multiplicativeMonoid._
 
 import scalin.syntax.assign._
 
-trait VecMultiplicativeMonoid[A, VA <: Vec[A], UA <: mutable.Vec[A]]
+trait VecMultiplicativeMonoid[A, VA <: Vec[A]]
     extends scalin.impl.VecMultiplicativeMonoid[A, VA]
-    with scalin.impl.builder.VecEngine[A, VA, UA] {
+    with scalin.impl.builder.VecEngine[A, VA] {
 
   //// With `MultiplicativeMonoid[A]`, returning vector
 

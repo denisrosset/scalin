@@ -16,4 +16,9 @@ trait MatEuclideanRing[A, MA <: Mat[A]] extends MatRing[A, MA] {
   /** Computes the lcm of the elements of the matrix. */
   def lcm(lhs: Mat[A]): A
 
+  /** Returns the result of the Gram-Schmidt process applied on the matrix,
+    * which is orthogonal but not necessarily orthonormal.
+    */
+  def orthogonalized(lhs: Mat[A]): MA
+
 }

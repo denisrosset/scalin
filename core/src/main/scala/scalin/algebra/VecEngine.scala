@@ -21,26 +21,19 @@ trait VecEngine[A, VA <: Vec[A]] {
 
   def fromVec(vec: Vec[A]): VA
 
-  //// Standard Java methods
-
-  def equal(lhs: Vec[A], rhs: Vec[A]): Boolean
-
-  /** Hashcode compatible with the reference algorithm provided in scalin.impl.VecEngine. */
-  def hashCode(lhs: Vec[A]): Int
-
   //// Collection-like methods
 
-  def count(lhs: Vec[A])(f: A => Boolean): Int
-
-  def fold[A1 >: A](lhs: Vec[A])(z: A1)(op: (A1, A1) => A1): A1
-
-  def map[B](lhs: Vec[B])(f: B => A): VA
-
   def cat(lhs: Vec[A], rhs: Vec[A]): VA
+
+  def count(lhs: Vec[A])(f: A => Boolean): Int
 
   def flatMap[B](lhs: Vec[B])(f: B => Vec[A]): VA
 
   def flatten[B <: Vec[A]](lhs: Vec[B]): VA
+
+  def fold[A1 >: A](lhs: Vec[A])(z: A1)(op: (A1, A1) => A1): A1
+
+  def map[B](lhs: Vec[B])(f: B => A): VA
 
   //// Slices
 

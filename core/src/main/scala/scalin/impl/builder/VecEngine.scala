@@ -6,10 +6,11 @@ import spire.syntax.cfor._
 
 import scalin.syntax.assign._
 
-trait VecEngine[A, VA <: Vec[A], UA <: mutable.Vec[A]] extends scalin.impl.VecEngine[A, VA] {
+trait VecEngine[A, VA <: Vec[A]] extends scalin.impl.VecEngine[A, VA] {
 
   //// Mutable variant
 
+  type UA <: mutable.Vec[A]
   implicit def UA: scalin.algebra.VecEngine[A, UA]
 
   /** Returns a mutable vector of the given length. The initial content of the vector is undefined. */

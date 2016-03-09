@@ -42,34 +42,6 @@ trait VecEngine[A, VA <: Vec[A]] extends scalin.algebra.VecEngine[A, VA] {
 
   def fromVec(vec: Vec[A]): VA = tabulate(vec.length)( k => vec(k) )
 
-  //// Standard Java methods
-
-  /** Tests if the two given vectors are equal. */
-  def equal(lhs: Vec[A], rhs: Vec[A]): Boolean = booleanBinaryAnd(lhs, rhs)(_ == _)
-
-  def hashCode(lhs: Vec[A]): Int = {
-    import scala.util.hashing.MurmurHash3._
-    val seed = 0x3CA7195E
-    var a = 0
-    var b = 1L
-    var n = 0
-    cforRange(0 until lhs.length) { k =>
-      val hv = lhs(k).##
-      if (hv != 0) {
-        val hkv = k * 41 + hv
-        a += hkv
-        b *= (hkv | 1)
-        n += 1
-      }
-    }
-    var h = seed
-    h = mix(h, lhs.length)
-    h = mix(h, a)
-    h = mix(h, b.toInt)
-    h = mixLast(h, (b >> 32).toInt)
-    finalizeHash(h, n)
-  }
-
   //// Collection-like methods
 
   def count(lhs: Vec[A])(f: A => Boolean): Int = {

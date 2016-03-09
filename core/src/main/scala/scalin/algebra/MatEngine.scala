@@ -30,17 +30,18 @@ trait MatEngine[A, MA <: Mat[A]] {
 
   def toColMat(lhs: Vec[A]): MA
 
-  //// Standard Java methods
-
-  def equal(lhs: Mat[A], rhs: Mat[A]): Boolean
-
-  /** Hashcode compatible with the reference algorithm provided in scalin.impl.VecEngine. */
-  def hashCode(lhs: Mat[A]): Int
+  def fromMat(mat: Mat[A]): MA
 
   //// Collection-like methods
 
   /** Returns the number of elements satisfying the predicate `f`. */
   def count(lhs: Mat[A])(f: A => Boolean): Int
+
+  /** Flatten a block matrix. Not defined if the matrix is empty. */
+  def flatten[B <: Mat[A]](lhs: Mat[B]): MA
+
+  /** Returns the flattened block matrix specified by `lhs.map(f)`. Not defined if the matrix is empty. */
+  def flatMap[B](lhs: Mat[B])(f: B => Mat[A]): MA
 
   /** Folds the elements of the matrix using the specified associative binary operator.
     * 
@@ -49,20 +50,20 @@ trait MatEngine[A, MA <: Mat[A]] {
     */
   def fold[A1 >: A](lhs: Mat[A])(z: A1)(op: (A1, A1) => A1): A1
 
-  /** Builds a new matrix by applying a function to all elements of this matrix. */
-  def map[B](lhs: Mat[B])(f: B => A): MA
-
   /** Returns the horizontal concatenation of two matrices with the same number of rows. */
   def horzcat(lhs: Mat[A], rhs: Mat[A]): MA
+
+  /** Builds a new matrix by applying a function to all elements of this matrix. */
+  def map[B](lhs: Mat[B])(f: B => A): MA
 
   /** Returns the vertical concatenation of two matrices with the same number of columns. */
   def vertcat(lhs: Mat[A], rhs: Mat[A]): MA
 
-  /** Flatten a block matrix. Not defined if the matrix is empty. */
-  def flatten[B <: Mat[A]](lhs: Mat[B]): MA
+  //// Slices
 
-  /** Returns the flattened block matrix specified by `lhs.map(f)`. Not defined if the matrix is empty. */
-  def flatMap[B](lhs: Mat[B])(f: B => Mat[A]): MA
+  /** Returns a matrix slice of a matrix.
+    * The return value is a copy (i.e. not read- or write-through as in scala.breeze). */
+  def slice(mat: Mat[A], rs: Subscript, cs: Subscript): MA
 
   //// Shuffling elements around
 
@@ -71,10 +72,6 @@ trait MatEngine[A, MA <: Mat[A]] {
 
   /** Reshapes a vector in a matrix shape, using column-major ordering of elements. */ 
   def reshape(vec: Vec[A], rows1: Int, cols1: Int): MA
-
-  /** Returns a matrix slice of a matrix. 
-    * The return value is a copy (i.e. not read- or write-through as in scala.breeze). */
-  def slice(mat: Mat[A], rs: Subscript, cs: Subscript): MA
 
   //// With `Boolean =:= A`
 

@@ -11,7 +11,7 @@ trait VecRing[A, VA <: Vec[A]] extends VecMultiplicativeMonoid[A, VA] {
 
   def zeros(length: Int): VA
 
-  //// Additive group methods
+  //// With `A:AdditiveGroup`
   
   def plus(lhs: Vec[A], rhs: Vec[A]): VA
 
@@ -23,10 +23,13 @@ trait VecRing[A, VA <: Vec[A]] extends VecMultiplicativeMonoid[A, VA] {
 
   def pointwiseMinus(lhs: Vec[A], rhs: A): VA
 
+  /** Number of contained non-zero elements. */
+  def nnz(lhs: Vec[A])(implicit ev: Eq[A]): Int
+
   /** Sum of all the elements in the vector. */
   def sum(lhs: Vec[A]): A
 
-  //// Ring methods
+  //// With `A:Ring`
 
   /** Vector-matrix product. The vector is interpreted as a row vector. */
   def times(lhs: Vec[A], rhs: Mat[A]): VA
@@ -36,8 +39,5 @@ trait VecRing[A, VA <: Vec[A]] extends VecMultiplicativeMonoid[A, VA] {
 
   /** Dot product. Equivalent to the real inner product, but not the complex inner product.*/
   def dot(lhs: Vec[A], rhs: Vec[A]): A
-
-  /** Number of contained non-zero elements. */
-  def nnz(lhs: Vec[A])(implicit ev: Eq[A]): Int
 
 }

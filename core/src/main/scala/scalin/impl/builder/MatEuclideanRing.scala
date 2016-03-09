@@ -2,13 +2,71 @@ package scalin
 package impl
 package builder
 
-trait MatEuclideanRing[A, MA <: Mat[A], UA <: mutable.Mat[A]]
-    extends scalin.impl.MatEuclideanRing[A, MA]
-    with scalin.impl.builder.MatRing[A, MA, UA] {
+import spire.syntax.cfor._
+import spire.syntax.euclideanRing._
 
-  implicit def UA: scalin.algebra.MatEuclideanRing[A, UA]
+import scalin.algebra.Pivot
+import scalin.syntax.assign._
+
+trait MatEuclideanRing[A, MA <: Mat[A]]
+    extends scalin.impl.MatEuclideanRing[A, MA]
+    with scalin.impl.builder.MatRing[A, MA] {
+
+  implicit val pivotA: Pivot[A]
+
+  implicit def UMA: scalin.algebra.MatEuclideanRing[A, UMA]
+  implicit def UVA: scalin.algebra.VecEuclideanRing[A, UVA]
 
   /** Computes the rank of the matrix. */
-  def rank(lhs: Mat[A]): Int = ??? // TODO
+  def rank(lhs: Mat[A]): Int = {
+    import pivotA.closeToZero
+    val ortho = orthogonalized(lhs)
+      cforRange(ortho.rows - 1 to 0 by -1) { r =>
+        cforRange(0 until ortho.cols) { c =>
+          if (!closeToZero(ortho(r, c))) return r + 1
+        }
+      }
+    0
+  }
+
+  def orthogonalized(lhs: Mat[A]) = {
+    val res = UMA.fromMat(lhs)
+    result(res)
+  }
+
+  protected def orthogonalize(res: UMA): Unit = {
+    import pivotA.closeToZero
+    val zeroRows = scala.collection.mutable.BitSet.empty
+    val nR = res.rows
+    val nC = res.cols
+    cforRange(0 until nR) { i =>
+      if (!zeroRows.contains(i)) {
+        cforRange(i + 1 until nR) { j =>
+          if (!zeroRows.contains(j)) {
+            var uv = scalar.zero
+            var uu = scalar.zero
+            cforRange(0 until nC) { c =>
+              uv = uv + res(i, c) * res(j, c)
+              uu = uu + res(i, c) * res(i, c)
+            }
+            var g = scalar.zero
+            var rowIsZero = true
+            cforRange(0 until nC) { c =>
+              res(j, c) := uu * res(j, c) - uv * res(i, c)
+              val rhs = res(j, c)
+              if (!closeToZero(rhs)) rowIsZero = false
+              g = if (closeToZero(g)) rhs else if (closeToZero(rhs)) g else scalar.gcd(res(j, c), g)
+            }
+            if (rowIsZero) zeroRows += j
+            if (!closeToZero(g)) {
+              cforRange(0 until nC) { c =>
+                res(j, c) := res(j, c) /~ g
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
 }
