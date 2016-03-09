@@ -6,6 +6,10 @@ import spire.syntax.cfor._
 
 trait MatEngine[A, MA <: Mat[A]] extends scalin.impl.MatEngine[A, MA] {
 
+  //// Creation
+
+  def fillConstant(rows: Int, cols: Int)(a: A): MA = fill(rows, cols)(a)
+
   //// Collection-like methods
 
   // They have slow implementations due to the absence of a mutable builder.

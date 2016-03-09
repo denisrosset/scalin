@@ -33,8 +33,8 @@ trait VecEngine[A, VA <: Vec[A], UA <: mutable.Vec[A]] extends scalin.impl.VecEn
     val nl = lhs.length
     val nr = rhs.length
     val res = alloc(nl + nr)
-    cforRange(0 until nl) { k => res(k) := lhs(k) }
-    cforRange(0 until nr) { k => res(nl + k) := rhs(k) }
+    res(0 until nl) := lhs
+    res(nl until nl + nr) := rhs
     result(res)
   }
 

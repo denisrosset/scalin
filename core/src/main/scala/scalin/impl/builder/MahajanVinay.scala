@@ -1,11 +1,8 @@
 package scalin
 package impl
+package builder
 
 import spire.algebra.Ring
-
-import scalin.algebra._
-
-object Determinant {
 
   /** Matrix-in-ring determinant algorithm from Mahajan and Vinay, see
     * http://cjtcs.cs.uchicago.edu/articles/1997/5/cj97-05.pdf
@@ -13,7 +10,9 @@ object Determinant {
     * TODO: implement optimizations present in
     * https://github.com/gap-system/gap/blob/master/lib/matrix.gi
     */
-  def mahajanVinay[A, M[A] <: mutable.Mat[A]](lhs: Mat[A])(implicit MA: MatRing[A, M[A]]): A = {
+object MahajanVinay {
+
+  def apply[A, MA <: mutable.Mat[A]](lhs: Mat[A])(implicit MA: scalin.algebra.MatRing[A, MA]): A = {
     import spire.syntax.cfor._
     import spire.syntax.ring._
     import scalin.syntax.all._
@@ -38,13 +37,8 @@ object Determinant {
       }
       val temp = current
       current = next
-      cforRange(0 until n) { v =>
-        cforRange(0 until n) { u =>
-          cforRange(0 to 1) { p =>
-            temp(p)(u,v) := scalar.zero
-          }
-        }
-      }
+      temp(0)(::, ::) := scalar.zero
+      temp(1)(::, ::) := scalar.zero
       next = temp
     }
     var tplus = scalar.zero

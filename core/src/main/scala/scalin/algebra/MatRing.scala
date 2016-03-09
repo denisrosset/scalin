@@ -27,6 +27,12 @@ trait MatRing[A, MA <: Mat[A]] extends MatMultiplicativeMonoid[A, MA] {
 
   def pointwiseMinus(lhs: Mat[A], rhs: A): MA
 
+  /** Trace of the matrix, equal to the sum of diagonal entries.
+    * 
+    * Requires a square matrix.
+    */
+  def trace(lhs: Mat[A]): A
+
   /** Computes the sum of all the matrix elements. */
   def sum(lhs: Mat[A]): A
 
@@ -39,12 +45,6 @@ trait MatRing[A, MA <: Mat[A]] extends MatMultiplicativeMonoid[A, MA] {
     * 
     * See https://en.wikipedia.org/wiki/Matrix_multiplication#Frobenius_product .*/
   def frobenius(lhs: Mat[A], rhs: Mat[A]): A
-
-  /** Trace of the matrix, equal to the sum of diagonal entries.
-    * 
-    * Requires a square matrix.
-    */
-  def trace(lhs: Mat[A]): A
 
   /** Computes the matrix determinant. */
   def determinant(lhs: Mat[A]): A

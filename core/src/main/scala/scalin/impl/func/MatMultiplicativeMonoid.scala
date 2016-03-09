@@ -2,28 +2,13 @@ package scalin
 package impl
 package func
 
-import spire.algebra._
+import spire.syntax.multiplicativeMonoid._
 
 trait MatMultiplicativeMonoid[A, MA <: Mat[A]]
-    extends scalin.algebra.MatMultiplicativeMonoid[A, MA]
+    extends scalin.impl.MatMultiplicativeMonoid[A, MA]
     with scalin.impl.func.MatEngine[A, MA] {
 
-  implicit def scalar: MultiplicativeMonoid[A]
-
-  import spire.syntax.multiplicativeMonoid._
-
-  // builder methods
-
-  def ones(rows: Int, cols: Int): MA =
-    fill(rows, cols)(scalar.one)
-
-  def times(lhs: A, rhs: Mat[A]): MA = pointwiseUnary(rhs)(lhs * _)
-
-  def times(lhs: Mat[A], rhs: A): MA = pointwiseUnary(lhs)(_ * rhs)
-
-  def pointwiseTimes(lhs: Mat[A], rhs: Mat[A]): MA = pointwiseBinary(lhs, rhs)(_ * _)
-
-  def dyad(lhs: Vec[A], rhs: Vec[A]): MA = tabulate(lhs.length, rhs.length) { (r, c) => lhs(r) * rhs(c) }
+  //// With `MultiplicativeMonoid[A]`, returning matrix
 
   def kron(lhs: Mat[A], rhs: Mat[A]): MA =
     tabulate(lhs.rows * rhs.rows, lhs.cols * rhs.cols) { (r, c) =>
@@ -33,7 +18,5 @@ trait MatMultiplicativeMonoid[A, MA <: Mat[A]]
       val cl = c / rhs.cols
       lhs(rl, cl) * rhs(rr, cr)
     }
-
-  def product(lhs: Mat[A]): A = fold(lhs)(scalar.one)(scalar.times)
 
 }

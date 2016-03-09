@@ -16,6 +16,8 @@ trait MatEngine[A, MA <: Mat[A]] {
 
   def fill(rows: Int, cols: Int)(a: => A): MA
 
+  def fillConstant(rows: Int, cols: Int)(a: A): MA
+
   def colMajor(rows: Int, cols: Int)(elements: A*): MA
 
   def rowMajor(rows: Int, cols: Int)(elements: A*): MA
