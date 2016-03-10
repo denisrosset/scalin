@@ -128,6 +128,9 @@ trait MatField[A, MA <: Mat[A]]
 
   }
 
+  /** Implementation taken from the JAMA library (NIST), in the public domain, and
+    * translated to Scala.
+    */
   def inplaceLU(lu: UMA): LUDecomposition[A] { type MA = UMA } = {
     val m = lu.rows // row dimension
     val n = lu.cols // column dimension

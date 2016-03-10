@@ -4,6 +4,8 @@ import scala.annotation.tailrec
 
 import spire.syntax.cfor._
 
+// Inspired by the Breeze library code. To be rewritten with support for multi-line
+// matrix/vector elements.
 object Printer {
 
   val terminalHeight = 80
