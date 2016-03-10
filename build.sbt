@@ -18,7 +18,7 @@ lazy val core = (project in file("core"))
   .settings(commonJvmSettings: _*)
   .dependsOn(macros)
 
-lazy val scalinSettings = buildSettings ++ commonSettings ++ publishSettings
+lazy val scalinSettings = buildSettings ++ commonSettings ++ publishSettings ++ tutSettings
 
 lazy val buildSettings = Seq(
   organization := "net.alasc",
@@ -44,7 +44,7 @@ lazy val commonSettings = Seq(
 
 lazy val publishSettings = Seq(
   homepage := Some(url("https://github.com/denisrosset/scalin")),
-  licenses += ("GPL3", url("http://opensource.org/licenses/GPL-3.0")),
+  licenses += ("GPL-3.0", url("http://opensource.org/licenses/GPL-3.0")),
   bintrayRepository := "scalin",
   publishArtifact in Test := false
 )
