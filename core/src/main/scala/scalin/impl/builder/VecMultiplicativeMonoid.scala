@@ -2,7 +2,6 @@ package scalin
 package impl
 package builder
 
-import spire.algebra.MultiplicativeMonoid
 import spire.syntax.cfor._
 import spire.syntax.multiplicativeMonoid._
 

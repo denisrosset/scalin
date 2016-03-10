@@ -4,7 +4,6 @@ import scalin.mutable.dense._
 import scalin.syntax.AllSyntax
 
 import spire.algebra.Eq
-import spire.math._
 import spire.implicits._
 
 import org.scalatest.{FunSuite, PropSpec, Matchers}

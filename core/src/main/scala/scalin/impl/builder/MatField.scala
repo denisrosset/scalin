@@ -3,7 +3,7 @@ package impl
 package builder
 
 import spire.algebra.NRoot
-import spire.math.{min, max}
+import spire.math.min
 import spire.syntax.cfor._
 import spire.syntax.field._
 

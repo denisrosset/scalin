@@ -2,14 +2,12 @@ package scalin
 package impl
 package builder
 
-import spire.algebra.Ring
-
-  /** Matrix-in-ring determinant algorithm from Mahajan and Vinay, see
-    * http://cjtcs.cs.uchicago.edu/articles/1997/5/cj97-05.pdf
-    * 
-    * TODO: implement optimizations present in
-    * https://github.com/gap-system/gap/blob/master/lib/matrix.gi
-    */
+/** Matrix-in-ring determinant algorithm from Mahajan and Vinay, see
+  * http://cjtcs.cs.uchicago.edu/articles/1997/5/cj97-05.pdf
+  * 
+  * TODO: implement optimizations present in
+  * https://github.com/gap-system/gap/blob/master/lib/matrix.gi
+  */
 object MahajanVinay {
 
   def apply[A, MA <: mutable.Mat[A]](lhs: Mat[A])(implicit MA: scalin.algebra.MatRing[A, MA]): A = {

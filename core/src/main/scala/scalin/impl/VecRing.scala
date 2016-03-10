@@ -1,7 +1,7 @@
 package scalin
 package impl
 
-import spire.algebra.{Eq, Ring}
+import spire.algebra.Eq
 import spire.syntax.ring._
 import spire.syntax.cfor._
 

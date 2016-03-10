@@ -2,7 +2,6 @@ package scalin
 package impl
 package func
 
-import spire.algebra.{Eq, Ring}
 import spire.syntax.cfor._
 import spire.syntax.ring._
 

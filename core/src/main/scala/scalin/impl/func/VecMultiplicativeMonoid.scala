@@ -2,8 +2,6 @@ package scalin
 package impl
 package func
 
-import spire.algebra.MultiplicativeMonoid
-
 trait VecMultiplicativeMonoid[A, VA <: Vec[A]]
     extends scalin.impl.VecMultiplicativeMonoid[A, VA]
     with scalin.impl.func.VecEngine[A, VA] {
