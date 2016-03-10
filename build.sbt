@@ -22,7 +22,7 @@ lazy val scalinSettings = buildSettings ++ commonSettings ++ publishSettings
 
 lazy val buildSettings = Seq(
   organization := "net.alasc",
-  scalaVersion := "2.11.7",
+  scalaVersion := "2.11.8",
   crossScalaVersions := Seq("2.10.6", "2.11.7")
 )
 
@@ -43,9 +43,9 @@ lazy val commonSettings = Seq(
 ) ++ scalaMacroDependencies ++ warnUnusedImport
 
 lazy val publishSettings = Seq(
-  homepage := None, // Some(url("http://scala-metal.org")),
-  licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
-//  bintrayRepository := "metal",
+  homepage := Some(url("https://github.com/denisrosset/scalin")),
+  licenses += ("GPL3", url("http://opensource.org/licenses/GPL-3.0")),
+  bintrayRepository := "scalin",
   publishArtifact in Test := false
 )
 
@@ -79,7 +79,8 @@ lazy val commonJvmSettings = Seq(
 ) ++ selectiveOptimize
   // -optimize has no effect in scala-js other than slowing down the build
 
-// do not optimize on Scala 2.10 because of optimizer bugs
+// do not optimize on Scala 2.10 because of optimizer bugs (cargo-cult setting
+// from my experience with metal)
 lazy val selectiveOptimize = 
   scalacOptions ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
