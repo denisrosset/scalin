@@ -11,11 +11,11 @@ trait MatMultiplicativeMonoid[A, MA <: Mat[A]]
   //// With `MultiplicativeMonoid[A]`, returning matrix
 
   def kron(lhs: Mat[A], rhs: Mat[A]): MA =
-    tabulate(lhs.rows * rhs.rows, lhs.cols * rhs.cols) { (r, c) =>
-      val rr = r % rhs.rows
-      val rl = r / rhs.rows
-      val cr = c % rhs.cols
-      val cl = c / rhs.cols
+    tabulate(lhs.nRows * rhs.nRows, lhs.nCols * rhs.nCols) { (r, c) =>
+      val rr = r % rhs.nRows
+      val rl = r / rhs.nRows
+      val cr = c % rhs.nCols
+      val cl = c / rhs.nCols
       lhs(rl, cl) * rhs(rr, cr)
     }
 

@@ -17,7 +17,7 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.impl.MatEngine[A, MA] {
   implicit def UVA: scalin.algebra.VecEngine[A, UVA]
 
   def rowsPermute(m: UMA, r1: Int, r2: Int): Unit = {
-    cforRange(0 until m.cols) { c =>
+    cforRange(0 until m.nCols) { c =>
       val t = m(r1, c)
       m(r1, c) := m(r2, c)
       m(r2, c) := t
@@ -48,14 +48,14 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.impl.MatEngine[A, MA] {
   }
 
   def rowsPermuteInverse(m: UMA, rowPermInverse: Array[Int]): Unit = {
-    if (m.cols == 0) return
+    if (m.nCols == 0) return
     val bs = scala.collection.mutable.BitSet.empty
-    cforRange(0 until m.rows) { i => bs += i }
+    cforRange(0 until m.nRows) { i => bs += i }
     while (bs.nonEmpty) {
       val start = bs.head
       bs -= start
       if (start != rowPermInverse(start)) {
-        cforRange(0 until m.cols) { c =>
+        cforRange(0 until m.nCols) { c =>
           var last = start
           var current = rowPermInverse(start)
           val temp = m(start, c)
@@ -72,14 +72,14 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.impl.MatEngine[A, MA] {
   }
 
   def colsPermuteInverse(m: UMA, colPermInverse: Array[Int]): Unit = {
-    if (m.rows == 0) return
+    if (m.nRows == 0) return
     val bs = scala.collection.mutable.BitSet.empty
-    cforRange(0 until m.cols) { i => bs += i }
+    cforRange(0 until m.nCols) { i => bs += i }
     while (bs.nonEmpty) {
       val start: Int = bs.head
       bs -= start
       if (start != colPermInverse(start)) {
-        cforRange(0 until m.rows) { r =>
+        cforRange(0 until m.nRows) { r =>
           var last: Int = start
           var current: Int = colPermInverse(start)
           val temp = m(r, start)
@@ -125,10 +125,10 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.impl.MatEngine[A, MA] {
   // They have slow implementations due to the absence of a mutable builder.
 
   def horzcat(lhs: Mat[A], rhs: Mat[A]): MA = {
-    val m = lhs.rows
-    require(m == rhs.rows)
-    val nl = lhs.cols
-    val nr = rhs.cols
+    val m = lhs.nRows
+    require(m == rhs.nRows)
+    val nl = lhs.nCols
+    val nr = rhs.nCols
     val res = alloc(m, nl + nr)
     res(::, 0 until nl) := lhs
     res(::, nl until nl + nr) := rhs
@@ -136,10 +136,10 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.impl.MatEngine[A, MA] {
   }
 
   def vertcat(lhs: Mat[A], rhs: Mat[A]): MA = {
-    val n = lhs.cols
-    require(n == rhs.cols)
-    val ml = lhs.rows
-    val mr = rhs.rows
+    val n = lhs.nCols
+    require(n == rhs.nCols)
+    val ml = lhs.nRows
+    val mr = rhs.nRows
     val res = alloc(ml + mr, n)
     res(0 until ml, ::) := lhs
     res(ml until ml + mr, ::) := rhs
@@ -152,21 +152,21 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.impl.MatEngine[A, MA] {
     var rows = 0
     var cols = 0
     cforRange(0 until blockCols) { bc =>
-      cols += block(0, bc).cols
+      cols += block(0, bc).nCols
     }
     cforRange(0 until blockRows) { br =>
-      rows += block(br, 0).rows
+      rows += block(br, 0).nRows
     }
     val res = alloc(rows, cols)
     var row = 0
     cforRange(0 until blockRows) { br =>
       var col = 0
-      val nr = block(br, 0).rows
+      val nr = block(br, 0).nRows
       cforRange(0 until blockCols) { bc =>
         val b = block(br, bc)
-        require(b.rows == nr)
-        res(row until row + b.rows, col until col + b.cols) := b
-        col += b.cols
+        require(b.nRows == nr)
+        res(row until row + b.nRows, col until col + b.nCols) := b
+        col += b.nCols
       }
       row += nr
     }
@@ -174,27 +174,27 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.impl.MatEngine[A, MA] {
   }
 
   def flatMap[B](lhs: Mat[B])(f: B => Mat[A]): MA =
-    if (lhs.rows == 0 || lhs.cols == 0) sys.error("Cannot flatten matrix with 0 rows or zero cols.")
+    if (lhs.nRows == 0 || lhs.nCols == 0) sys.error("Cannot flatten matrix with 0 rows or zero cols.")
     else {
-      val els = new Array[Mat[A]](lhs.rows * lhs.cols)
-      cforRange(0 until lhs.rows) { r =>
-        cforRange(0 until lhs.cols) { c =>
-          els(r + c * lhs.rows) = f(lhs(r, c))
+      val els = new Array[Mat[A]](lhs.nRows * lhs.nCols)
+      cforRange(0 until lhs.nRows) { r =>
+        cforRange(0 until lhs.nCols) { c =>
+          els(r + c * lhs.nRows) = f(lhs(r, c))
         }
       }
-      flattenArray(els, lhs.rows, lhs.cols)
+      flattenArray(els, lhs.nRows, lhs.nCols)
     }
 
   def flatten[B <: Mat[A]](lhs: Mat[B]): MA =
-    if (lhs.rows == 0 || lhs.cols == 0) sys.error("Cannot flatten matrix with 0 rows or zero cols.")
+    if (lhs.nRows == 0 || lhs.nCols == 0) sys.error("Cannot flatten matrix with 0 rows or zero cols.")
     else {
-      val els = new Array[Mat[A]](lhs.rows * lhs.cols)
-      cforRange(0 until lhs.rows) { r =>
-        cforRange(0 until lhs.cols) { c =>
-          els(r + c * lhs.rows) = lhs(r, c)
+      val els = new Array[Mat[A]](lhs.nRows * lhs.nCols)
+      cforRange(0 until lhs.nRows) { r =>
+        cforRange(0 until lhs.nCols) { c =>
+          els(r + c * lhs.nRows) = lhs(r, c)
         }
       }
-      flattenArray(els, lhs.rows, lhs.cols)
+      flattenArray(els, lhs.nRows, lhs.nCols)
     }
 
 }

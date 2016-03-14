@@ -30,8 +30,8 @@ trait MatRing[A, MA <: Mat[A]]
   def pointwiseMinus(lhs: Mat[A], rhs: A): MA = pointwiseUnary(lhs)(_ - rhs)
 
   def trace(lhs: Mat[A]): A = {
-    val n = lhs.rows
-    require(n == lhs.cols)
+    val n = lhs.nRows
+    require(n == lhs.nCols)
     if (n == 0) scalar.zero else {
       var sum = lhs(0, 0)
       cforRange(1 until n) { k =>
@@ -47,14 +47,14 @@ trait MatRing[A, MA <: Mat[A]]
 
   def times(lhs: Mat[A], rhs: Mat[A]): MA = {
     import spire.syntax.cfor._
-    val n = lhs.cols
-    require(n == rhs.rows)
+    val n = lhs.nCols
+    require(n == rhs.nRows)
     if (n == 0)
-      zeros(lhs.rows, rhs.cols)
+      zeros(lhs.nRows, rhs.nCols)
     else
-      tabulate(lhs.rows, rhs.cols) { (r, c) =>
+      tabulate(lhs.nRows, rhs.nCols) { (r, c) =>
         var sum = lhs(r, 0) * rhs(0, c)
-        cforRange(1 until lhs.cols) { k =>
+        cforRange(1 until lhs.nCols) { k =>
           sum += lhs(r, k) * rhs(k, c)
         }
         sum
@@ -62,10 +62,10 @@ trait MatRing[A, MA <: Mat[A]]
   }
 
   def frobenius(lhs: Mat[A], rhs: Mat[A]): A = {
-    val nr = lhs.rows
-    require(nr == rhs.rows)
-    val nc = lhs.cols
-    require(nc == rhs.cols)
+    val nr = lhs.nRows
+    require(nr == rhs.nRows)
+    val nc = lhs.nCols
+    require(nc == rhs.nCols)
     import spire.syntax.cfor._
     var sum = scalar.zero
     cforRange(0 until nr) { r =>

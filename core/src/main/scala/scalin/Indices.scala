@@ -41,10 +41,10 @@ object Subscript {
   implicit def fromMask(mask: Mat[Boolean]): Subscript = {
     val array = new Array[Int](scalin.impl.Mat.countTrue(mask))
     var ak = 0
-    cforRange(0 until mask.rows) { rk =>
-      cforRange(0 until mask.cols) { ck =>
+    cforRange(0 until mask.nRows) { rk =>
+      cforRange(0 until mask.nCols) { ck =>
         if (mask(rk, ck)) {
-          array(ak) = rk + ck * mask.rows
+          array(ak) = rk + ck * mask.nRows
           ak += 1
         }
       }

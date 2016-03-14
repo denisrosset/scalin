@@ -15,10 +15,10 @@ trait MatMultiplicativeMonoid[A, MA <: Mat[A]]
   implicit def UVA: scalin.algebra.VecMultiplicativeMonoid[A, UVA]
 
   def kron(x: Mat[A], y: Mat[A]): MA = {
-    val nrx = x.rows
-    val ncx = x.cols
-    val nry = y.rows
-    val ncy = y.cols
+    val nrx = x.nRows
+    val ncx = x.nCols
+    val nry = y.nRows
+    val ncy = y.nCols
     val nR = nrx * nry
     val nC = ncx * ncy
     val b = alloc(nR, nC)

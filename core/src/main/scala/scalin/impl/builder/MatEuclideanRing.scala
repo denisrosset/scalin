@@ -21,8 +21,8 @@ trait MatEuclideanRing[A, MA <: Mat[A]]
   def rank(lhs: Mat[A]): Int = {
     import pivotA.closeToZero
     val ortho = orthogonalized(lhs)
-      cforRange(ortho.rows - 1 to 0 by -1) { r =>
-        cforRange(0 until ortho.cols) { c =>
+      cforRange(ortho.nRows - 1 to 0 by -1) { r =>
+        cforRange(0 until ortho.nCols) { c =>
           if (!closeToZero(ortho(r, c))) return r + 1
         }
       }
@@ -38,8 +38,8 @@ trait MatEuclideanRing[A, MA <: Mat[A]]
   protected def orthogonalize(res: UMA): Unit = {
     import pivotA.closeToZero
     val zeroRows = scala.collection.mutable.BitSet.empty
-    val nR = res.rows
-    val nC = res.cols
+    val nR = res.nRows
+    val nC = res.nCols
     cforRange(0 until nR) { i =>
       if (!zeroRows.contains(i)) {
         cforRange(i + 1 until nR) { j =>

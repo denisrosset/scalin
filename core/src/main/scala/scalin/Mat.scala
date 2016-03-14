@@ -55,9 +55,9 @@ trait Mat[A] { lhs =>
 
   //// Abstract methods
 
-  def rows: Int
+  def nRows: Int
 
-  def cols: Int
+  def nCols: Int
 
   def apply(r: Int, c: Int): A
 

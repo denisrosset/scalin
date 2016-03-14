@@ -6,9 +6,9 @@ import spire.syntax.cfor._
 object Mat {
 
   def equal(lhs: Mat[_], rhs: Mat[_]): Boolean =
-    (lhs.rows == rhs.rows && lhs.cols == rhs.cols) && {
-      cforRange(0 until lhs.rows) { r =>
-        cforRange(0 until lhs.cols) { c =>
+    (lhs.nRows == rhs.nRows && lhs.nCols == rhs.nCols) && {
+      cforRange(0 until lhs.nRows) { r =>
+        cforRange(0 until lhs.nCols) { c =>
           if (lhs(r, c) != rhs(r, c)) return false
         }
       }
@@ -21,8 +21,8 @@ object Mat {
     var a = 0
     var b = 1L
     var n = 0
-    cforRange(0 until lhs.rows) { r =>
-      cforRange(0 until lhs.cols) { c =>
+    cforRange(0 until lhs.nRows) { r =>
+      cforRange(0 until lhs.nCols) { c =>
         val hv = lhs(r, c).##
         if (hv != 0) {
           val hkv = (r * 41 + c) * 41 + hv
@@ -33,8 +33,8 @@ object Mat {
       }
     }
     var h = seed
-    h = mix(h, lhs.rows)
-    h = mix(h, lhs.cols)
+    h = mix(h, lhs.nRows)
+    h = mix(h, lhs.nCols)
     h = mix(h, a)
     h = mix(h, b.toInt)
     h = mixLast(h, (b >> 32).toInt)
@@ -43,8 +43,8 @@ object Mat {
 
   def countTrue[A](lhs: Mat[A])(implicit ev: A =:= Boolean): Int = {
     var sum = 0
-    cforRange(0 until lhs.rows) { r =>
-      cforRange(0 until lhs.cols) { c =>
+    cforRange(0 until lhs.nRows) { r =>
+      cforRange(0 until lhs.nCols) { c =>
         if (lhs(r, c): Boolean)
           sum += 1
       }

@@ -9,18 +9,18 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.algebra.MatEngine[A, MA] {
 
   //// Helper methods
 
-  def pointwiseUnary(lhs: Mat[A])(f: A => A) = tabulate(lhs.rows, lhs.cols)( (r, c) => f(lhs(r, c)) )
+  def pointwiseUnary(lhs: Mat[A])(f: A => A) = tabulate(lhs.nRows, lhs.nCols)((r, c) => f(lhs(r, c)) )
 
   def pointwiseBinary(lhs: Mat[A], rhs: Mat[A])(f: (A, A) => A): MA = {
-    require(lhs.rows == rhs.rows)
-    require(lhs.cols == rhs.cols)
-    tabulate(lhs.rows, lhs.cols)( (r, c) => f(lhs(r, c), rhs(r, c)) )
+    require(lhs.nRows == rhs.nRows)
+    require(lhs.nCols == rhs.nCols)
+    tabulate(lhs.nRows, lhs.nCols)((r, c) => f(lhs(r, c), rhs(r, c)) )
   }
 
   def booleanBinaryAnd(lhs: Mat[A], rhs: Mat[A])(f: (A, A) => Boolean): Boolean =
-    (lhs.rows == rhs.rows && lhs.cols == rhs.cols) && {
-      cforRange(0 until lhs.rows) { r =>
-        cforRange(0 until lhs.cols) { c =>
+    (lhs.nRows == rhs.nRows && lhs.nCols == rhs.nCols) && {
+      cforRange(0 until lhs.nRows) { r =>
+        cforRange(0 until lhs.nCols) { c =>
           if (!f(lhs(r, c), rhs(r, c))) return false
         }
       }
@@ -28,11 +28,11 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.algebra.MatEngine[A, MA] {
     }
 
   def pointwiseBooleanUnary[B](lhs: Mat[B])(f: B => Boolean)(implicit ev: Boolean =:= A): MA =
-    tabulate(lhs.rows, lhs.cols)( (r, c) =>  f(lhs(r, c)) )
+    tabulate(lhs.nRows, lhs.nCols)((r, c) =>  f(lhs(r, c)) )
 
   def pointwiseBooleanBinary[B](lhs: Mat[B], rhs: Mat[B])(f: (B, B) => Boolean)(implicit ev: Boolean =:= A): MA = {
-    require(lhs.rows == rhs.rows && lhs.cols == rhs.cols)
-    tabulate(lhs.rows, lhs.cols)( (r, c) =>  f(lhs(r, c), rhs(r, c)) )
+    require(lhs.nRows == rhs.nRows && lhs.nCols == rhs.nCols)
+    tabulate(lhs.nRows, lhs.nCols)((r, c) =>  f(lhs(r, c), rhs(r, c)) )
   }
 
   //// Creation
@@ -41,7 +41,7 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.algebra.MatEngine[A, MA] {
 
   def fill(rows: Int, cols: Int)(a: => A): MA = tabulate(rows, cols)( (i, j) => a )
 
-  def fromMat(mat: Mat[A]): MA = tabulate(mat.rows, mat.cols)( (r, c) => mat(r, c) )
+  def fromMat(mat: Mat[A]): MA = tabulate(mat.nRows, mat.nCols)((r, c) => mat(r, c) )
 
   def colMajor(rows: Int, cols: Int)(elements: A*): MA = {
     require(elements.size == rows * cols)
@@ -65,8 +65,8 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.algebra.MatEngine[A, MA] {
 
   def count(lhs: Mat[A])(f: A => Boolean): Int = {
     var n = 0
-    cforRange(0 until lhs.rows) { r =>
-      cforRange(0 until lhs.cols) { c =>
+    cforRange(0 until lhs.nRows) { r =>
+      cforRange(0 until lhs.nCols) { c =>
         if (f(lhs(r, c)))
           n += 1
       }
@@ -75,25 +75,25 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.algebra.MatEngine[A, MA] {
   }
 
   def fold[A1 >: A](lhs: Mat[A])(z: A1)(op: (A1, A1) => A1): A1 =
-    if (lhs.rows == 0 || lhs.cols == 0) z
-    else if (lhs.rows == 1 && lhs.cols == 1) lhs(0, 0)
+    if (lhs.nRows == 0 || lhs.nCols == 0) z
+    else if (lhs.nRows == 1 && lhs.nCols == 1) lhs(0, 0)
     else {
       var acc = z // could be optimized
       var i = 0
       // in column-major order
-      cforRange(0 until lhs.cols) { c =>
-        cforRange(0 until lhs.rows) { r =>
+      cforRange(0 until lhs.nCols) { c =>
+        cforRange(0 until lhs.nRows) { r =>
           acc = op(acc, lhs(r, c))
         }
       }
       acc
     }
 
-  def map[B](lhs: Mat[B])(f: B => A): MA = tabulate(lhs.rows, lhs.cols)( (r, c) => f(lhs(r, c)) )
+  def map[B](lhs: Mat[B])(f: B => A): MA = tabulate(lhs.nRows, lhs.nCols)((r, c) => f(lhs(r, c)) )
 
   //// Shuffling elements around
 
-  def t(mat: Mat[A]): MA = tabulate(mat.cols, mat.rows)( (i, j) => mat(j, i) )
+  def t(mat: Mat[A]): MA = tabulate(mat.nCols, mat.nRows)((i, j) => mat(j, i) )
 
   def reshape(vec: Vec[A], rows1: Int, cols1: Int): MA = {
     require(vec.length == rows1 * cols1)
@@ -103,8 +103,8 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.algebra.MatEngine[A, MA] {
   //// Slices
 
   def slice(mat: Mat[A], rs: Subscript, cs: Subscript): MA = {
-    val ri = rs.forLength(mat.rows)
-    val ci = cs.forLength(mat.cols)
+    val ri = rs.forLength(mat.nRows)
+    val ci = cs.forLength(mat.nCols)
     tabulate(ri.length, ci.length)( (k, l) => mat(ri(k), ci(l)) )
   }
 

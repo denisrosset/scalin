@@ -74,24 +74,24 @@ trait VecEngine[A, VA <: Vec[A]] extends scalin.algebra.VecEngine[A, VA] {
   }
 
   def slice(mat: Mat[A], sub: Subscript): VA = {
-    val ind = sub.forLength(mat.rows * mat.cols)
+    val ind = sub.forLength(mat.nRows * mat.nCols)
     tabulate(ind.length) { k =>
       val ik = ind(k)
-      val r = ik % mat.rows
-      val c = ik / mat.rows
+      val r = ik % mat.nRows
+      val c = ik / mat.nRows
       mat(r, c)
     }
   }
 
   /** Slices a vector from a matrix, for the row `r` and column subscript `cs`. */
   def rowSlice(mat: Mat[A], r: Int, cs: Subscript): VA = {
-    val ci = cs.forLength(mat.cols)
+    val ci = cs.forLength(mat.nCols)
     tabulate(ci.length)( k => mat(r, ci(k)) )
   }
 
   /** Slices a vector from a matrix, for the column `c` and the row subscript `rs`. */
   def colSlice(mat: Mat[A], rs: Subscript, c: Int): VA = {
-    val ri = rs.forLength(mat.rows)
+    val ri = rs.forLength(mat.nRows)
     tabulate(ri.length)( k => mat(ri(k), c) )
   }
 

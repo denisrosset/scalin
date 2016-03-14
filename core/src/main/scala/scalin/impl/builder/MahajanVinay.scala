@@ -15,8 +15,8 @@ object MahajanVinay {
     import spire.syntax.ring._
     import scalin.syntax.all._
     import MA.scalar
-    val n = lhs.rows
-    require(lhs.cols == n)
+    val n = lhs.nRows
+    require(lhs.nCols == n)
     var current = new Array[mutable.Mat[A]](2)
     val b = n % 2
     current(b) = eye[A](n)

@@ -12,14 +12,14 @@ trait Mat[A] extends scalin.Mat[A] {
   // 1xn and nx1
 
   def set(r: Int, cs: Subscript, rhs: A): Unit = {
-    val ci = cs.forLength(cols)
+    val ci = cs.forLength(nCols)
     cforRange(0 until ci.length) { ck =>
       set(r, ci(ck), rhs)
     }
   }
 
   def set(r: Int, cs: Subscript, rhs: scalin.Vec[A]): Unit = {
-    val ci = cs.forLength(cols)
+    val ci = cs.forLength(nCols)
     val n = ci.length
     require(n == rhs.length)
     cforRange(0 until ci.length) { ck =>
@@ -28,14 +28,14 @@ trait Mat[A] extends scalin.Mat[A] {
   }
 
   def set(rs: Subscript, c: Int, rhs: A): Unit = {
-    val ri = rs.forLength(rows)
+    val ri = rs.forLength(nRows)
     cforRange(0 until ri.length) { rk =>
       set(ri(rk), c, rhs)
     }
   }
 
   def set(rs: Subscript, c: Int, rhs: scalin.Vec[A]): Unit = {
-    val ri = rs.forLength(rows)
+    val ri = rs.forLength(nRows)
     val n = ri.length
     require(n == rhs.length)
     cforRange(0 until ri.length) { rk =>
@@ -46,8 +46,8 @@ trait Mat[A] extends scalin.Mat[A] {
   // nxn
 
   def set(rs: Subscript, cs: Subscript, rhs: A): Unit = {
-    val ri = rs.forLength(rows)
-    val ci = cs.forLength(cols)
+    val ri = rs.forLength(nRows)
+    val ci = cs.forLength(nCols)
     cforRange(0 until ri.length) { rk =>
       cforRange(0 until ci.length) { ck =>
         set(ri(rk), ci(ck), rhs)
@@ -56,10 +56,10 @@ trait Mat[A] extends scalin.Mat[A] {
   }
 
   def set(rs: Subscript, cs: Subscript, rhs: scalin.Mat[A]): Unit = {
-    val ri = rs.forLength(rows)
-    val ci = cs.forLength(cols)
-    require(ri.length == rhs.rows)
-    require(ci.length == rhs.cols)
+    val ri = rs.forLength(nRows)
+    val ci = cs.forLength(nCols)
+    require(ri.length == rhs.nRows)
+    require(ci.length == rhs.nCols)
     cforRange(0 until ri.length) { rk =>
       cforRange(0 until ci.length) { ck =>
         set(ri(rk), ci(ck), rhs(rk, ck))
@@ -70,22 +70,22 @@ trait Mat[A] extends scalin.Mat[A] {
   // flattening
 
   def set(sub: Subscript, rhs: A): Unit = {
-    val ind = sub.forLength(rows * cols)
+    val ind = sub.forLength(nRows * nCols)
     cforRange(0 until ind.length) { k =>
       val ik = ind(k)
-      val r = ik % rows
-      val c = ik / rows
+      val r = ik % nRows
+      val c = ik / nRows
       set(r, c, rhs)
     }
   }
 
   def set(sub: Subscript, rhs: scalin.Vec[A]): Unit = {
-    val ind = sub.forLength(rows * cols)
+    val ind = sub.forLength(nRows * nCols)
     require(rhs.length == ind.length)
     cforRange(0 until ind.length) { k =>
       val ik = ind(k)
-      val r = ik % rows
-      val c = ik / rows
+      val r = ik % nRows
+      val c = ik / nRows
       set(r, c, rhs(k))
     }
   }

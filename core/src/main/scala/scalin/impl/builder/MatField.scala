@@ -27,8 +27,8 @@ trait MatField[A, MA <: Mat[A]]
 
   override protected def orthogonalize(m: UMA): Unit = {
     import pivotA.closeToZero
-    val nR = m.rows
-    val nC = m.cols
+    val nR = m.nRows
+    val nC = m.nCols
     cforRange(0 until nR) { i =>
       cforRange(i + 1 until nR) { j =>
         var uv: A = scalar.zero
@@ -48,13 +48,13 @@ trait MatField[A, MA <: Mat[A]]
   }
 
   protected def normalize(m: UMA)(implicit nroot: NRoot[A]): Unit = {
-    cforRange(0 until m.rows) { r =>
+    cforRange(0 until m.nRows) { r =>
       var norm2: A = scalar.zero
-      cforRange(0 until m.cols) { c =>
+      cforRange(0 until m.nCols) { c =>
         norm2 = norm2 + m(r, c) * m(r, c)
       }
       val normInv = spire.math.sqrt(norm2).reciprocal
-      cforRange(0 until m.cols) { c =>
+      cforRange(0 until m.nCols) { c =>
         m(r, c) := m(r, c) * normInv
       }
     }    
@@ -70,11 +70,11 @@ trait MatField[A, MA <: Mat[A]]
   def inplaceRankFactorization(m: UMA): RankFactorization[A] { type MA = UMA } = {
     val used = collection.mutable.ArrayBuilder.make[Int]
     var r = 0
-    cforRange(0 until m.cols) { c =>
-      if (r < m.rows) {
+    cforRange(0 until m.nCols) { c =>
+      if (r < m.nRows) {
         var priority = pivotA.priority(m(r, c))
         var pivot = r
-        cforRange((r + 1) until m.rows) { r1 =>
+        cforRange((r + 1) until m.nRows) { r1 =>
           val r1Priority = pivotA.priority(m(r1, c))
           if (r1Priority > priority) {
             priority = r1Priority
@@ -85,28 +85,28 @@ trait MatField[A, MA <: Mat[A]]
           used += c // keep track of bound variables
 
           // swap current row and pivot row
-          cforRange(c until m.cols) { c1 =>
+          cforRange(c until m.nCols) { c1 =>
             val tmp = m(pivot, c1)
             m(pivot, c1) := m(r, c1)
             m(r, c1) := tmp
           }
           // normalize pivot row
           val f = m(r, c)
-          cforRange(c until m.cols) { c1 =>
+          cforRange(c until m.nCols) { c1 =>
             m(r, c1) := m(r, c1) / f
           }
           // eliminate current column
-          cforRange(0 until m.rows) { r1 =>
+          cforRange(0 until m.nRows) { r1 =>
             if (r1 != r) {
               val g = m(r1, c)
-              cforRange(c until m.cols) { c1 =>
+              cforRange(c until m.nCols) { c1 =>
                 m(r1, c1) := m(r1, c1) - g * m(r, c1)
               }
             }
           }
           r += 1
         } else // set zero terms to exact zero (used for floating point)
-          cforRange(r until m.rows) { r1 =>
+          cforRange(r until m.nRows) { r1 =>
             m(r, c) := scalar.zero
           }
       }
@@ -132,8 +132,8 @@ trait MatField[A, MA <: Mat[A]]
     * translated to Scala.
     */
   def inplaceLU(lu: UMA): LUDecomposition[A] { type MA = UMA } = {
-    val m = lu.rows // row dimension
-    val n = lu.cols // column dimension
+    val m = lu.nRows // row dimension
+    val n = lu.nCols // column dimension
     require(m >= n)
     val piv = Array.tabulate(m)(identity) // internal storage of pivot vector
     var pCount = 0 // permutation count
@@ -199,8 +199,8 @@ trait MatField[A, MA <: Mat[A]]
     type MA = UMA
     type VA = UVA
 
-    val m = lu.rows // row dimension
-    val n = lu.cols // column dimension
+    val m = lu.nRows // row dimension
+    val n = lu.nCols // column dimension
 
     lazy val pivotsInverse = {
       val res = new Array[Int](pivots.length)
@@ -255,7 +255,7 @@ trait MatField[A, MA <: Mat[A]]
     }
 
     def solve(b: Vec[A]): UVA = {
-      require(lu.cols <= lu.rows)
+      require(lu.nCols <= lu.nRows)
       if (b.length != m)
         throw new IllegalArgumentException("Matrix row dimensions must agree.")
       if (isSingular)
@@ -276,16 +276,16 @@ trait MatField[A, MA <: Mat[A]]
           x(i) := x(i) - x(k) * lu(i, k)
         }
       }
-      if (x.length > lu.cols) UVA.slice(x, 0 until lu.cols) else x
+      if (x.length > lu.nCols) UVA.slice(x, 0 until lu.nCols) else x
     }
 
     def solve(b: Mat[A]): UMA = {
-      require(lu.cols <= lu.rows)
-      if (b.rows != m)
+      require(lu.nCols <= lu.nRows)
+      if (b.nRows != m)
         throw new IllegalArgumentException("Matrix row dimensions must agree.")
       if (isSingular)
         throw new RuntimeException("Matrix is singular.")
-      val nx = b.cols
+      val nx = b.nCols
       // Copy right hand side with pivoting
       val x = UMA.slice(b, pivots, ::)
 
@@ -309,7 +309,7 @@ trait MatField[A, MA <: Mat[A]]
           }
         }
       }
-      if (x.rows > lu.cols) UMA.slice(x, 0 until lu.cols, ::) else x
+      if (x.nRows > lu.nCols) UMA.slice(x, 0 until lu.nCols, ::) else x
     }
 
     def inverse: UMA = {

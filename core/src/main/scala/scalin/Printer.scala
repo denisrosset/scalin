@@ -29,8 +29,8 @@ object Printer {
   def mat[A](mat: Mat[A],
     maxLines: Int = terminalHeight,
     maxWidth: Int = terminalWidth): String = {
-    val rows = mat.rows
-    val cols = mat.cols
+    val rows = mat.nRows
+    val cols = mat.nCols
     val showRows = if (rows > maxLines) maxLines - 1 else rows
 
     @tailrec def colWidth(c: Int, r: Int = 0, width: Int = 0): Int =

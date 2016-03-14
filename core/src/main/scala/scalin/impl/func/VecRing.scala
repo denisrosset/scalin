@@ -11,11 +11,11 @@ trait VecRing[A, VA <: Vec[A]]
 
   def times(lhs: Vec[A], rhs: Mat[A]): VA = {
     val n = lhs.length
-    require(n == rhs.rows)
+    require(n == rhs.nRows)
     if (n == 0)
-      zeros(rhs.cols)
+      zeros(rhs.nCols)
     else 
-      tabulate(rhs.cols) { c =>
+      tabulate(rhs.nCols) { c =>
         var sum = lhs(0) * rhs(0, c)
         cforRange(1 until n) { r =>
           sum += lhs(r) * rhs(r, c)
@@ -26,11 +26,11 @@ trait VecRing[A, VA <: Vec[A]]
 
   def times(lhs: Mat[A], rhs: Vec[A]): VA = {
     val n = rhs.length
-    require(n == lhs.cols)
+    require(n == lhs.nCols)
     if (n == 0)
-      zeros(lhs.rows)
+      zeros(lhs.nRows)
     else
-      tabulate(lhs.rows) { r =>
+      tabulate(lhs.nRows) { r =>
         var sum = lhs(r, 0) * rhs(0)
         cforRange(1 until n) { c =>
           sum += lhs(r, c) * rhs(c)
