@@ -1,3 +1,14 @@
+// inspired by Spire build.sbt file
+
+val scala210Version = "2.10.6"
+val scala211Version = "2.11.8"
+val disciplineVersion = "0.4"
+val scalaCheckVersion = "1.12.4"
+val scalaMacrosVersion = "2.0.1"
+val scalaTestVersion = "3.0.0-M7"
+val shapelessVersion = "2.2.5"
+val spireVersion = "0.11.0"
+
 lazy val scalin = (project in file("."))
   .settings(moduleName := "scalin")
   .settings(scalinSettings: _*)
@@ -14,7 +25,7 @@ lazy val core = (project in file("core"))
   .settings(moduleName := "scalin-core")
   .settings(scalinSettings: _*)
   .settings(scalaTestSettings: _*)
-  .settings(libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.12.4")
+  .settings(libraryDependencies += "org.scalacheck" %% "scalacheck" % scalaCheckVersion)
   .settings(commonJvmSettings: _*)
   .dependsOn(macros)
 
@@ -22,8 +33,8 @@ lazy val scalinSettings = buildSettings ++ commonSettings ++ publishSettings ++ 
 
 lazy val buildSettings = Seq(
   organization := "net.alasc",
-  scalaVersion := "2.11.8",
-  crossScalaVersions := Seq("2.10.6", "2.11.7")
+  scalaVersion := scala211Version,
+  crossScalaVersions := Seq(scala210Version, scala211Version)
 )
 
 
@@ -39,7 +50,7 @@ lazy val commonSettings = Seq(
     "bintray/non" at "http://dl.bintray.com/non/maven",
     Resolver.sonatypeRepo("snapshots")
   ),
-  libraryDependencies += "org.spire-math" %% "spire" % "0.11.0"
+  libraryDependencies += "org.spire-math" %% "spire" % spireVersion
 ) ++ scalaMacroDependencies ++ warnUnusedImport
 
 lazy val publishSettings = Seq(
@@ -113,14 +124,14 @@ lazy val scalaMacroDependencies: Seq[Setting[_]] = Seq(
       // in Scala 2.10, quasiquotes are provided by macro paradise
       case Some((2, 10)) =>
         Seq(
-          compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full),
-              "org.scalamacros" %% "quasiquotes" % "2.0.1" cross CrossVersion.binary
+          compilerPlugin("org.scalamacros" % "paradise" % scalaMacrosVersion cross CrossVersion.full),
+              "org.scalamacros" %% "quasiquotes" % scalaMacrosVersion cross CrossVersion.binary
         )
     }
   }
 )
 
 lazy val scalaTestSettings = Seq(
-  libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0-M15" % "test",
-  libraryDependencies += "com.chuusai" %% "shapeless" % "2.2.5" % "test"
+  libraryDependencies += "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
+  libraryDependencies += "com.chuusai" %% "shapeless" % shapelessVersion % "test"
 )
