@@ -50,11 +50,11 @@ trait MatEngine[A, MA <: Mat[A]] {
     */
   def fold[A1 >: A](lhs: Mat[A])(z: A1)(op: (A1, A1) => A1): A1
 
-  /** Returns the horizontal concatenation of two matrices with the same number of rows. */
-  def horzcat(lhs: Mat[A], rhs: Mat[A]): MA
-
   /** Builds a new matrix by applying a function to all elements of this matrix. */
   def map[B](lhs: Mat[B])(f: B => A): MA
+
+  /** Returns the horizontal concatenation of two matrices with the same number of rows. */
+  def horzcat(lhs: Mat[A], rhs: Mat[A]): MA
 
   /** Returns the vertical concatenation of two matrices with the same number of columns. */
   def vertcat(lhs: Mat[A], rhs: Mat[A]): MA

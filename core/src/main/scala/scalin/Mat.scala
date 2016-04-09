@@ -106,7 +106,6 @@ trait Mat[A] { lhs =>
   def map[B, MB <: Mat[B]](f: A => B)(implicit ev: MatEngine[B, MB]): MB =
     ev.map[A](lhs)(f)
 
-
   //// Slices
 
   /** Row slice. */
@@ -129,6 +128,10 @@ trait Mat[A] { lhs =>
 
   /** Transposition. */
   def t[MA <: Mat[A]](implicit ev: MatEngine[A, MA]): MA = ev.t(lhs)
+
+  def horzcat[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA]): MA = ev.horzcat(lhs, rhs)
+
+  def vertcat[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA]): MA = ev.vertcat(lhs, rhs)
 
   //// With `A:MultiplicativeMonoid`
 
