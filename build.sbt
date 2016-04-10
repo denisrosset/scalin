@@ -37,7 +37,6 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq(scala210Version, scala211Version)
 )
 
-
 lazy val commonSettings = Seq(
   scalacOptions ++= commonScalacOptions.diff(Seq(
     "-Xfatal-warnings", 
@@ -56,7 +55,7 @@ lazy val commonSettings = Seq(
 lazy val publishSettings = Seq(
   homepage := Some(url("https://github.com/denisrosset/scalin")),
   licenses += ("GPL-3.0", url("http://opensource.org/licenses/GPL-3.0")),
-  bintrayRepository := "scalin",
+  bintrayRepository := "maven",
   publishArtifact in Test := false
 )
 
