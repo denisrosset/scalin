@@ -1,14 +1,8 @@
 package scalin
 
 import scalin.mutable.dense._
-import scalin.syntax.AllSyntax
 
-import spire.algebra.Eq
-import spire.implicits._
-
-import org.scalatest.{FunSuite, PropSpec, Matchers}
-
-class KroneckerSuite extends FunSuite with Matchers with AllSyntax {
+class KroneckerSuite extends ScalinSuite {
 
   test("Wikipedia example: kronecker product of matrices") {
     val lhs = rowMajor[Int](2,2)(

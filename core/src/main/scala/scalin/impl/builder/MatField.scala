@@ -178,7 +178,7 @@ trait MatField[A, MA <: Mat[A]]
 
       // Compute multipliers.
       val diag = lu(j, j)
-      if (j < m && pivotA.closeToZero(diag)) {
+      if (j < m && !pivotA.closeToZero(diag)) {
         cforRange(j + 1 until m) { i =>
           lu(i, j) := lu(i, j) / diag
         }

@@ -131,6 +131,10 @@ lazy val scalaMacroDependencies: Seq[Setting[_]] = Seq(
 )
 
 lazy val scalaTestSettings = Seq(
-  libraryDependencies += "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-  libraryDependencies += "com.chuusai" %% "shapeless" % shapelessVersion % "test"
+  libraryDependencies ++= Seq(
+    "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
+    "com.chuusai" %% "shapeless" % shapelessVersion % "test",
+    "org.typelevel" %% "discipline" % disciplineVersion % "test",
+    "org.spire-math" %% "spire-laws" % spireVersion % "test"
+  )
 )

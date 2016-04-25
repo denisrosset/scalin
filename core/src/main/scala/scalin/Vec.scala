@@ -76,7 +76,7 @@ trait Vec[A] { lhs =>
 
   def copyIfOverlap(obj: AnyRef): Vec[A]
 
-  //// Conversion/creation 
+  //// Conversion/creation
 
   def to[VA <: Vec[A]](implicit ev: VecEngine[A, VA]): VA = ev.fromVec(lhs)
 
