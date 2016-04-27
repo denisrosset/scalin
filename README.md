@@ -10,6 +10,8 @@ invariant in their scalar type.
 The instances are not specialized: the focus is exact linear algebra, and scalars are expected to be `<: AnyRef`. 
 Specialization is also tricky to get right in generic code. For example, higher-kinded types do not mix well with specialization.
 
+For fast floating-point computation, use [Breeze](https://github.com/scalanlp/breeze) instead.
+
 In the future, a more general kind of specialization will be implemented, to support also generic value-like types, such
 as small finite fields encoded using `AnyVal`s.
 
