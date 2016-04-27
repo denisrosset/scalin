@@ -26,10 +26,16 @@ trait BuildSyntax {
   /** Vector builder. */
   implicit def vec[A]: VecOps[A] = new VecOps[A](null)
 
-  /** Matrix builder. */
+  /** Matrix builder using tuples (max. 22 columns). */
+  implicit def mat[A]: MatOps[A] = new MatOps[A](null)
+
+  /** Tabulate operation. */
+  implicit def tabulate[A]: TabulateOps[A] = new TabulateOps[A](null)
+
+  /** Matrix builder with row-major data. */
   implicit def rowMajor[A]: RowMajorOps[A] = new RowMajorOps[A](null)
 
-  /** Matrix builder. */
+  /** Matrix builder with column-major data. */
   implicit def colMajor[A]: ColMajorOps[A] = new ColMajorOps[A](null)
 
   /** Row matrix builder. */
