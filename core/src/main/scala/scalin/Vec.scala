@@ -50,6 +50,12 @@ class PointwiseVec[A](val lhs: Vec[A]) extends AnyVal {
 
 }
 
+final class ToVec[A, B](vec: Vec[A])(implicit conv: A => B) {
+
+  def get[VB <: Vec[B]](implicit ev: VecEngine[B, VB]): VB = vec.map(conv)
+
+}
+
 /** Vector trait; `A` is the scalar type. */
 trait Vec[A] { lhs =>
 
@@ -78,11 +84,15 @@ trait Vec[A] { lhs =>
 
   //// Conversion/creation
 
-  def to[VA <: Vec[A]](implicit ev: VecEngine[A, VA]): VA = ev.fromVec(lhs)
+  def to[B](implicit conv: A => B) = new ToVec[A, B](lhs)
+
+  def toVec[VA <: Vec[A]](implicit ev: VecEngine[A, VA]): VA = ev.fromVec(lhs)
 
   def toRowMat[MA <: Mat[A]](implicit ev: MatEngine[A, MA]): MA = ev.toRowMat(lhs)
 
   def toColMat[MA <: Mat[A]](implicit ev: MatEngine[A, MA]): MA = ev.toColMat(lhs)
+
+  def toDiagMat[MA <: Mat[A]](implicit ev: MatRing[A, MA]): MA = ev.toDiagMat(lhs)
 
   //// Collection-like methods
 
@@ -194,4 +204,3 @@ object Vec {
   }
 
 }
-

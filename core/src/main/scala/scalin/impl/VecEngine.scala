@@ -42,6 +42,8 @@ trait VecEngine[A, VA <: Vec[A]] extends scalin.algebra.VecEngine[A, VA] {
 
   def fromVec(vec: Vec[A]): VA = tabulate(vec.length)( k => vec(k) )
 
+  def diag(mat: Mat[A]): VA = tabulate(spire.math.min(mat.nRows, mat.nCols))( k => mat(k, k) )
+
   //// Collection-like methods
 
   def count(lhs: Vec[A])(f: A => Boolean): Int = {

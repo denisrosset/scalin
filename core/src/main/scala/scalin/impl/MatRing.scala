@@ -17,6 +17,8 @@ trait MatRing[A, MA <: Mat[A]]
   def eye(n: Int): MA =
     tabulate(n, n)( (r, c) => if (r == c) scalar.one else scalar.zero )
 
+  def toDiagMat(lhs: Vec[A]): MA = tabulate(lhs.length, lhs.length)( (r, c) => if (r == c) lhs(r) else scalar.zero )
+
   //// Additive group methods
 
   def plus(lhs: Mat[A], rhs: Mat[A]): MA = pointwiseBinary(lhs, rhs)(_ + _)

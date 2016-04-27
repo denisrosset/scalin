@@ -50,6 +50,12 @@ class PointwiseMat[A](val lhs: Mat[A]) extends AnyVal {
 
 }
 
+final class ToMat[A, B](val mat: Mat[A])(implicit conv: A => B) {
+
+  def get[MB <: Mat[B]](implicit ev: MatEngine[B, MB]): MB = mat.map(conv)
+
+}
+
 /** Matrix trait. */
 trait Mat[A] { lhs =>
 
@@ -80,7 +86,9 @@ trait Mat[A] { lhs =>
 
   //// Conversion/creation
 
-  def to[MA <: Mat[A]](implicit ev: MatEngine[A, MA]): MA = ev.fromMat(lhs)
+  def to[B](implicit conv: A => B) = new ToMat[A, B](lhs)
+
+  def toMat[MA <: Mat[A]](implicit ev: MatEngine[A, MA]): MA = ev.fromMat(lhs)
 
   //// Collection-like methods
 
@@ -123,6 +131,9 @@ trait Mat[A] { lhs =>
   /** Slice flattening the matrix in column major order. */
   def apply[VA <: Vec[A]](sub: Subscript)(implicit ev: VecEngine[A, VA]): VA =
     ev.slice(lhs, sub)
+
+  def diag[VA <: Vec[A]](implicit ev: VecEngine[A, VA]): VA =
+    ev.diag(lhs)
 
   //// Shuffling elements around
 

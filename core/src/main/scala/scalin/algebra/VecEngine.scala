@@ -41,6 +41,8 @@ trait VecEngine[A, VA <: Vec[A]] {
 
   def slice(mat: Mat[A], sub: Subscript): VA
 
+  def diag(mat: Mat[A]): VA
+
   /** Slices a vector from a matrix, for the row `r` and column subscript `cs`. */
   def rowSlice(mat: Mat[A], r: Int, cs: Subscript): VA
 

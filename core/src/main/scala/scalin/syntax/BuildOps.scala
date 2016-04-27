@@ -74,85 +74,57 @@ final class TabulateOps[A](val dummy: Null) extends AnyVal {
 
 final class MatOps[A](val dummy: Null) extends AnyVal {
 
-  def apply[P <: Product, MA <: Mat[A]](first: P, next: P*)(implicit lr: MatOps.LiteralRow[P, A], ev: MatEngine[A, MA]) : MA = {
-    ev.tabulate(next.length + 1, lr.length(first)) { (r, c) => if (r == 0) lr.get(first, c) else lr.get(next(r - 1), c) }
-  }
+  protected def iterate[MA <: Mat[A]](first: Product, next: Product*)(implicit ev: MatEngine[A, MA]): MA =
+    ev.tabulate(next.size + 1, first.productArity) { (r, c) =>
+      if (r == 0) first.productElement(c).asInstanceOf[A] else next(r- 1).productElement(c).asInstanceOf[A]
+    }
+  
+  // 2 to 10
 
-}
+  def apply[MA <: Mat[A]](first: (A, A), next: (A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-object MatOps {
+  def apply[MA <: Mat[A]](first: (A, A, A), next: (A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-  trait LiteralRow[P <: Product, A] {
+  def apply[MA <: Mat[A]](first: (A, A, A, A), next: (A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-    def length(p: P): Int = p.productArity
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A), next: (A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-    def get(p: P, k: Int): A = p.productElement(k).asInstanceOf[A]
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A), next: (A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-  }
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A, A), next: (A, A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-  object instance extends LiteralRow[Product, AnyRef]
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A, A, A), next: (A, A, A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
+  
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A, A, A, A), next: (A, A, A, A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-  implicit def literal2[A]: LiteralRow[Tuple2[A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple2[A, A], A]]
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A, A, A, A, A), next: (A, A, A, A, A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
+  
+  // 11 to 20
 
-  implicit def literal3[A]: LiteralRow[Tuple3[A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple3[A, A, A], A]]
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A, A, A, A, A, A), next: (A, A, A, A, A, A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-  implicit def literal4[A]: LiteralRow[Tuple4[A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple4[A, A, A, A], A]]
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A, A, A, A, A, A, A), next: (A, A, A, A, A, A, A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-  implicit def literal5[A]: LiteralRow[Tuple5[A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple5[A, A, A, A, A], A]]
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A, A, A, A, A, A, A, A), next: (A, A, A, A, A, A, A, A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-  implicit def literal6[A]: LiteralRow[Tuple6[A, A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple6[A, A, A, A, A, A], A]]
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A, A, A, A, A, A, A, A, A), next: (A, A, A, A, A, A, A, A, A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-  implicit def literal7[A]: LiteralRow[Tuple7[A, A, A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple7[A, A, A, A, A, A, A], A]]
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A, A, A, A, A, A, A, A, A, A), next: (A, A, A, A, A, A, A, A, A, A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-  implicit def literal8[A]: LiteralRow[Tuple8[A, A, A, A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple8[A, A, A, A, A, A, A, A], A]]
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A), next: (A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-  implicit def literal9[A]: LiteralRow[Tuple9[A, A, A, A, A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple9[A, A, A, A, A, A, A, A, A], A]]
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A), next: (A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-  implicit def literal10[A]: LiteralRow[Tuple10[A, A, A, A, A, A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple10[A, A, A, A, A, A, A, A, A, A], A]]
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A), next: (A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-  implicit def literal11[A]: LiteralRow[Tuple11[A, A, A, A, A, A, A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple11[A, A, A, A, A, A, A, A, A, A, A], A]]
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A), next: (A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-  implicit def literal12[A]: LiteralRow[Tuple12[A, A, A, A, A, A, A, A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple12[A, A, A, A, A, A, A, A, A, A, A, A], A]]
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A), next: (A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-  implicit def literal13[A]: LiteralRow[Tuple13[A, A, A, A, A, A, A, A, A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple13[A, A, A, A, A, A, A, A, A, A, A, A, A], A]]
+  // 21 to 22
 
-  implicit def literal14[A]: LiteralRow[Tuple14[A, A, A, A, A, A, A, A, A, A, A, A, A, A], A] =
-    instance.asInstanceOf[LiteralRow[Tuple14[A, A, A, A, A, A, A, A, A, A, A, A, A, A], A]]
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A), next: (A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
-  implicit def literal15[A]: LiteralRow[Tuple15[A, A, A, A, A, A, A, A, A, A, A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple15[A, A, A, A, A, A, A, A, A, A, A, A, A, A, A], A]]
-
-  implicit def literal16[A]: LiteralRow[Tuple16[A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple16[A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A], A]]
-
-  implicit def literal17[A]: LiteralRow[Tuple17[A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple17[A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A], A]]
-
-  implicit def literal18[A]: LiteralRow[Tuple18[A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple18[A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A], A]]
-
-  implicit def literal19[A]: LiteralRow[Tuple19[A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple19[A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A], A]]
-
-  implicit def literal20[A]: LiteralRow[Tuple20[A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple20[A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A], A]]
-
-  implicit def literal21[A]: LiteralRow[Tuple21[A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple21[A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A], A]]
-
-  implicit def literal22[A]: LiteralRow[Tuple22[A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A], A] = 
-    instance.asInstanceOf[LiteralRow[Tuple22[A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A], A]]
+  def apply[MA <: Mat[A]](first: (A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A), next: (A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A)*)(implicit ev: MatEngine[A, MA]) : MA = iterate[MA](first, next: _*)
 
 }

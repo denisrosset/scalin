@@ -15,6 +15,8 @@ trait MatRing[A, MA <: Mat[A]] extends MatMultiplicativeMonoid[A, MA] {
   /** Identity matrix. */
   def eye(n: Int): MA
 
+  def toDiagMat(lhs: Vec[A]): MA
+
   //// Additive group methods
 
   def plus(lhs: Mat[A], rhs: Mat[A]): MA

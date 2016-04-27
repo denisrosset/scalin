@@ -9,15 +9,18 @@ trait AssignSyntax {
 
 /* We split the type specification is two parts, so that the constructed type `VA <: Vec[A]`
  * can be inferred from whatever implicit type class for `Vec[A]` is available when writing
- * e.g. build.zeros[A](3); also, we choose not to return path-dependent types to avoid
- * complex types in the REPL.
+ * e.g. build.zeros[A](3); also, we choose not to return path-dependent types, they would lead
+ * to ugly types in the REPL.
  */
 trait BuildSyntax {
 
+  /** Matrix/vector full of zeroes. */
   implicit def zeros[A]: ZerosOps[A] = new ZerosOps[A](null)
 
+  /** Matrix/vector full of ones. */
   implicit def ones[A]: OnesOps[A] = new OnesOps[A](null)
 
+  /** Identity matrix. */
   implicit def eye[A]: EyeOps[A] = new EyeOps[A](null)
 
   /** Fill operation. */
