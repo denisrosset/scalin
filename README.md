@@ -1,11 +1,11 @@
 # scalin
 Exact linear algebra in Scala/Spire
 
-For performance reasons, both mutable and immutable vectors/matrices - many algorithms in the literature are mutable.
+For performance reasons, both mutable and immutable vectors/matrices are implemented, as many algorithms in the literature need mutation. The mutable variants act as builders, so a .result() creates an immutable variant.
 
-The mutable variants act as builders, so a .result() creates an immutable variant.
-
-Only dense vector/matrices are implemented for now. 
+Only dense vector/matrices are implemented for now. Care is taken that `hashCode` and `equals` is consistent across the different
+matrix/vector implementations; it is not guaranteed to be consistent for different element types. Also, all matrices/vectors are
+invariant in their scalar type.
 
 The instances are not specialized: the focus is exact linear algebra, and scalars are expected to be `<: AnyRef`. 
 Specialization is also tricky to get right in generic code. For example, higher-kinded types do not mix well with specialization.
