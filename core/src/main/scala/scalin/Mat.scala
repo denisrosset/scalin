@@ -114,6 +114,10 @@ trait Mat[A] { lhs =>
   def map[B, MB <: Mat[B]](f: A => B)(implicit ev: MatEngine[B, MB]): MB =
     ev.map[A](lhs)(f)
 
+  def rowsSeq[VA <: Vec[A]](implicit ev: VecEngine[A, VA]): IndexedSeq[VA] = ev.rowSeq(lhs)
+
+  def colSeq[VA <: Vec[A]](implicit ev: VecEngine[A, VA]): IndexedSeq[VA] = ev.colSeq(lhs)
+
   //// Slices
 
   /** Row slice. */

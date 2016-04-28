@@ -35,6 +35,10 @@ trait VecEngine[A, VA <: Vec[A]] {
 
   def map[B](lhs: Vec[B])(f: B => A): VA
 
+  def colSeq(lhs: Mat[A]): IndexedSeq[VA]
+
+  def rowSeq(lhs: Mat[A]): IndexedSeq[VA]
+
   //// Slices
 
   def slice(vec: Vec[A], sub: Subscript): VA

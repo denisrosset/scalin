@@ -68,6 +68,10 @@ trait VecEngine[A, VA <: Vec[A]] extends scalin.algebra.VecEngine[A, VA] {
 
   def map[B](lhs: Vec[B])(f: B => A): VA = tabulate(lhs.length)( k => f(lhs(k)) )
 
+  def colSeq(lhs: Mat[A]): IndexedSeq[VA] = IndexedSeq.tabulate(lhs.nCols)(c => colSlice(lhs, ::, c))
+
+  def rowSeq(lhs: Mat[A]): IndexedSeq[VA] = IndexedSeq.tabulate(lhs.nRows)(r => rowSlice(lhs, r, ::))
+  
   //// Slices
 
   def slice(vec: Vec[A], sub: Subscript): VA = {

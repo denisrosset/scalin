@@ -120,6 +120,14 @@ trait Vec[A] { lhs =>
   /** Maps the values of the elements. */
   def map[B, VB <: Vec[B]](f: A => B)(implicit ev: VecEngine[B, VB]): VB = ev.map[A](lhs)(f)
 
+  def toIndexedSeq: IndexedSeq[A] = new IndexedSeq[A] {
+
+    def length = lhs.length
+
+    def apply(k: Int) = lhs.apply(k)
+
+  }
+
   //// Slices
 
   def apply[VA <: Vec[A]](sub: Subscript)(implicit ev: VecEngine[A, VA]): VA = ev.slice(lhs, sub)
