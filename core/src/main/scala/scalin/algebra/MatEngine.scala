@@ -4,9 +4,9 @@ package algebra
 import spire.algebra._
 
 /** Builder for matrices with an arbitrary scalar type `A`. */
-trait MatEngine[A, MA <: Mat[A]] {
+trait MatEngine[A, +MA <: Mat[A]] {
 
-  type Ret = MA // hack for the return type of Mat.flatten
+  type Ret <: MA // hack for the return type of Mat.flatten
 
   //// Creation
 

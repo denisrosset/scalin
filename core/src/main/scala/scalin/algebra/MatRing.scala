@@ -3,7 +3,7 @@ package algebra
 
 import spire.algebra.{Eq, Ring}
 
-trait MatRing[A, MA <: Mat[A]] extends MatMultiplicativeMonoid[A, MA] {
+trait MatRing[A, +MA <: Mat[A]] extends MatMultiplicativeMonoid[A, MA] {
 
   implicit def scalar: Ring[A]
 

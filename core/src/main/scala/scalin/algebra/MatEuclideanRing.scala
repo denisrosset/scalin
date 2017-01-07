@@ -3,7 +3,7 @@ package algebra
 
 import spire.algebra.EuclideanRing
 
-trait MatEuclideanRing[A, MA <: Mat[A]] extends MatRing[A, MA] {
+trait MatEuclideanRing[A, +MA <: Mat[A]] extends MatRing[A, MA] {
 
   implicit def scalar: EuclideanRing[A]
 

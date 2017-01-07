@@ -3,7 +3,7 @@ package algebra
 
 import spire.algebra._
 
-trait VecRing[A, VA <: Vec[A]] extends VecMultiplicativeMonoid[A, VA] {
+trait VecRing[A, +VA <: Vec[A]] extends VecMultiplicativeMonoid[A, VA] {
 
   implicit def scalar: Ring[A]
 

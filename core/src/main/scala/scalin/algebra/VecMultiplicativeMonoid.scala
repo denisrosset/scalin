@@ -3,7 +3,7 @@ package algebra
 
 import spire.algebra._
 
-trait VecMultiplicativeMonoid[A, VA <: Vec[A]] extends VecEngine[A, VA] {
+trait VecMultiplicativeMonoid[A, +VA <: Vec[A]] extends VecEngine[A, VA] {
 
   implicit def scalar: MultiplicativeMonoid[A]
 

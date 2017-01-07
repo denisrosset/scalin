@@ -3,9 +3,9 @@ package algebra
 
 import spire.algebra._
 
-trait VecEngine[A, VA <: Vec[A]] {
+trait VecEngine[A, +VA <: Vec[A]] {
 
-  type Ret = VA // hack for the return type of Vec.flatten
+  type Ret <: VA // hack for the return type of Vec.flatten
 
   //// Creation
 

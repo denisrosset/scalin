@@ -3,7 +3,7 @@ package algebra
 
 import spire.algebra.{Field, NRoot}
 
-trait MatField[A, MA <: Mat[A]] extends MatEuclideanRing[A, MA] {
+trait MatField[A, +MA <: Mat[A]] extends MatEuclideanRing[A, MA] {
 
   implicit def scalar: Field[A]
 

@@ -3,7 +3,7 @@ package algebra
 
 import spire.algebra.EuclideanRing
 
-trait VecEuclideanRing[A, VA <: Vec[A]] extends VecRing[A, VA] {
+trait VecEuclideanRing[A, +VA <: Vec[A]] extends VecRing[A, VA] {
 
   implicit def scalar: EuclideanRing[A]
 

@@ -3,7 +3,7 @@ package algebra
 
 import spire.algebra.Field
 
-trait VecField[A, VA <: Vec[A]] extends VecEuclideanRing[A, VA] {
+trait VecField[A, +VA <: Vec[A]] extends VecEuclideanRing[A, VA] {
 
   implicit def scalar: Field[A]
 
