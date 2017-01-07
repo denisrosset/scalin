@@ -2,12 +2,13 @@
 
 val scala210Version = "2.10.6"
 val scala211Version = "2.11.8"
-val disciplineVersion = "0.4"
-val scalaCheckVersion = "1.12.4"
+val scala212Version = "2.12.1"
+val disciplineVersion = "0.7.2"
+val scalaCheckVersion = "1.13.4"
 val scalaMacrosVersion = "2.0.1"
-val scalaTestVersion = "3.0.0-M7"
-val shapelessVersion = "2.2.5"
-val spireVersion = "0.11.0"
+val scalaTestVersion = "3.0.1"
+val shapelessVersion = "2.3.2"
+val spireVersion = "0.13.0"
 
 lazy val scalin = (project in file("."))
   .settings(moduleName := "scalin")
@@ -34,7 +35,7 @@ lazy val scalinSettings = buildSettings ++ commonSettings ++ publishSettings ++ 
 lazy val buildSettings = Seq(
   organization := "net.alasc",
   scalaVersion := scala211Version,
-  crossScalaVersions := Seq(scala210Version, scala211Version)
+  crossScalaVersions := Seq(scala210Version, scala211Version, scala212Version)
 )
 
 lazy val commonSettings = Seq(
@@ -94,10 +95,10 @@ lazy val commonJvmSettings = Seq(
 lazy val selectiveOptimize = 
   scalacOptions ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 10)) =>
-        Seq()
-      case Some((2, n)) if n >= 11 =>
-        Seq("-optimize")
+      case Some((2, 10)) => Seq()
+      case Some((2, 11)) => Seq("-optimize")
+      case Some((2, 12)) => Seq() // should be set for production builds
+      case _ => sys.error("Unknown Scala version")
     }
   }
 
