@@ -197,9 +197,9 @@ trait Mat[A] { lhs =>
 
   //// With `A:EuclideanRing`
 
-  def gcd(implicit ev: MatEuclideanRing[A, _]): A = ev.gcd(lhs)
+  def gcd(implicit ev: MatEuclideanRing[A, _], equ: Eq[A]): A = ev.gcd(lhs)
 
-  def lcm(implicit ev: MatEuclideanRing[A, _]): A = ev.lcm(lhs)
+  def lcm(implicit ev: MatEuclideanRing[A, _], equ: Eq[A]): A = ev.lcm(lhs)
 
   def orthogonalized[MA <: Mat[A]](implicit ev: MatEuclideanRing[A, MA]): MA = ev.orthogonalized(lhs)
 

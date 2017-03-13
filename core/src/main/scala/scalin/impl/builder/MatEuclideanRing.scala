@@ -56,7 +56,10 @@ trait MatEuclideanRing[A, MA <: Mat[A]]
               res(j, c) := uu * res(j, c) - uv * res(i, c)
               val rhs = res(j, c)
               if (!closeToZero(rhs)) rowIsZero = false
-              g = if (closeToZero(g)) rhs else if (closeToZero(rhs)) g else scalar.gcd(res(j, c), g)
+              g = if (closeToZero(g)) rhs
+              else if (closeToZero(rhs)) g
+              else if (pivotA.optionalExactEq.nonEmpty) scalar.gcd(rhs, g)(pivotA.optionalExactEq.get)
+              else scalar.one
             }
             if (rowIsZero) zeroRows += j
             if (!closeToZero(g)) {

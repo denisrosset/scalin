@@ -1,7 +1,7 @@
 package scalin
 package algebra
 
-import spire.algebra.EuclideanRing
+import spire.algebra.{Eq, EuclideanRing}
 
 trait MatEuclideanRing[A, +MA <: Mat[A]] extends MatRing[A, MA] {
 
@@ -11,10 +11,10 @@ trait MatEuclideanRing[A, +MA <: Mat[A]] extends MatRing[A, MA] {
   def rank(lhs: Mat[A]): Int
 
   /** Computes the gcd of the elements of the matrix. */
-  def gcd(lhs: Mat[A]): A
+  def gcd(lhs: Mat[A])(implicit equ: Eq[A]): A
 
   /** Computes the lcm of the elements of the matrix. */
-  def lcm(lhs: Mat[A]): A
+  def lcm(lhs: Mat[A])(implicit equ: Eq[A]): A
 
   /** Returns the result of the Gram-Schmidt process applied on the matrix,
     * which is orthogonal but not necessarily orthonormal.

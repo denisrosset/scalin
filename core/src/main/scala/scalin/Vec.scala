@@ -177,9 +177,9 @@ trait Vec[A] { lhs =>
 
   //// With `A:EuclideanRing`
 
-  def gcd(implicit ev: VecEuclideanRing[A, _]): A = ev.gcd(lhs)
+  def gcd(implicit ev: VecEuclideanRing[A, _], equ: Eq[A]): A = ev.gcd(lhs)
 
-  def lcm(implicit ev: VecEuclideanRing[A, _]): A = ev.lcm(lhs)
+  def lcm(implicit ev: VecEuclideanRing[A, _], equ: Eq[A]): A = ev.lcm(lhs)
 
   //// With `A:Field`
 
