@@ -34,7 +34,7 @@ lazy val scalinSettings = buildSettings ++ commonSettings ++ publishSettings ++ 
 
 lazy val buildSettings = Seq(
   organization := "net.alasc",
-  scalaVersion := scala211Version,
+  scalaVersion := scala212Version,
   crossScalaVersions := Seq(scala210Version, scala211Version, scala212Version)
 )
 
