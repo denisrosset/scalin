@@ -1,8 +1,6 @@
 package scalin
 package algos
 
-import scala.reflect.ClassTag
-
 import spire.algebra._
 import spire.syntax.cfor._
 import spire.syntax.field._
@@ -12,8 +10,8 @@ import scalin.syntax.all._
 
 object PrincipalMinors {
 
-  /** Fins the principal minors of an n x n matrix in a field. */
-  def apply[UMat <: mutable.Mat[A]:ClassTag, UVec <: mutable.Vec[A], A](mat: Mat[A])(implicit UMat: MatField[A, UMat], UVec: VecField[A, UVec], eqA: Eq[A]): UVec = {
+  /** Finds the principal minors of an n x n matrix in a field. */
+  def apply[UMat <: mutable.Mat[A], UVec <: mutable.Vec[A], A](mat: Mat[A])(implicit UMat: MatField[A, UMat], UVec: VecField[A, UVec], eqA: Eq[A]): UVec = {
     import UMat.scalar
     var a: UMat = mat.toMat[UMat]
     assert(a.nRows == a.nCols)
@@ -21,12 +19,12 @@ object PrincipalMinors {
     val zeroPivs = collection.mutable.BitSet.empty
     val pm = zeros[A]((1 << n) - 1) // where the principal minors are stored
     var ipm = 0 // index for storing the principal minors
-    var q = Array(a(::, ::)) // q is the input queue of unprocessed matrices, initial queue has 1 matrix to process
+    var q = collection.mutable.Seq(a(::, ::)) // q is the input queue of unprocessed matrices, initial queue has 1 matrix to process
     cforRange(0 until n) { level =>
+      var ipm1 = 0 // for indexing previous pm elements
       val n1 = q(0).nRows
       val nq = q.length
-      val qq = Array.fill[UMat](nq * 2)(null.asInstanceOf[UMat])
-      var ipm1 = 0 // for indexing previous pm elements
+      val qq = collection.mutable.Seq.fill[UMat](nq * 2)(null.asInstanceOf[UMat])
       cforRange(0 until nq) { i =>
         a = q(i)
         pm(ipm) := a(0, 0)
@@ -60,22 +58,21 @@ object PrincipalMinors {
     // Now correct principal minors for all places we used 1 as a pivot
     // in place of a 0.
 
-    for i = length(zeropivs):-1:1
-    mask = uint64(zeropivs(i));
-    delta = msb(mask);
-    delta2 = 2*delta;
-    ipm1 = bitand(uint64(mask), bitcmp(delta,'uint64'));
-    if ipm1 == 0
-    pm(mask) = pm(mask) - ppivot;
-    else
-      pm(mask) = (pm(mask)/pm(ipm1) - ppivot)*pm(ipm1);
-    end
-    for j = mask+delta2:delta2:2^n - 1
-        pm(j) = pm(j) - ppivot*pm(j - delta);
-    end
-end
+    while (zeroPivs.nonEmpty) {
+      val mask = zeroPivs.max + 1 // matlab is one-based, so we shift upwards
+      val delta = java.lang.Integer.highestOneBit(mask)
+      val delta2 = 2 * delta
+      val ipm1 = (~delta) & mask
+      if (ipm1 == 0)
+        pm(mask - 1) := pm(mask - 1) - scalar.one // but we shift downwards on access
+      else
+        pm(mask - 1) := (pm(mask - 1)/pm(ipm1 - 1) - scalar.one) * pm(ipm1 - 1)
+      (mask + delta to ((1 << n) - 1) by delta2).foreach { j =>
+        pm(j - 1) := pm(j - 1) - pm(j - delta - 1)
+      }
+    }
 
-    ???
+    pm
   }
 
 }
