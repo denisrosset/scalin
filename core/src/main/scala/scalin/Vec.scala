@@ -3,52 +3,6 @@ package scalin
 import spire.algebra._
 import spire.syntax.cfor._
 
-class PointwiseVec[A](val lhs: Vec[A]) extends AnyVal {
-
-  //// Using standard Java methods
-
-  def ==[VB <: Vec[Boolean]](rhs: A)(implicit ev: VecEngine[Boolean, VB]): VB =
-    ev.pointwiseEqual(lhs, rhs)
-
-  def ==[VB <: Vec[Boolean]](rhs: Vec[A])(implicit ev: VecEngine[Boolean, VB]): VB =
-    ev.pointwiseEqual(lhs, rhs)
-
-  def !=[VB <: Vec[Boolean]](rhs: A)(implicit ev: VecEngine[Boolean, VB]): VB =
-    ev.pointwiseNotEqual(lhs, rhs)
-
-  def !=[VB <: Vec[Boolean]](rhs: Vec[A])(implicit ev: VecEngine[Boolean, VB]): VB =
-    ev.pointwiseNotEqual(lhs, rhs)
-
-  //// With `A:MultiplicativeMonoid`
-
-  def *[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecEngine[A, VA], A: MultiplicativeMonoid[A]): VA = ev.pointwiseTimes(lhs, rhs)
-
-  //// With `A:Ring`
-
-  def +[VA <: Vec[A]](rhs: A)(implicit ev: VecEngine[A, VA], A: AdditiveSemigroup[A]): VA = ev.pointwisePlus(lhs, rhs)
-
-  def -[VA <: Vec[A]](rhs: A)(implicit ev: VecEngine[A, VA], A: AdditiveGroup[A]): VA = ev.pointwiseMinus(lhs, rhs)
-
-  //// With `A:Field`
-
-  def /[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecEngine[A, VA], A: Field[A]): VA = ev.pointwiseDiv(lhs, rhs)
-
-  //// With `A:Eq`
-
-  def ===[VB <: Vec[Boolean]](rhs: A)(implicit A: Eq[A], ev: VecEngine[Boolean, VB]): VB =
-    ev.pointwiseEqv(lhs, rhs)
-
-  def ===[VB <: Vec[Boolean]](rhs: Vec[A])(implicit A: Eq[A], ev: VecEngine[Boolean, VB]): VB =
-    ev.pointwiseEqv(lhs, rhs)
-
-  def =!=[VB <: Vec[Boolean]](rhs: A)(implicit A: Eq[A], ev: VecEngine[Boolean, VB]): VB =
-    ev.pointwiseNeqv(lhs, rhs)
-
-  def =!=[VB <: Vec[Boolean]](rhs: Vec[A])(implicit A: Eq[A], ev: VecEngine[Boolean, VB]): VB =
-    ev.pointwiseNeqv(lhs, rhs)
-
-}
-
 final class ToVec[A, B](vec: Vec[A])(implicit conv: A => B) {
 
   def get[VB <: Vec[B]](implicit ev: VecEngine[B, VB]): VB = vec.map(conv)
@@ -76,8 +30,6 @@ trait Vec[A] { lhs =>
   override def hashCode = scalin.Vec.defaultHashCode(lhs)
 
   //// Helper functions
-
-  def pointwise: PointwiseVec[A] = new PointwiseVec[A](lhs)
 
   def copyIfOverlap(obj: AnyRef): Vec[A]
 
@@ -183,6 +135,50 @@ trait Vec[A] { lhs =>
   //// With `A:Field`
 
   def /[VA <: Vec[A]](rhs: A)(implicit ev: VecEngine[A, VA], A: Field[A]): VA = ev.div(lhs, rhs)
+
+  //// Pointwise operations
+
+  //// Using standard Java methods
+
+  def pw_==[VB <: Vec[Boolean]](rhs: A)(implicit ev: VecEngine[Boolean, VB]): VB =
+    ev.pointwiseEqual(lhs, rhs)
+
+  def pw_==[VB <: Vec[Boolean]](rhs: Vec[A])(implicit ev: VecEngine[Boolean, VB]): VB =
+    ev.pointwiseEqual(lhs, rhs)
+
+  def pw_!=[VB <: Vec[Boolean]](rhs: A)(implicit ev: VecEngine[Boolean, VB]): VB =
+    ev.pointwiseNotEqual(lhs, rhs)
+
+  def pw_!=[VB <: Vec[Boolean]](rhs: Vec[A])(implicit ev: VecEngine[Boolean, VB]): VB =
+    ev.pointwiseNotEqual(lhs, rhs)
+
+  //// With `A:MultiplicativeMonoid`
+
+  def pw_*[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecEngine[A, VA], A: MultiplicativeMonoid[A]): VA = ev.pointwiseTimes(lhs, rhs)
+
+  //// With `A:Ring`
+
+  def pw_+[VA <: Vec[A]](rhs: A)(implicit ev: VecEngine[A, VA], A: AdditiveSemigroup[A]): VA = ev.pointwisePlus(lhs, rhs)
+
+  def pw_-[VA <: Vec[A]](rhs: A)(implicit ev: VecEngine[A, VA], A: AdditiveGroup[A]): VA = ev.pointwiseMinus(lhs, rhs)
+
+  //// With `A:Field`
+
+  def pw_/[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecEngine[A, VA], A: Field[A]): VA = ev.pointwiseDiv(lhs, rhs)
+
+  //// With `A:Eq`
+
+  def pw_===[VB <: Vec[Boolean]](rhs: A)(implicit A: Eq[A], ev: VecEngine[Boolean, VB]): VB =
+    ev.pointwiseEqv(lhs, rhs)
+
+  def pw_===[VB <: Vec[Boolean]](rhs: Vec[A])(implicit A: Eq[A], ev: VecEngine[Boolean, VB]): VB =
+    ev.pointwiseEqv(lhs, rhs)
+
+  def pw_=!=[VB <: Vec[Boolean]](rhs: A)(implicit A: Eq[A], ev: VecEngine[Boolean, VB]): VB =
+    ev.pointwiseNeqv(lhs, rhs)
+
+  def pw_=!=[VB <: Vec[Boolean]](rhs: Vec[A])(implicit A: Eq[A], ev: VecEngine[Boolean, VB]): VB =
+    ev.pointwiseNeqv(lhs, rhs)
 
 }
 

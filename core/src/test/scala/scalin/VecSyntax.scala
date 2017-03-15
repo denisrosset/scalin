@@ -87,56 +87,56 @@ class VecSyntax extends ScalinSuite {
     a(1 to 2, 1) shouldBe vec[Rational](5, 8)
   }
 
-  test("Vec.pointwise == (scalar)") {
+  test("Vec pw_== (scalar)") {
     val a = vec[Rational](0, 1, 2, 2)
     val res = vec[Boolean](false, false, true, true)
-    (a.pointwise == Rational(2)) shouldBe res
+    (a pw_== Rational(2)) shouldBe res
   }
 
-  test("Vec.pointwise == (vec)") {
+  test("Vec pw_== (vec)") {
     val a = vec[Rational](0, 1, 2, 2)
     val b = vec[Rational](0, 2, 1, 2)
     val res = vec[Boolean](true, false, false, true)
-    (a.pointwise == b) shouldBe res
+    (a pw_== b) shouldBe res
   }
 
-  test("Vec.pointwise != (scalar)") {
+  test("Vec pw_!= (scalar)") {
     val a = vec[Rational](0, 1, 2, 2)
     val res = vec[Boolean](true, true, false, false)
-    (a.pointwise != Rational(2)) shouldBe res
+    (a pw_!= Rational(2)) shouldBe res
   }
 
-  test("Vec.pointwise != (vec)") {
+  test("Vec pw_!= (vec)") {
     val a = vec[Rational](0, 1, 2, 2)
     val b = vec[Rational](0, 2, 1, 2)
     val res = vec[Boolean](false, true, true, false)
-    (a.pointwise != b) shouldBe res
+    (a pw_!= b) shouldBe res
   }
 
   test("VecEngine.pointwiseEqv (scalar)") {
     val a = vec[Rational](0, 1, 2, 2)
     val res = vec[Boolean](false, false, true, true)
-    (a.pointwise === Rational(2)) shouldBe res
+    (a pw_=== Rational(2)) shouldBe res
   }
 
-  test("Vec.pointwise === (vec)") {
+  test("Vec pw_=== (vec)") {
     val a = vec[Rational](0, 1, 2, 2)
     val b = vec[Rational](0, 2, 1, 2)
     val res = vec[Boolean](true, false, false, true)
-    (a.pointwise === b) shouldBe res
+    (a pw_=== b) shouldBe res
   }
 
-  test("Vec.pointwise =!= (scalar)") {
+  test("Vec pw_=!= (scalar)") {
     val a = vec[Rational](0, 1, 2, 2)
     val res = vec[Boolean](true, true, false, false)
-    (a.pointwise =!= Rational(2)) shouldBe res
+    (a pw_=!= Rational(2)) shouldBe res
   }
 
-  test("Vec.pointwise =!= (vec)") {
+  test("Vec pw_=!= (vec)") {
     val a = vec[Rational](0, 1, 2, 2)
     val b = vec[Rational](0, 2, 1, 2)
     val res = vec[Boolean](false, true, true, false)
-    (a.pointwise =!= b) shouldBe res
+    (a pw_=!= b) shouldBe res
   }
 
   /* TODO

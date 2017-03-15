@@ -3,52 +3,6 @@ package scalin
 import spire.algebra._
 import spire.syntax.cfor._
 
-class PointwiseMat[A](val lhs: Mat[A]) extends AnyVal {
-
-  //// Using standard Java methods
-
-  def ==[MB <: Mat[Boolean]](rhs: A)(implicit ev: MatEngine[Boolean, MB]): MB =
-    ev.pointwiseEqual(lhs, rhs)
-
-  def ==[MB <: Mat[Boolean]](rhs: Mat[A])(implicit ev: MatEngine[Boolean, MB]): MB =
-    ev.pointwiseEqual(lhs, rhs)
-
-  def !=[MB <: Mat[Boolean]](rhs: A)(implicit ev: MatEngine[Boolean, MB]): MB =
-    ev.pointwiseNotEqual(lhs, rhs)
-
-  def !=[MB <: Mat[Boolean]](rhs: Mat[A])(implicit ev: MatEngine[Boolean, MB]): MB =
-    ev.pointwiseNotEqual(lhs, rhs)
-
-  //// With `A:MultiplicativeMonoid`
-
-  def *[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: MultiplicativeSemigroup[A]): MA = ev.pointwiseTimes(lhs, rhs)
-
-  //// With `A:Ring`
-
-  def +[MA <: Mat[A]](rhs: A)(implicit ev: MatEngine[A, MA], A: AdditiveSemigroup[A]): MA = ev.pointwisePlus(lhs, rhs)
-
-  def -[MA <: Mat[A]](rhs: A)(implicit ev: MatEngine[A, MA], A: AdditiveGroup[A]): MA = ev.pointwiseMinus(lhs, rhs)
-
-  //// With `A:Field`
-
-  def /[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: Field[A]): MA = ev.pointwiseDiv(lhs, rhs)
-
-  //// With `A:Eq`
-
-  def ===[MB <: Mat[Boolean]](rhs: A)(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
-    ev.pointwiseEqv(lhs, rhs)
-
-  def ===[MB <: Mat[Boolean]](rhs: Mat[A])(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
-    ev.pointwiseEqv(lhs, rhs)
-
-  def =!=[MB <: Mat[Boolean]](rhs: A)(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
-    ev.pointwiseNeqv(lhs, rhs)
-
-  def =!=[MB <: Mat[Boolean]](rhs: Mat[A])(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
-    ev.pointwiseNeqv(lhs, rhs)
-
-}
-
 final class ToMat[A, B](val mat: Mat[A])(implicit conv: A => B) {
 
   def get[MB <: Mat[B]](implicit ev: MatEngine[B, MB]): MB = mat.map(conv)
@@ -78,8 +32,6 @@ trait Mat[A] { lhs =>
   override def toString: String = Printer.mat(Mat.this)
 
   //// Helper functions
-
-  def pointwise: PointwiseMat[A] = new PointwiseMat[A](lhs)
 
   def copyIfOverlap(obj: AnyRef): Mat[A]
 
@@ -201,7 +153,51 @@ trait Mat[A] { lhs =>
 
   /** Division by scalar. */
   def /[MA <: Mat[A]](rhs: A)(implicit ev: MatEngine[A, MA], A: Field[A]): MA = ev.div(lhs, rhs)
-  
+
+  //// Pointwise operations
+
+  //// Using standard Java methods
+
+  def pw_==[MB <: Mat[Boolean]](rhs: A)(implicit ev: MatEngine[Boolean, MB]): MB =
+    ev.pointwiseEqual(lhs, rhs)
+
+  def pw_==[MB <: Mat[Boolean]](rhs: Mat[A])(implicit ev: MatEngine[Boolean, MB]): MB =
+    ev.pointwiseEqual(lhs, rhs)
+
+  def pw_!=[MB <: Mat[Boolean]](rhs: A)(implicit ev: MatEngine[Boolean, MB]): MB =
+    ev.pointwiseNotEqual(lhs, rhs)
+
+  def pw_!=[MB <: Mat[Boolean]](rhs: Mat[A])(implicit ev: MatEngine[Boolean, MB]): MB =
+    ev.pointwiseNotEqual(lhs, rhs)
+
+  //// With `A:MultiplicativeMonoid`
+
+  def pw_*[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: MultiplicativeSemigroup[A]): MA = ev.pointwiseTimes(lhs, rhs)
+
+  //// With `A:Ring`
+
+  def pw_+[MA <: Mat[A]](rhs: A)(implicit ev: MatEngine[A, MA], A: AdditiveSemigroup[A]): MA = ev.pointwisePlus(lhs, rhs)
+
+  def pw_-[MA <: Mat[A]](rhs: A)(implicit ev: MatEngine[A, MA], A: AdditiveGroup[A]): MA = ev.pointwiseMinus(lhs, rhs)
+
+  //// With `A:Field`
+
+  def pw_/[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: Field[A]): MA = ev.pointwiseDiv(lhs, rhs)
+
+  //// With `A:Eq`
+
+  def pw_===[MB <: Mat[Boolean]](rhs: A)(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
+    ev.pointwiseEqv(lhs, rhs)
+
+  def pw_===[MB <: Mat[Boolean]](rhs: Mat[A])(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
+    ev.pointwiseEqv(lhs, rhs)
+
+  def pw_=!=[MB <: Mat[Boolean]](rhs: A)(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
+    ev.pointwiseNeqv(lhs, rhs)
+
+  def pw_=!=[MB <: Mat[Boolean]](rhs: Mat[A])(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
+    ev.pointwiseNeqv(lhs, rhs)
+
 }
 
 object Mat {

@@ -98,53 +98,53 @@ class MatSyntaxTests extends ScalinSuite {
   test("pointwiseEqual (scalar)") {
     val a = rowMat[Rational](0, 1, 2, 2)
     val res = rowMat[Boolean](false, false, true, true)
-    (a.pointwise == Rational(2)) shouldBe res
+    (a pw_== Rational(2)) shouldBe res
   }
 
   test("pointwiseEqual (vec)") {
     val a = rowMat[Rational](0, 1, 2, 2)
     val b = rowMat[Rational](0, 2, 1, 2)
     val res = rowMat[Boolean](true, false, false, true)
-    (a.pointwise == b) shouldBe res
+    (a pw_== b) shouldBe res
   }
 
   test("pointwiseNotEqual (scalar)") {
     val a = rowMat[Rational](0, 1, 2, 2)
     val res = rowMat[Boolean](true, true, false, false)
-    (a.pointwise != Rational(2)) shouldBe res
+    (a pw_!= Rational(2)) shouldBe res
   }
 
   test("pointwiseNotEqual (vec)") {
     val a = rowMat[Rational](0, 1, 2, 2)
     val b = rowMat[Rational](0, 2, 1, 2)
     val res = rowMat[Boolean](false, true, true, false)
-    (a.pointwise != b) shouldBe res
+    (a pw_!= b) shouldBe res
   }
 
   test("pointwiseEqv (scalar)") {
     val a = rowMat[Rational](0, 1, 2, 2)
     val res = rowMat[Boolean](false, false, true, true)
-    (a.pointwise === Rational(2)) shouldBe res
+    (a pw_=== Rational(2)) shouldBe res
   }
 
   test("pointwiseEqv (vec)") {
     val a = rowMat[Rational](0, 1, 2, 2)
     val b = rowMat[Rational](0, 2, 1, 2)
     val res = rowMat[Boolean](true, false, false, true)
-    (a.pointwise === b) shouldBe res
+    (a pw_=== b) shouldBe res
   }
 
   test("pointwiseNotEqv (scalar)") {
     val a = rowMat[Rational](0, 1, 2, 2)
     val res = rowMat[Boolean](true, true, false, false)
-    (a.pointwise =!= Rational(2)) shouldBe res
+    (a pw_=!= Rational(2)) shouldBe res
   }
 
   test("pointwiseNotEqv (vec)") {
     val a = rowMat[Rational](0, 1, 2, 2)
     val b = rowMat[Rational](0, 2, 1, 2)
     val res = rowMat[Boolean](false, true, true, false)
-    (a.pointwise =!= b) shouldBe res
+    (a pw_=!= b) shouldBe res
   }
 
   /* TODO
@@ -174,7 +174,7 @@ class MatSyntaxTests extends ScalinSuite {
 
   test("pointwiseTimes") {
     val a = rowMat[Rational](1, 2, 3, 4)
-    (a.pointwise * a) shouldBe rowMat[Rational](1, 4, 9, 16)
+    (a pw_* a) shouldBe rowMat[Rational](1, 4, 9, 16)
   }
   test("dyad") {
     val a = vec[Rational](1, 2)
@@ -222,13 +222,13 @@ class MatSyntaxTests extends ScalinSuite {
   test("pointwisePlus") {
     val a = colMat[Rational](1, 2, 3)
     val res = colMat[Rational](2, 3, 4)
-    (a.pointwise + Rational(1)) shouldBe res
+    (a pw_+ Rational(1)) shouldBe res
   }
 
   test("pointwiseMinus") {
     val a = colMat[Rational](2, 3, 4)
     val res = colMat[Rational](1, 2, 3)
-    (a.pointwise - Rational(1)) shouldBe res
+    (a pw_- Rational(1)) shouldBe res
   }
 
   test("nnz") {
@@ -314,7 +314,7 @@ class MatSyntaxTests extends ScalinSuite {
     val a = rowMat[Rational](2, 4, 4, 2)
     val b = rowMat[Rational](2, 1, 4, 1)
     val res = rowMat[Rational](1, 4, 1, 2)
-    (a.pointwise / b) shouldBe res
+    (a pw_/ b) shouldBe res
   }
 
   test("div") {
