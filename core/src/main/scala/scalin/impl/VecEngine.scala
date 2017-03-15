@@ -10,14 +10,14 @@ trait VecEngine[A, VA <: Vec[A]] extends scalin.algebra.VecEngine[A, VA] {
 
   //// Helper methods
 
-  protected def pointwiseUnary(lhs: Vec[A])(f: A => A) = tabulate(lhs.length)(k => f(lhs(k)))
+  def pointwiseUnary(lhs: Vec[A])(f: A => A) = tabulate(lhs.length)(k => f(lhs(k)))
 
-  protected def pointwiseBinary(lhs: Vec[A], rhs: Vec[A])(f: (A, A) => A): VA = {
+  def pointwiseBinary(lhs: Vec[A], rhs: Vec[A])(f: (A, A) => A): VA = {
     require(lhs.length == rhs.length)
     tabulate(lhs.length)( k =>  f(lhs(k), rhs(k)) )
   }
 
-  protected def booleanBinaryAnd(lhs: Vec[A], rhs: Vec[A])(f: (A, A) => Boolean): Boolean =
+  def booleanBinaryAnd(lhs: Vec[A], rhs: Vec[A])(f: (A, A) => Boolean): Boolean =
     (lhs.length == rhs.length) && {
       cforRange(0 until lhs.length) { k =>
         if (!f(lhs(k), rhs(k))) return false
@@ -25,16 +25,16 @@ trait VecEngine[A, VA <: Vec[A]] extends scalin.algebra.VecEngine[A, VA] {
       true
     }
 
-  protected def pointwiseBooleanUnary[B](lhs: Vec[B])(f: B => Boolean)(implicit ev: Boolean =:= A): VA = tabulate(lhs.length)( k => f(lhs(k)) )
+  def pointwiseBooleanUnary[B](lhs: Vec[B])(f: B => Boolean)(implicit ev: Boolean =:= A): VA = tabulate(lhs.length)( k => f(lhs(k)) )
 
-  protected def pointwiseBooleanBinary[B](lhs: Vec[B], rhs: Vec[B])(f: (B, B) => Boolean)(implicit ev: Boolean =:= A): VA = {
+  def pointwiseBooleanBinary[B](lhs: Vec[B], rhs: Vec[B])(f: (B, B) => Boolean)(implicit ev: Boolean =:= A): VA = {
     require(lhs.length == rhs.length)
     tabulate(lhs.length)( k => f(lhs(k), rhs(k)) )
   }
 
   //// Creation
 
-  def empty: VA = tabulate(0)(sys.error("Cannot be called"))
+  def empty: VA = tabulate(0)(i => sys.error("Cannot be called"))
 
   def fill(length: Int)(a: => A): VA = tabulate(length)( k => a )
 
@@ -56,11 +56,9 @@ trait VecEngine[A, VA <: Vec[A]] extends scalin.algebra.VecEngine[A, VA] {
   }
 
   def fold[A1 >: A](lhs: Vec[A])(z: A1)(op: (A1, A1) => A1): A1 =
-    if (lhs.length == 0) z
-    else if (lhs.length == 1) lhs(0)
-    else {
-      var acc = op(lhs(0), lhs(1))
-      cforRange(0 until lhs.length) { k =>
+    if (lhs.length == 0) z else {
+      var acc = op(z, lhs(0))
+      cforRange(1 until lhs.length) { k =>
         acc = op(acc, lhs(k))
       }
       acc
