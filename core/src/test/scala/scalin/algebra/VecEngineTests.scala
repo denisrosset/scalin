@@ -8,6 +8,7 @@ import scalin.immutable.Vec
 class VecEngineTests extends ScalinSuite {
 
   implicit val engine: VecEngine[Rational, Vec[Rational]] = immutable.dense.vecEngine[Rational]
+  implicit val engineB: VecEngine[Boolean, Vec[Boolean]] = immutable.dense.vecEngine[Boolean]
   implicit val matEngine: MatEngine[Rational, Mat[Rational]] = immutable.dense.matEngine[Rational]
 
   def r[A](a: A)(implicit f: A => Rational): Rational = f(a)
@@ -105,6 +106,58 @@ class VecEngineTests extends ScalinSuite {
     engine.colSlice(a, Subscript.arrayWrap(Array(1, 2)), 1) shouldBe vec[Rational](5, 8)
   }
 
+  test("VecEngine.pointwiseEqual (scalar)") {
+    val a = vec[Rational](0, 1, 2, 2)
+    val res = vec[Boolean](false, false, true, true)
+    engineB.pointwiseEqual(a, Rational(2)) shouldBe res
+  }
+
+  test("VecEngine.pointwiseEqual (vec)") {
+    val a = vec[Rational](0, 1, 2, 2)
+    val b = vec[Rational](0, 2, 1, 2)
+    val res = vec[Boolean](true, false, false, true)
+    engineB.pointwiseEqual(a, b) shouldBe res
+  }
+
+  test("VecEngine.pointwiseNotEqual (scalar)") {
+    val a = vec[Rational](0, 1, 2, 2)
+    val res = vec[Boolean](true, true, false, false)
+    engineB.pointwiseNotEqual(a, Rational(2)) shouldBe res
+  }
+
+  test("VecEngine.pointwiseNotEqual (vec)") {
+    val a = vec[Rational](0, 1, 2, 2)
+    val b = vec[Rational](0, 2, 1, 2)
+    val res = vec[Boolean](false, true, true, false)
+    engineB.pointwiseNotEqual(a, b) shouldBe res
+  }
+
+  test("VecEngine.pointwiseEqv (scalar)") {
+    val a = vec[Rational](0, 1, 2, 2)
+    val res = vec[Boolean](false, false, true, true)
+    engineB.pointwiseEqv(a, Rational(2)) shouldBe res
+  }
+
+  test("VecEngine.pointwiseEqv (vec)") {
+    val a = vec[Rational](0, 1, 2, 2)
+    val b = vec[Rational](0, 2, 1, 2)
+    val res = vec[Boolean](true, false, false, true)
+    engineB.pointwiseEqv(a, b) shouldBe res
+  }
+
+  test("VecEngine.pointwiseNotEqv (scalar)") {
+    val a = vec[Rational](0, 1, 2, 2)
+    val res = vec[Boolean](true, true, false, false)
+    engineB.pointwiseNeqv(a, Rational(2)) shouldBe res
+  }
+
+  test("VecEngine.pointwiseNotEqv (vec)") {
+    val a = vec[Rational](0, 1, 2, 2)
+    val b = vec[Rational](0, 2, 1, 2)
+    val res = vec[Boolean](false, true, true, false)
+    engineB.pointwiseNeqv(a, b) shouldBe res
+  }
+
   test("VecEngine.eqv") {
     val a = vec[Rational](0, 1, 2)
     val b = vec[Rational](0, 1, 2)
@@ -112,5 +165,7 @@ class VecEngineTests extends ScalinSuite {
     engine.eqv(a, b) shouldBe true
     engine.eqv(a, c) shouldBe false
   }
+
+
 
 }
