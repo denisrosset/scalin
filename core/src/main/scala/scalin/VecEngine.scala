@@ -17,13 +17,18 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
   def tabulate(length: Int)(f: Int => A): VA
 
   /** Builds a vector from length and a user-provided function that mutates
-    * a temporary mutable vector.
+    * a temporary mutable vector previously filled with the provided `default` value.
     */
-  def fromMutable(length: Int)(updateFun: scalin.mutable.Vec[A] => Unit): VA
+  def fromMutable(length: Int, default: A)(updateFun: scalin.mutable.Vec[A] => Unit): VA
+
+  /** Similar to fromMutable, but requires `updateFun` to update every element of the passed
+    * mutable matrix. */
+
+  def fromMutableUnsafe(length: Int)(updateFun: scalin.mutable.Vec[A] => Unit): VA
 
   /** Builds a vector from the processing applied on a mutable copy of the provided vector. */
   def fromMutable(vec: Vec[A])(updateFun: scalin.mutable.Vec[A] => Unit): VA =
-    fromMutable(vec.length) { res =>
+    fromMutableUnsafe(vec.length) { res =>
       res(::) := vec
       updateFun(res)
     }
@@ -62,8 +67,8 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
 
   // Alternative   def fillConstant(length: Int)(a: A): VA = fill(length)(a)
 
-  def fillConstant(length: Int)(a: A): VA = fromMutable(length) { res =>
-    cforRange(0 until length) { k => res(k) := a }
+  def fillConstant(length: Int)(a: A): VA = fromMutable(length, a) { res =>
+    // do nothing, already filled up
   }
 
   def fromSeq(elements: Seq[A]): VA = tabulate(elements.size)( elements(_) )
@@ -84,7 +89,7 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
   def cat(lhs: Vec[A], rhs: Vec[A]): VA = {
     val nl = lhs.length
     val nr = rhs.length
-    fromMutable(nl + nr) { res =>
+    fromMutableUnsafe(nl + nr) { res =>
       res(0 until nl) := lhs
       res(nl until nl + nr) := rhs
     }
@@ -96,7 +101,7 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
     cforRange(0 until n) { j =>
       len += array(j).length
     }
-    fromMutable(len) { res =>
+    fromMutableUnsafe(len) { res =>
       var i = 0
       cforRange(0 until n) { j =>
         val lenj = array(j).length
@@ -273,7 +278,7 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
   def kron(x: Vec[A], y: Vec[A])(implicit A: MultiplicativeMonoid[A]): VA = {
     val nx = x.length
     val ny = y.length
-    fromMutable(nx * ny) { res =>
+    fromMutableUnsafe(nx * ny) { res =>
       var i = 0
       cforRange(0 until nx) { ix =>
         cforRange(0 until ny) { iy =>
@@ -315,7 +320,7 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
     require(n == rhs.nRows)
     if (n == 0)
       zeros(rhs.nCols)
-    else 
+    else
       tabulate(rhs.nCols) { c =>
         var sum = lhs(0) * rhs(0, c)
         cforRange(1 until n) { r =>
@@ -333,7 +338,7 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
     if (n == 0)
       zeros(rhs.nCols)
     else {
-      fromMutable(rhs.nCols) { res =>
+      fromMutableUnsafe(rhs.nCols) { res =>
         cforRange(0 until rhs.nCols) { c =>
           var sum = lhs(0) * rhs(0, c)
           cforRange(1 until n) { r =>
@@ -371,7 +376,7 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
     if (n == 0)
       zeros(lhs.nRows)
     else {
-      fromMutable(lhs.nRows) { res =>
+      fromMutableUnsafe(lhs.nRows) { res =>
         cforRange(0 until lhs.nRows) { r =>
           var sum = lhs(r, 0) * rhs(0)
           cforRange(1 until n) { c =>

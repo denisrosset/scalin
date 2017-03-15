@@ -18,13 +18,17 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
   def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): MA
 
   /** Builds a matrix from the given size and a user-provided function that mutates
-    * a temporary mutable matrix.
+    * a temporary mutable matrix previously filled with the provided `default` value.
     */
-  def fromMutable(nRows: Int, nCols: Int)(updateFun: scalin.mutable.Mat[A] => Unit): MA
+  def fromMutable(nRows: Int, nCols: Int, default: A)(updateFun: scalin.mutable.Mat[A] => Unit): MA
+
+  /** Similar to fromMutable, but requires `updateFun` to update every element of the passed
+    * mutable matrix. */
+  def fromMutableUnsafe(nRows: Int, nCols: Int)(updateFun: scalin.mutable.Mat[A] => Unit): MA
 
   /** Builds a matrix from the processing applied on a mutable copy of the provided matrix. */
   def fromMutable(mat: Mat[A])(updateFun: scalin.mutable.Mat[A] => Unit): MA =
-    fromMutable(mat.nRows, mat.nCols) { res =>
+    fromMutableUnsafe(mat.nRows, mat.nCols) { res =>
       res(::, ::) := mat
       updateFun(res)
     }
@@ -68,12 +72,8 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
   /* Alternative
   def fillConstant(rows: Int, cols: Int)(a: A): MA = fill(rows, cols)(a)
    */
-  def fillConstant(nRows: Int, nCols: Int)(a: A): MA = fromMutable(nRows, nCols) { res =>
-    cforRange(0 until nCols) { c =>
-      cforRange(0 until nRows) { r =>
-        res(r, c) := a
-      }
-    }
+  def fillConstant(nRows: Int, nCols: Int)(a: A): MA = fromMutable(nRows, nCols, a) { res =>
+    // do nothing, already filled up
   }
 
   def colMajor(rows: Int, cols: Int)(elements: A*): MA = {
@@ -224,7 +224,7 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
     require(m == rhs.nRows)
     val nl = lhs.nCols
     val nr = rhs.nCols
-    fromMutable(m, nl + nr) { res =>
+    fromMutableUnsafe(m, nl + nr) { res =>
       res(::, 0 until nl) := lhs
       res(::, nl until nl + nr) := rhs
     }
@@ -245,7 +245,7 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
     require(n == rhs.nCols)
     val ml = lhs.nRows
     val mr = rhs.nRows
-    fromMutable(ml + mr, n) { res =>
+    fromMutableUnsafe(ml + mr, n) { res =>
       res(0 until ml, ::) := lhs
       res(ml until ml + mr, ::) := rhs
     }
@@ -262,7 +262,7 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
     cforRange(0 until blockRows) { br =>
       rows += block(br, 0).nRows
     }
-    fromMutable(rows, cols) { res =>
+    fromMutableUnsafe(rows, cols) { res =>
       var row = 0
       cforRange(0 until blockRows) { br =>
         var col = 0
@@ -374,7 +374,7 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
     val ncy = y.nCols
     val nR = nrx * nry
     val nC = ncx * ncy
-    fromMutable(nR, nC) { b =>
+    fromMutableUnsafe(nR, nC) { b =>
       var r = 0
       cforRange(0 until nrx) { rx =>
         cforRange(0 until nry) { ry =>

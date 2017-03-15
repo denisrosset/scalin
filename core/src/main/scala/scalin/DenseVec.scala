@@ -15,11 +15,19 @@ abstract class DenseVec[A] extends scalin.Vec[A] {
 
 }
 
-abstract class DenseVecFactory[DV[A] <: DenseVec[A]] extends VecType[DV] {
+abstract class DenseVecType[V[A] <: DenseVec[A]] extends VecType[V] {
 
-  protected def build[A](data: Array[AnyRef]): DV[A]
+  type TC[A] = Dummy[A]
 
-  def tabulate[A](length: Int)(f: Int => A)(implicit ev: Dummy[A]): DV[A] = {
+  protected def build[A](data: Array[AnyRef]): V[A]
+
+  protected def newArray[A](size: Int, default: A): Array[AnyRef] = {
+    val res = new Array[AnyRef](size)
+    java.util.Arrays.fill(res, default)
+    res
+  }
+
+  def tabulate_[A](length: Int)(f: Int => A): V[A] = {
     val data = new Array[AnyRef](length)
     cforRange(0 until length) { k =>
       data(k) = f(k).asInstanceOf[AnyRef]
