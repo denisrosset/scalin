@@ -13,161 +13,273 @@ class VecEngineTests extends ScalinSuite {
 
   def r[A](a: A)(implicit f: A => Rational): Rational = f(a)
 
-  test("VecEngine.empty") {
+  test("empty") {
     engine.empty.length == 0
   }
 
-  test("VecEngine.tabulate") {
+  test("tabulate") {
     engine.tabulate(2)(i => r(i)) shouldBe vec[Rational](0, 1)
   }
 
-  test("VecEngine.fill") {
+  test("fill") {
     engine.fill(2)(r(1)) shouldBe vec(r(1), r(1))
   }
 
-  test("VecEngine.fillConstant") {
+  test("fillConstant") {
     engine.fillConstant(2)(r(1)) shouldBe vec(r(1), r(1))
   }
 
-  test("VecEngine.fromSeq") {
+  test("fromSeq") {
     engine.fromSeq(Seq(r(0), r(1))) shouldBe vec[Rational](0, 1)
   }
 
-  test("VecEngine.fromVec") {
+  test("fromVec") {
     engine.fromVec(vec[Rational](0, 1)) shouldBe vec[Rational](0, 1)
   }
 
-  test("VecEngine.cat") {
+  test("cat") {
     val a = vec[Rational](0, 1)
     val b = vec[Rational](2, 3)
     val res = vec[Rational](0, 1, 2, 3)
     engine.cat(a, b) shouldBe res
   }
 
-  test("VecEngine.count") {
+  test("count") {
     val a = vec[Rational](0, 1, -1, 2, -2)
     engine.count(a)(_ > 0) shouldBe 2
   }
 
-  test("VecEngine.flatMap") {
+  test("flatMap") {
     val a = vec[Rational](1, 2)
     engine.flatMap(a)(x => vec[Rational](x, 0)) shouldBe vec[Rational](1, 0, 2, 0)
   }
 
-  test("VecEngine.flatten") {
+  test("flatten") {
     val a: Vec[Vec[Rational]] = immutable.DenseVec.tabulate(2)(i => vec[Rational](0, 1))
     engine.flatten(a) shouldBe vec[Rational](0, 1, 0, 1)
   }
 
-  test("VecEngine.fold") {
+  test("fold") {
     val a = vec[Rational](1, 2, 3, 4)
     engine.fold(a)(Rational.one)(_ * _) shouldBe Rational(24)
   }
 
-  test("VecEngine.map") {
+  test("map") {
     val a = vec[Rational](2, 3, 4)
     engine.map(a)(_ * 2) shouldBe vec[Rational](4, 6, 8)
   }
 
-  test("VecEngine.colSeq") {
+  test("colSeq") {
     val a = matEngine.rowMajor(2, 2)(1, 2,
                                      3, 4)
     engine.colSeq(a) shouldBe IndexedSeq(vec[Rational](1, 3), vec[Rational](2, 4))
   }
 
-  test("VecEngine.rowSeq") {
+  test("rowSeq") {
     val a = matEngine.rowMajor(2, 2)(1, 2,
                                      3, 4)
     engine.rowSeq(a) shouldBe IndexedSeq(vec[Rational](1, 2), vec[Rational](3, 4))
   }
 
-  test("VecEngine.slice") {
+  test("slice") {
     val a = vec[Rational](0, 1, 2, 3)
     engine.slice(a, Subscript.arrayWrap(Array(1, 2))) shouldBe vec[Rational](1, 2)
   }
 
-  test("VecEngine.slice (matrix") {
+  test("slice (matrix") {
     val a = matEngine.rowMajor(2, 2)(1, 2,
       3, 4)
     engine.slice(a, Subscript.arrayWrap(Array(1, 2))) shouldBe vec[Rational](3, 2)
   }
 
-  test("VecEngine.diag") {
+  test("diag") {
     engine.diag(matEngine.rowMajor(2, 2)(1, 0, 0, 2)) shouldBe vec[Rational](1, 2)
   }
 
-  test("VecEngine.rowSlice") {
+  test("rowSlice") {
     val a = matEngine.rowMajor(3, 3)(1, 2, 3,
       4, 5, 6,
     7, 8, 9)
     engine.rowSlice(a, 1, Subscript.arrayWrap(Array(1, 2))) shouldBe vec[Rational](5, 6)
   }
 
-  test("VecEngine.colSlice") {
+  test("colSlice") {
     val a = matEngine.rowMajor(3, 3)(1, 2, 3,
     4, 5, 6,
     7, 8, 9)
     engine.colSlice(a, Subscript.arrayWrap(Array(1, 2)), 1) shouldBe vec[Rational](5, 8)
   }
 
-  test("VecEngine.pointwiseEqual (scalar)") {
+  test("pointwiseEqual (scalar)") {
     val a = vec[Rational](0, 1, 2, 2)
     val res = vec[Boolean](false, false, true, true)
     engineB.pointwiseEqual(a, Rational(2)) shouldBe res
   }
 
-  test("VecEngine.pointwiseEqual (vec)") {
+  test("pointwiseEqual (vec)") {
     val a = vec[Rational](0, 1, 2, 2)
     val b = vec[Rational](0, 2, 1, 2)
     val res = vec[Boolean](true, false, false, true)
     engineB.pointwiseEqual(a, b) shouldBe res
   }
 
-  test("VecEngine.pointwiseNotEqual (scalar)") {
+  test("pointwiseNotEqual (scalar)") {
     val a = vec[Rational](0, 1, 2, 2)
     val res = vec[Boolean](true, true, false, false)
     engineB.pointwiseNotEqual(a, Rational(2)) shouldBe res
   }
 
-  test("VecEngine.pointwiseNotEqual (vec)") {
+  test("pointwiseNotEqual (vec)") {
     val a = vec[Rational](0, 1, 2, 2)
     val b = vec[Rational](0, 2, 1, 2)
     val res = vec[Boolean](false, true, true, false)
     engineB.pointwiseNotEqual(a, b) shouldBe res
   }
 
-  test("VecEngine.pointwiseEqv (scalar)") {
+  test("pointwiseEqv (scalar)") {
     val a = vec[Rational](0, 1, 2, 2)
     val res = vec[Boolean](false, false, true, true)
     engineB.pointwiseEqv(a, Rational(2)) shouldBe res
   }
 
-  test("VecEngine.pointwiseEqv (vec)") {
+  test("pointwiseEqv (vec)") {
     val a = vec[Rational](0, 1, 2, 2)
     val b = vec[Rational](0, 2, 1, 2)
     val res = vec[Boolean](true, false, false, true)
     engineB.pointwiseEqv(a, b) shouldBe res
   }
 
-  test("VecEngine.pointwiseNotEqv (scalar)") {
+  test("pointwiseNotEqv (scalar)") {
     val a = vec[Rational](0, 1, 2, 2)
     val res = vec[Boolean](true, true, false, false)
     engineB.pointwiseNeqv(a, Rational(2)) shouldBe res
   }
 
-  test("VecEngine.pointwiseNotEqv (vec)") {
+  test("pointwiseNotEqv (vec)") {
     val a = vec[Rational](0, 1, 2, 2)
     val b = vec[Rational](0, 2, 1, 2)
     val res = vec[Boolean](false, true, true, false)
     engineB.pointwiseNeqv(a, b) shouldBe res
   }
 
-  test("VecEngine.eqv") {
+  test("eqv") {
     val a = vec[Rational](0, 1, 2)
     val b = vec[Rational](0, 1, 2)
     val c = vec[Rational](0, 1, 1)
     engine.eqv(a, b) shouldBe true
     engine.eqv(a, c) shouldBe false
   }
+
+  test("zeros") {
+    engine.zeros(3) shouldBe vec[Rational](0, 0, 0)
+  }
+
+  test("plus") {
+    val a = vec[Rational](0, 1, 2)
+    val b = vec[Rational](2, 2, 2)
+    val res = vec[Rational](2, 3, 4)
+    engine.plus(a, b) shouldBe res
+  }
+
+  test("minus") {
+    val a = vec[Rational](2, 2, 2)
+    val b = vec[Rational](0, 1, 2)
+    val res = vec[Rational](2, 1, 0)
+    engine.minus(a, b) shouldBe res
+  }
+
+  test("negate") {
+    val a = vec[Rational](2, -1, 0)
+    val res = vec[Rational](-2, 1, 0)
+    engine.negate(a) shouldBe res
+  }
+
+  test("pointwisePlus") {
+    val a = vec[Rational](1, 2, 3)
+    val res = vec[Rational](2, 3, 4)
+    engine.pointwisePlus(a, Rational(1)) shouldBe res
+  }
+
+  test("pointwiseMinus") {
+    val a = vec[Rational](2, 3, 4)
+    val res = vec[Rational](1, 2, 3)
+    engine.pointwiseMinus(a, Rational(1)) shouldBe res
+  }
+
+  test("nnz") {
+    val a = vec[Rational](2, 0, 1, 0, 0)
+    engine.nnz(a) shouldBe 3
+  }
+
+  test("sum") {
+    val a = vec[Rational](1, 2, 3, 4)
+    engine.sum(a) shouldBe Rational(10)
+  }
+
+  test("times mat-vec") {
+    val a = matEngine.rowMajor(2, 2)(1, 2, 2, 1)
+    val b = vec[Rational](1, 1)
+    engine.times(a, b) shouldBe vec[Rational](3, 3)
+  }
+
+  test("times vec-mat") {
+    val a = vec[Rational](1, 1)
+    val b = matEngine.rowMajor(2, 2)(1, 2, 2, 1)
+    engine.times(a, b) shouldBe vec[Rational](3, 3)
+  }
+
+  test("dot") {
+    val a = vec[Rational](1, 2)
+    val b = vec[Rational](2, 1)
+  }
+
+  test("ones") {
+    engine.ones(3) shouldBe vec[Rational](1, 1, 1)
+  }
+
+  test("product") {
+    engine.product(vec[Rational](1, 2, 3, 4)) shouldBe Rational(24)
+  }
+
+  test("times") {
+    val a = vec[Rational](1, 2, 3, 4)
+    engine.times(a, Rational(2)) shouldBe vec[Rational](2, 4, 6, 8)
+    engine.times(Rational(2), a) shouldBe vec[Rational](2, 4, 6, 8)
+    // TODO: test with a noncommutative ring
+  }
+
+  test("pointwiseTimes") {
+    val a = vec[Rational](1, 2, 3, 4)
+    engine.pointwiseTimes(a, a) shouldBe vec[Rational](1, 4, 9, 16)
+  }
+
+  test("kron") {
+    val a = vec[Rational](1, 2)
+    engine.kron(a, a) shouldBe vec[Rational](1, 2, 2, 4)
+  }
+
+  test("gcd") {
+    val a = vec[Rational](2, 4, -2)
+    engine.gcd(a) shouldBe Rational(2)
+  }
+
+  test("lcm") {
+    val a = vec[Rational](2, 3, 6)
+    engine.lcm(a) shouldBe Rational(6)
+  }
+
+  test("pointwiseDiv") {
+    val a = vec[Rational](2, 4, 4, 2)
+    val b = vec[Rational](2, 1, 4, 1)
+    val res = vec[Rational](1, 4, 1, 2)
+    engine.pointwiseDiv(a, b) shouldBe res
+  }
+
+  test("div") {
+    val a = vec[Rational](2, 4, 4, 6)
+    val res = vec[Rational](1, 2, 2, 3)
+    engine.div(a, Rational(2)) shouldBe res
+  }
+
 
 }
