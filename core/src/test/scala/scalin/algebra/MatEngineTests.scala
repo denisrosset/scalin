@@ -290,5 +290,29 @@ class MatEngineTests extends ScalinSuite {
       2, 0,-1).determinant shouldBe Rational(18)
   }
 
+  test("rank") {
+    val a = rowMajor[Rational](4,4)(
+      1,3,1,4,
+      2,7,3,9,
+      1,5,3,1,
+      1,2,0,8)
+    engine.rank(a) shouldBe 3
+  }
+
+  test("gcd") {
+    val a = rowMat[Rational](2, 4, -2)
+    engine.gcd(a) shouldBe Rational(2)
+  }
+
+  test("lcm") {
+    val a = rowMat[Rational](2, 3, 6)
+    engine.lcm(a) shouldBe Rational(6)
+  }
+
+  test("orthogonalized") {
+    val a = eye[Rational](2)
+    engine.orthogonalized(a) shouldBe a
+  }
+  
 }
 
