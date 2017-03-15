@@ -11,26 +11,24 @@ class VecEngineTests extends ScalinSuite {
   implicit val engineB: VecEngine[Boolean, Vec[Boolean]] = immutable.dense.vecEngine[Boolean]
   implicit val matEngine: MatEngine[Rational, Mat[Rational]] = immutable.dense.matEngine[Rational]
 
-  def r[A](a: A)(implicit f: A => Rational): Rational = f(a)
-
   test("empty") {
     engine.empty.length == 0
   }
 
   test("tabulate") {
-    engine.tabulate(2)(i => r(i)) shouldBe vec[Rational](0, 1)
+    engine.tabulate(2)(i => Rational(i)) shouldBe vec[Rational](0, 1)
   }
 
   test("fill") {
-    engine.fill(2)(r(1)) shouldBe vec(r(1), r(1))
+    engine.fill(2)(Rational(1)) shouldBe vec[Rational](1, 1)
   }
 
   test("fillConstant") {
-    engine.fillConstant(2)(r(1)) shouldBe vec(r(1), r(1))
+    engine.fillConstant(2)(Rational(1)) shouldBe vec[Rational](1, 1)
   }
 
   test("fromSeq") {
-    engine.fromSeq(Seq(r(0), r(1))) shouldBe vec[Rational](0, 1)
+    engine.fromSeq(Seq(Rational(0), Rational(1))) shouldBe vec[Rational](0, 1)
   }
 
   test("fromVec") {

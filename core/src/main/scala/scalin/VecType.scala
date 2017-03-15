@@ -2,14 +2,6 @@ package scalin
 
 import scalin.algebra._
 
-trait Dummy[A]
-
-object Dummy {
-
-  implicit def dummy[A]: Dummy[A] = null
-
-}
-
 trait VecType[V[A] <: Vec[A]] {
 
   type TC[_]

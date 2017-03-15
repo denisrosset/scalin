@@ -37,11 +37,11 @@ trait MatEngine[A, +MA <: Mat[A]] {
   /** Returns the number of elements satisfying the predicate `f`. */
   def count(lhs: Mat[A])(f: A => Boolean): Int
 
-  /** Flatten a block matrix. Not defined if the matrix is empty. */
-  def flatten[B <: Mat[A]](lhs: Mat[B]): MA
-
   /** Returns the flattened block matrix specified by `lhs.map(f)`. Not defined if the matrix is empty. */
   def flatMap[B](lhs: Mat[B])(f: B => Mat[A]): MA
+
+  /** Flatten a block matrix. Not defined if the matrix is empty. */
+  def flatten[B <: Mat[A]](lhs: Mat[B]): MA
 
   /** Folds the elements of the matrix using the specified associative binary operator.
     * 
