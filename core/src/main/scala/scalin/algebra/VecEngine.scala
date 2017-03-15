@@ -22,7 +22,6 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
     */
   def fromMutable(length: Int)(updateFun: scalin.mutable.Vec[A] => Unit): VA
 
-
   //// Helper methods
 
   def pointwiseUnary(lhs: Vec[A])(f: A => A) = tabulate(lhs.length)(k => f(lhs(k)))
@@ -48,7 +47,6 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
   }
 
   type Ret <: VA // hack for the return type of Vec.flatten
-
 
   //// Creation
 

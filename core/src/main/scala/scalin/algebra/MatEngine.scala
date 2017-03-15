@@ -4,7 +4,19 @@ package algebra
 import spire.algebra._
 
 /** Builder for matrices with an arbitrary scalar type `A`. */
-trait MatEngine[A, +MA <: Mat[A]] {
+trait MatEngine[A, +MA <: Mat[A]] { self =>
+
+  implicit def MA: MatEngine[A, MA] = self
+
+  //// Minimal methods to implement
+
+  /** Creates a vector from the given size (nRows, nCols) and a value function. */
+  def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): MA
+
+  /** Builds a mtrix from the given size and a user-provided function that mutates
+    * a temporary mutable matrix.
+    */
+  def fromMutable(nRows: Int, nCols: Int)(updateFun: scalin.mutable.Mat[A] => Unit): MA
 
   type Ret <: MA // hack for the return type of Mat.flatten
 
@@ -12,15 +24,13 @@ trait MatEngine[A, +MA <: Mat[A]] {
 
   // empty matrix is an ill-defined object (0x0, nx0 and 0xn are all empty)
 
-  def tabulate(rows: Int, cols: Int)(f: (Int, Int) => A): MA
+  def fill(nRows: Int, nCols: Int)(a: => A): MA
 
-  def fill(rows: Int, cols: Int)(a: => A): MA
+  def fillConstant(nRows: Int, nCols: Int)(a: A): MA
 
-  def fillConstant(rows: Int, cols: Int)(a: A): MA
+  def colMajor(nRows: Int, nCols: Int)(elements: A*): MA
 
-  def colMajor(rows: Int, cols: Int)(elements: A*): MA
-
-  def rowMajor(rows: Int, cols: Int)(elements: A*): MA
+  def rowMajor(nRows: Int, nCols: Int)(elements: A*): MA
 
   def rowMat(elements: A*): MA
 

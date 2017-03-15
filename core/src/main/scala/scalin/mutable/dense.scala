@@ -25,9 +25,15 @@ class MatEngine[A](implicit val UVA: scalin.algebra.VecEngine[A, mutable.DenseVe
 
   type UVA = mutable.DenseVec[A]
 
-  def tabulate(rows: Int, cols: Int)(f: (Int, Int) => A) = mutable.DenseMat.tabulate[A](rows, cols)(f)
+  def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A) = mutable.DenseMat.tabulate[A](nRows, nCols)(f)
 
-  def alloc(rows: Int, cols: Int) = new mutable.DenseMat(rows, cols, new Array[AnyRef](rows * cols))
+  def fromMutable(nRows: Int, nCols: Int)(updateFun: scalin.mutable.Mat[A] => Unit) = {
+    val res = new scalin.mutable.DenseMat[A](nRows, nCols, new Array[AnyRef](nRows * nCols)) // add method to mutable VecEngine to allocate vector with null, sound semantics; see immutable.VecEngine as well
+    updateFun(res)
+    res
+  }
+
+  def alloc(nRows: Int, nCols: Int) = new mutable.DenseMat(nRows, nCols, new Array[AnyRef](nRows * nCols))
 
   def alloc(length: Int) = new mutable.DenseVec[A](new Array[AnyRef](length))
 

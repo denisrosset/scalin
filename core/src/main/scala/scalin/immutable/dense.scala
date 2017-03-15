@@ -25,7 +25,14 @@ class MatEngine[A] extends scalin.impl.builder.MatEngine[A, immutable.DenseMat[A
   type UMA = mutable.DenseMat[A]
   def UMA = mutable.dense.matEngine[A]
 
-  def tabulate(rows: Int, cols: Int)(f: (Int, Int) => A) = immutable.DenseMat.tabulate[A](rows, cols)(f)
+  def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A) = immutable.DenseMat.tabulate[A](nRows, nCols)(f)
+
+  def fromMutable(nRows: Int, nCols: Int)(updateFun: scalin.mutable.Mat[A] => Unit) = {
+    val res = new mutable.DenseMat[A](nRows, nCols, new Array[AnyRef](nRows * nCols))
+    // TODO: zero semantics
+    updateFun(res)
+    res.result()
+  }
 
   def alloc(rows: Int, cols: Int) = new mutable.DenseMat(rows, cols, new Array[AnyRef](rows * cols))
 
