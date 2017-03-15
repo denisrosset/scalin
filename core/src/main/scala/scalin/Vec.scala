@@ -93,7 +93,7 @@ trait Vec[A] { lhs =>
 
   def toColMat[MA <: Mat[A]](implicit ev: MatEngine[A, MA]): MA = ev.toColMat(lhs)
 
-  def toDiagMat[MA <: Mat[A]](implicit ev: MatRing[A, MA], A: AdditiveMonoid[A]): MA = ev.toDiagMat(lhs)
+  def toDiagMat[MA <: Mat[A]](implicit ev: MatEngine[A, MA], A: AdditiveMonoid[A]): MA = ev.toDiagMat(lhs)
 
   //// Collection-like methods
 
@@ -153,7 +153,7 @@ trait Vec[A] { lhs =>
   def kron[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecEngine[A, VA], A: MultiplicativeMonoid[A]): VA = ev.kron(lhs, rhs)
 
   /** Dyadic product by vector, which we don't call outer product, because we don't want to involve complex conjugation. */
-  def dyad[MA <: Mat[A]](rhs: Vec[A])(implicit ev: MatMultiplicativeMonoid[A, MA], A: MultiplicativeMonoid[A]): MA = ev.dyad(lhs, rhs)
+  def dyad[MA <: Mat[A]](rhs: Vec[A])(implicit ev: MatEngine[A, MA], A: MultiplicativeMonoid[A]): MA = ev.dyad(lhs, rhs)
 
   //// With `A:AdditiveGroup`
 

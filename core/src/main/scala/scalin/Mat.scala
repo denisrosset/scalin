@@ -24,17 +24,17 @@ class PointwiseMat[A](val lhs: Mat[A]) extends AnyVal {
 
   //// With `A:MultiplicativeMonoid`
 
-  def *[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatRing[A, MA], A: MultiplicativeSemigroup[A]): MA = ev.pointwiseTimes(lhs, rhs)
+  def *[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: MultiplicativeSemigroup[A]): MA = ev.pointwiseTimes(lhs, rhs)
 
   //// With `A:Ring`
 
-  def +[MA <: Mat[A]](rhs: A)(implicit ev: MatRing[A, MA], A: AdditiveSemigroup[A]): MA = ev.pointwisePlus(lhs, rhs)
+  def +[MA <: Mat[A]](rhs: A)(implicit ev: MatEngine[A, MA], A: AdditiveSemigroup[A]): MA = ev.pointwisePlus(lhs, rhs)
 
-  def -[MA <: Mat[A]](rhs: A)(implicit ev: MatRing[A, MA], A: AdditiveGroup[A]): MA = ev.pointwiseMinus(lhs, rhs)
+  def -[MA <: Mat[A]](rhs: A)(implicit ev: MatEngine[A, MA], A: AdditiveGroup[A]): MA = ev.pointwiseMinus(lhs, rhs)
 
   //// With `A:Field`
 
-  def /[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatField[A, MA], A: Field[A]): MA = ev.pointwiseDiv(lhs, rhs)
+  def /[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: Field[A]): MA = ev.pointwiseDiv(lhs, rhs)
 
   //// With `A:Eq`
 
@@ -153,57 +153,57 @@ trait Mat[A] { lhs =>
   //// With `A:MultiplicativeMonoid`
 
   /** Product by scalar from the right. */
-  def *[MA <: Mat[A]](rhs: A)(implicit ev: MatRing[A, MA], A: MultiplicativeSemigroup[A]): MA = ev.times(lhs, rhs)
+  def *[MA <: Mat[A]](rhs: A)(implicit ev: MatEngine[A, MA], A: MultiplicativeSemigroup[A]): MA = ev.times(lhs, rhs)
 
   /** Product by scalar from the left. */
-  def *:[MA <: Mat[A]](realLhs: A)(implicit ev: MatRing[A, MA], A: MultiplicativeSemigroup[A]): MA = ev.times(realLhs, lhs)
+  def *:[MA <: Mat[A]](realLhs: A)(implicit ev: MatEngine[A, MA], A: MultiplicativeSemigroup[A]): MA = ev.times(realLhs, lhs)
 
   /** Kronecker product. */
-  def kron[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatMultiplicativeMonoid[A, MA], A: MultiplicativeSemigroup[A]): MA = ev.kron(lhs, rhs)
+  def kron[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: MultiplicativeSemigroup[A]): MA = ev.kron(lhs, rhs)
 
-  def product(implicit ev: MatMultiplicativeMonoid[A, _], A: MultiplicativeMonoid[A]): A = ev.product(lhs)
+  def product(implicit ev: MatEngine[A, _], A: MultiplicativeMonoid[A]): A = ev.product(lhs)
 
   //// With `A:AdditiveGroup`
 
   /** Addition. */
-  def +[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatRing[A, MA], A: AdditiveSemigroup[A]): MA = ev.plus(lhs, rhs)
+  def +[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: AdditiveSemigroup[A]): MA = ev.plus(lhs, rhs)
 
   /** Subtraction. */
-  def -[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatRing[A, MA], A: AdditiveGroup[A]): MA = ev.minus(lhs, rhs)
+  def -[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: AdditiveGroup[A]): MA = ev.minus(lhs, rhs)
 
   /** Matrix opposite. */
-  def unary_-[MA <: Mat[A]](implicit ev: MatRing[A, MA], A: AdditiveGroup[A]): MA = ev.negate(lhs)
+  def unary_-[MA <: Mat[A]](implicit ev: MatEngine[A, MA], A: AdditiveGroup[A]): MA = ev.negate(lhs)
 
   /** Returns the number of non-zero elements in the matrix. */
-  def nnz(implicit ev: MatRing[A, _], equ: Eq[A], A: AdditiveMonoid[A]): Int = ev.nnz(lhs)
+  def nnz(implicit ev: MatEngine[A, _], equ: Eq[A], A: AdditiveMonoid[A]): Int = ev.nnz(lhs)
 
   /** Computes the sum of all the matrix elements. */
-  def sum(implicit ev: MatRing[A, _], A: AdditiveMonoid[A]): A = ev.sum(lhs)
+  def sum(implicit ev: MatEngine[A, _], A: AdditiveMonoid[A]): A = ev.sum(lhs)
 
   /** Trace: sum of the diagonal elements. Requires a square matrix. */
-  def trace(implicit ev: MatRing[A, _], A: AdditiveMonoid[A]): A = ev.trace(lhs)
+  def trace(implicit ev: MatEngine[A, _], A: AdditiveMonoid[A]): A = ev.trace(lhs)
 
   //// With `A:Ring`
 
   /** Matrix multiplication. */
-  def *[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatRing[A, MA], A: Ring[A]): MA = ev.times(lhs, rhs)
+  def *[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: Ring[A]): MA = ev.times(lhs, rhs)
 
   /** Matrix-vector product. The vector is interpreted as a column vector. */
   def *[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecEngine[A, VA], A: Ring[A]): VA = ev.times(lhs, rhs)
 
   /** Frobenius product: `A.frobenius(B) = trace(A * B.t)`. */
-  def frobenius(rhs: Mat[A])(implicit ev: MatRing[A, _], A: Ring[A]): A = ev.frobenius(lhs, rhs)
+  def frobenius(rhs: Mat[A])(implicit ev: MatEngine[A, _], A: Ring[A]): A = ev.frobenius(lhs, rhs)
 
   //// With `A:EuclideanRing`
 
-  def gcd(implicit ev: MatEuclideanRing[A, _], equ: Eq[A]): A = ev.gcd(lhs)
+  def gcd(implicit ev: MatEngine[A, _], equ: Eq[A], A: EuclideanRing[A]): A = ev.gcd(lhs)
 
-  def lcm(implicit ev: MatEuclideanRing[A, _], equ: Eq[A]): A = ev.lcm(lhs)
+  def lcm(implicit ev: MatEngine[A, _], equ: Eq[A], A: EuclideanRing[A]): A = ev.lcm(lhs)
 
   //// Methods for `A:Field`
 
   /** Division by scalar. */
-  def /[MA <: Mat[A]](rhs: A)(implicit ev: MatField[A, MA]): MA = ev.div(lhs, rhs)
+  def /[MA <: Mat[A]](rhs: A)(implicit ev: MatEngine[A, MA], A: Field[A]): MA = ev.div(lhs, rhs)
   
 }
 

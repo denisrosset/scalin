@@ -11,8 +11,7 @@ import scalin.syntax.all._
 object PrincipalMinors {
 
   /** Finds the principal minors of an n x n matrix in a field. */
-  def apply[UMat <: mutable.Mat[A], UVec <: mutable.Vec[A], A](mat: Mat[A])(implicit UMat: MatField[A, UMat], UVec: VecEngine[A, UVec], eqA: Eq[A]): UVec = {
-    import UMat.scalar
+  def apply[UMat <: mutable.Mat[A], UVec <: mutable.Vec[A], A:Field](mat: Mat[A])(implicit UMat: MatEngine[A, UMat], UVec: VecEngine[A, UVec], eqA: Eq[A]): UVec = {
     var a: UMat = mat.toMat[UMat]
     assert(a.nRows == a.nCols)
     val n = a.nRows
@@ -31,7 +30,7 @@ object PrincipalMinors {
         if (n1 > 1) {
           if (pm(ipm).isZero) {
             zeroPivs += ipm
-            pm(ipm) := scalar.one
+            pm(ipm) := Field[A].one
           }
           val b = a(1 until n1, 1 until n1)
           val d = a(1 until n1, 0)/pm(ipm)
@@ -64,9 +63,9 @@ object PrincipalMinors {
       val delta2 = 2 * delta
       val ipm1 = (~delta) & mask
       if (ipm1 == 0)
-        pm(mask - 1) := pm(mask - 1) - scalar.one // but we shift downwards on access
+        pm(mask - 1) := pm(mask - 1) - Field[A].one // but we shift downwards on access
       else
-        pm(mask - 1) := (pm(mask - 1)/pm(ipm1 - 1) - scalar.one) * pm(ipm1 - 1)
+        pm(mask - 1) := (pm(mask - 1)/pm(ipm1 - 1) - Field[A].one) * pm(ipm1 - 1)
       (mask + delta to ((1 << n) - 1) by delta2).foreach { j =>
         pm(j - 1) := pm(j - 1) - pm(j - delta - 1)
       }

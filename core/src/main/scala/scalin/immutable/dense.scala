@@ -42,72 +42,11 @@ class MatEngine[A] extends scalin.algebra.MatEngine[A, immutable.DenseMat[A]] {
 
 }
 
-class MatMultiplicativeMonoid[A](implicit val scalar: MultiplicativeMonoid[A])
-    extends scalin.immutable.MatEngine[A]
-    with scalin.algebra.MatMultiplicativeMonoid[A, immutable.DenseMat[A]] {
 
-  override def UMA = mutable.dense.matMultiplicativeMonoid[A]
+object dense {
 
-}
+  implicit def vecEngine[A]: scalin.algebra.VecEngine[A, immutable.DenseVec[A]] = new VecEngine[A]
 
-class MatRing[A](implicit override val scalar: Ring[A])
-    extends scalin.immutable.MatMultiplicativeMonoid[A]
-    with scalin.algebra.MatRing[A, immutable.DenseMat[A]] {
-
-  override def UMA = mutable.dense.matRing[A]
-
-}
-
-class MatEuclideanRing[A](implicit override val scalar: EuclideanRing[A], val pivotA: Pivot[A])
-    extends scalin.immutable.MatRing[A]
-    with scalin.algebra.MatEuclideanRing[A, immutable.DenseMat[A]] {
-
-  override def UMA = mutable.dense.matEuclideanRing[A]
-
-}
-
-class MatField[A](implicit override val scalar: Field[A], override val pivotA: Pivot[A])
-    extends scalin.immutable.MatEuclideanRing[A]
-    with scalin.algebra.MatField[A, immutable.DenseMat[A]] {
-
-  override def UMA = mutable.dense.matField[A]
-
-}
-
-abstract class dense0 {
-
-  implicit def vecEngine[A]: scalin.algebra.VecEngine[A, immutable.DenseVec[A]] =
-    new VecEngine[A]
-
-  implicit def matEngine[A]: scalin.algebra.MatEngine[A, immutable.DenseMat[A]] =
-    new MatEngine[A]
-
-}
-
-abstract class dense1 extends dense0 {
-
-  implicit def matMultiplicativeMonoid[A:MultiplicativeMonoid]: scalin.algebra.MatMultiplicativeMonoid[A, immutable.DenseMat[A]] =
-    new MatMultiplicativeMonoid[A]
-
-}
-
-abstract class dense2 extends dense1 {
-
-  implicit def matRing[A:Ring]: scalin.algebra.MatRing[A, immutable.DenseMat[A]] =
-    new MatRing[A]
-
-}
-
-abstract class dense3 extends dense2 {
-
-  implicit def matEuclideanRing[A:EuclideanRing:Pivot]: scalin.algebra.MatEuclideanRing[A, immutable.DenseMat[A]] =
-    new MatEuclideanRing[A]
-
-}
-
-object dense extends dense3 {
-
-  implicit def matField[A:Field:Pivot]: scalin.algebra.MatField[A, immutable.DenseMat[A]] =
-    new MatField[A]
+  implicit def matEngine[A]: scalin.algebra.MatEngine[A, immutable.DenseMat[A]] = new MatEngine[A]
 
 }
