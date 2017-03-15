@@ -45,10 +45,10 @@ trait MatRing[A, +MA <: Mat[A]] extends MatMultiplicativeMonoid[A, MA] {
 
   /** Frobenius product, sum of the Hadamard product elements.
     * 
-    * See https://en.wikipedia.org/wiki/Matrix_multiplication#Frobenius_product .*/
+    * See https://en.wikipedia.org/wiki/Frobenius_inner_product .*/
   def frobenius(lhs: Mat[A], rhs: Mat[A]): A
 
   /** Computes the matrix determinant. Requires a square matrix. */
-  def determinant(lhs: Mat[A]): A
+  def determinant(lhs: Mat[A]): A // TODO move out
 
 }
