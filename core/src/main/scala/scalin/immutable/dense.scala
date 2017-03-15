@@ -1,8 +1,6 @@
 package scalin
 package immutable
 
-import spire.algebra.{MultiplicativeMonoid, Ring, EuclideanRing, Field}
-
 class IVecEngine[A] extends scalin.VecEngine[A, immutable.DenseVec[A]] {
 
   def tabulate(length: Int)(f: Int => A) = immutable.DenseVec.tabulate[A](length)(f)

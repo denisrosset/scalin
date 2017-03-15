@@ -3,8 +3,6 @@ package scalin
 import spire.algebra._
 import spire.syntax.cfor._
 
-import algos._
-
 class PointwiseMat[A](val lhs: Mat[A]) extends AnyVal {
 
   //// Using standard Java methods

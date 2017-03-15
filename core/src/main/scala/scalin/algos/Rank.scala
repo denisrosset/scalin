@@ -1,11 +1,11 @@
 package scalin
 package algos
 
-import spire.algebra.EuclideanRing
+/*import spire.algebra.EuclideanRing
 import spire.syntax.cfor._
 import spire.syntax.euclideanRing._
 
-import scalin.syntax.assign._
+import scalin.syntax.assign._*/
 
 object Rank {
 /* TODO

@@ -7,7 +7,7 @@ import scalin.immutable.Mat
 
 class MatEngineTests extends ScalinSuite {
 
-  implicit val engine: MatField[Rational, Mat[Rational]] = immutable.dense.matField[Rational]
+  implicit val engine: MatEngine[Rational, Mat[Rational]] = immutable.dense.matEngine[Rational]
   implicit val engineB: MatEngine[Boolean, Mat[Boolean]] = immutable.dense.matEngine[Boolean]
   implicit val vecEngine: VecEngine[Rational, Vec[Rational]] = immutable.dense.vecEngine[Rational]
 

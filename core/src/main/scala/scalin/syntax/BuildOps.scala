@@ -2,7 +2,6 @@ package scalin
 package syntax
 
 import spire.algebra.{AdditiveMonoid, MultiplicativeMonoid, Rig}
-import algebra._
 
 final class ColMajorOps[A](val dummy: Null) extends AnyVal {
 

@@ -1,8 +1,8 @@
 package scalin
 
-import scalin.mutable.dense._
+/*import scalin.mutable.dense._
 
-import spire.math._
+import spire.math._*/
 
 class RankFactorizationSuite extends ScalinSuite {
 /* TODO

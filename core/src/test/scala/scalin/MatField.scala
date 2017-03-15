@@ -1,11 +1,11 @@
 package scalin
 
-import spire.math.Rational
+//import spire.math.Rational
 
 class MatField extends ScalinSuite {
 
-  import scalin.immutable.dense._
-  import spire.laws.arb.rational
+/*  import scalin.immutable.dense._
+  import spire.laws.arb.rational*/
 /* TODO
   test("Inverses of matrices of determinant one") {
     forAll(Mats.genDetOne[Rational](4)) { m =>
