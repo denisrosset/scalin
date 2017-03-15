@@ -4,6 +4,7 @@ package algebra
 import spire.algebra._
 import spire.syntax.cfor._
 import spire.syntax.eq._
+import spire.syntax.field._
 
 import scalin.syntax.assign._
 
@@ -328,5 +329,67 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
   //// With `Eq[A]`
 
   def eqv(lhs: Mat[A], rhs: Mat[A])(implicit eqv: Eq[A]): Boolean = booleanBinaryAnd(lhs, rhs)(_ === _)
+
+  //// Creation
+
+  def ones(rows: Int, cols: Int)(implicit A: MultiplicativeMonoid[A]): MA = fillConstant(rows, cols)(A.one)
+
+  //// With `MultiplicativeMonoid[A]`, returning scalar
+
+  def product(lhs: Mat[A])(implicit A: MultiplicativeMonoid[A]): A = fold(lhs)(A.one)(A.times)
+
+  //// With `MultiplicativeMonoid[A]`, returning matrix
+
+  /** Scalar-matrix product. */
+  def times(lhs: A, rhs: Mat[A])(implicit A: MultiplicativeSemigroup[A]): MA = pointwiseUnary(rhs)(A.times(lhs, _))
+
+  /** Matrix-scalar product. */
+  def times(lhs: Mat[A], rhs: A)(implicit A: MultiplicativeSemigroup[A]): MA = pointwiseUnary(lhs)(A.times(_, rhs))
+
+  /** Pointwise multiplication, i.e. Hadamard product, see https://en.wikipedia.org/wiki/Hadamard_product_%28matrices%29 . */
+  def pointwiseTimes(lhs: Mat[A], rhs: Mat[A])(implicit A: MultiplicativeSemigroup[A]): MA = pointwiseBinary(lhs, rhs)(A.times)
+
+  /** Dyadic product, see https://en.wikipedia.org/wiki/Dyadics#Dyadic.2C_outer.2C_and_tensor_products . 
+    * 
+    * Equivalent to the outer product when the scalars are reals (no complex conjugation is performed on
+    * the inputs).
+    */
+  def dyad(lhs: Vec[A], rhs: Vec[A])(implicit A: MultiplicativeSemigroup[A]): MA = tabulate(lhs.length, rhs.length) { (r, c) => A.times(lhs(r), rhs(c)) }
+
+  /* Alternative
+  def kron(lhs: Mat[A], rhs: Mat[A]): MA =
+    tabulate(lhs.nRows * rhs.nRows, lhs.nCols * rhs.nCols) { (r, c) =>
+      val rr = r % rhs.nRows
+      val rl = r / rhs.nRows
+      val cr = c % rhs.nCols
+      val cl = c / rhs.nCols
+      lhs(rl, cl) * rhs(rr, cr)
+    }
+   */
+
+  /** Kronecker product. */
+  def kron(x: Mat[A], y: Mat[A])(implicit A: MultiplicativeSemigroup[A]): MA = {
+    val nrx = x.nRows
+    val ncx = x.nCols
+    val nry = y.nRows
+    val ncy = y.nCols
+    val nR = nrx * nry
+    val nC = ncx * ncy
+    fromMutable(nR, nC) { b =>
+      var r = 0
+      cforRange(0 until nrx) { rx =>
+        cforRange(0 until nry) { ry =>
+          var c = 0
+          cforRange(0 until ncx) { cx =>
+            cforRange(0 until ncy) { cy =>
+              b(r, c) := x(rx, cx) * y(ry, cy)
+              c += 1
+            }
+          }
+          r += 1
+        }
+      }
+    }
+  }
 
 }

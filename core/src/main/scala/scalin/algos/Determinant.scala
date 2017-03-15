@@ -1,6 +1,8 @@
 package scalin
 package algos
 
+import spire.algebra.Ring
+
 trait Determinant[A] {
 
   def apply(mat: Mat[A]): A
@@ -15,12 +17,13 @@ object Determinant {
     * 
     * TODO: implement optimizations present in
     * https://github.com/gap-system/gap/blob/master/lib/matrix.gi
+    * 
+    * TODO: check if valid for noncommutative rings
     */
-  def ring[A, MA <: mutable.Mat[A]](lhs: Mat[A])(implicit MA: scalin.algebra.MatRing[A, MA]): A = {
+  def ring[A:Ring, MA <: mutable.Mat[A]](lhs: Mat[A])(implicit MA: scalin.algebra.MatRing[A, MA]): A = {
     import spire.syntax.cfor._
     import spire.syntax.ring._
     import scalin.syntax.all._
-    import MA.scalar
     val n = lhs.nRows
     require(lhs.nCols == n)
     var current = new Array[mutable.Mat[A]](2)
@@ -41,12 +44,12 @@ object Determinant {
       }
       val temp = current
       current = next
-      temp(0)(::, ::) := scalar.zero
-      temp(1)(::, ::) := scalar.zero
+      temp(0)(::, ::) := Ring[A].zero
+      temp(1)(::, ::) := Ring[A].zero
       next = temp
     }
-    var tplus = scalar.zero
-    var tminus = scalar.zero
+    var tplus = Ring[A].zero
+    var tminus = Ring[A].zero
     cforRange(0 until n) { v =>
       cforRange(0 to v) { u =>
         tplus += current(1)(u, v) * lhs(v, u)
