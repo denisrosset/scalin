@@ -2,6 +2,11 @@ package scalin
 package algebra
 
 import spire.algebra._
+import spire.syntax.cfor._
+import spire.syntax.eq._
+import spire.syntax.field._
+
+import scalin.syntax.assign._
 
 /** Builder for matrices with an arbitrary scalar type `A`. */
 trait MatEngine[A, +MA <: Mat[A]] { self =>
@@ -18,40 +23,153 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
     */
   def fromMutable(nRows: Int, nCols: Int)(updateFun: scalin.mutable.Mat[A] => Unit): MA
 
+  //// Helper methods
+
+  def pointwiseUnary(lhs: Mat[A])(f: A => A) = tabulate(lhs.nRows, lhs.nCols)((r, c) => f(lhs(r, c)) )
+
+  def pointwiseBinary(lhs: Mat[A], rhs: Mat[A])(f: (A, A) => A): MA = {
+    require(lhs.nRows == rhs.nRows)
+    require(lhs.nCols == rhs.nCols)
+    tabulate(lhs.nRows, lhs.nCols)((r, c) => f(lhs(r, c), rhs(r, c)) )
+  }
+
+  def booleanBinaryAnd(lhs: Mat[A], rhs: Mat[A])(f: (A, A) => Boolean): Boolean =
+    (lhs.nRows == rhs.nRows && lhs.nCols == rhs.nCols) && {
+      cforRange(0 until lhs.nRows) { r =>
+        cforRange(0 until lhs.nCols) { c =>
+          if (!f(lhs(r, c), rhs(r, c))) return false
+        }
+      }
+      true
+    }
+
+  def pointwiseBooleanUnary[B](lhs: Mat[B])(f: B => Boolean)(implicit ev: Boolean =:= A): MA =
+    tabulate(lhs.nRows, lhs.nCols)((r, c) =>  f(lhs(r, c)) )
+
+  def pointwiseBooleanBinary[B](lhs: Mat[B], rhs: Mat[B])(f: (B, B) => Boolean)(implicit ev: Boolean =:= A): MA = {
+    require(lhs.nRows == rhs.nRows && lhs.nCols == rhs.nCols)
+    tabulate(lhs.nRows, lhs.nCols)((r, c) =>  f(lhs(r, c), rhs(r, c)) )
+  }
+
   type Ret <: MA // hack for the return type of Mat.flatten
 
   //// Creation
 
   // empty matrix is an ill-defined object (0x0, nx0 and 0xn are all empty)
 
-  def fill(nRows: Int, nCols: Int)(a: => A): MA
+  def fill(nRows: Int, nCols: Int)(a: => A): MA = tabulate(nRows, nCols)( (i, j) => a )
 
-  def fillConstant(nRows: Int, nCols: Int)(a: A): MA
+  /* Alternative
+  def fillConstant(rows: Int, cols: Int)(a: A): MA = fill(rows, cols)(a)
+   */
+  def fillConstant(nRows: Int, nCols: Int)(a: A): MA = fromMutable(nRows, nCols) { res =>
+    cforRange(0 until nCols) { c =>
+      cforRange(0 until nRows) { r =>
+        res(r, c) := a
+      }
+    }
+  }
 
-  def colMajor(nRows: Int, nCols: Int)(elements: A*): MA
+  def colMajor(rows: Int, cols: Int)(elements: A*): MA = {
+    require(elements.size == rows * cols)
+    tabulate(rows, cols)( (r, c) => elements(r + c * rows) )
+  }
 
-  def rowMajor(nRows: Int, nCols: Int)(elements: A*): MA
+  def rowMajor(rows: Int, cols: Int)(elements: A*): MA = {
+    require(elements.size == rows * cols)
+    tabulate(rows, cols)( (r, c) => elements(c + r * cols) )
+  }
 
-  def rowMat(elements: A*): MA
+  def rowMat(elements: A*): MA = rowMajor(1, elements.size)(elements: _*)
 
-  def colMat(elements: A*): MA
+  def colMat(elements: A*): MA = colMajor(elements.size, 1)(elements: _*)
 
-  def toRowMat(lhs: Vec[A]): MA
+  def toRowMat(lhs: Vec[A]): MA = tabulate(1, lhs.length)( (r, c) => lhs(c) )
 
-  def toColMat(lhs: Vec[A]): MA
+  def toColMat(lhs: Vec[A]): MA = tabulate(lhs.length, 1)( (r, c) => lhs(r) )
 
-  def fromMat(mat: Mat[A]): MA
+  def fromMat(mat: Mat[A]): MA = tabulate(mat.nRows, mat.nCols)((r, c) => mat(r, c) )
 
   //// Collection-like methods
 
   /** Returns the number of elements satisfying the predicate `f`. */
   def count(lhs: Mat[A])(f: A => Boolean): Int
 
+  /* Alternative
+
+  def flatMap[B](lhs: Mat[B])(f: B => Mat[A]): MA =
+    if (lhs.nRows == 0 || lhs.nCols == 0) sys.error("Cannot flatten matrix with 0 rows or zero cols.")
+    else {
+      def flatRow(r: Int): MA = {
+        if (lhs.nCols == 1) map(f(lhs(r, 0)))(identity)
+        else {
+          var accRow = horzcat(f(lhs(r, 0)), f(lhs(r, 1)))
+          cforRange(2 until lhs.nCols) { c =>
+            accRow = horzcat(accRow, f(lhs(r, c)))
+          }
+          accRow
+        }
+      }
+      if (lhs.nRows == 1) flatRow(0)
+      else {
+        var acc = vertcat(flatRow(0), flatRow(1))
+        cforRange(2 until lhs.nRows) { r =>
+          acc = vertcat(acc, flatRow(r))
+        }
+        acc
+      }
+    }
+   */
   /** Returns the flattened block matrix specified by `lhs.map(f)`. Not defined if the matrix is empty. */
-  def flatMap[B](lhs: Mat[B])(f: B => Mat[A]): MA
+  def flatMap[B](lhs: Mat[B])(f: B => Mat[A]): MA =
+    if (lhs.nRows == 0 || lhs.nCols == 0) sys.error("Cannot flatten matrix with 0 rows or zero cols.")
+    else {
+      val els = new Array[Mat[A]](lhs.nRows * lhs.nCols)
+      cforRange(0 until lhs.nRows) { r =>
+        cforRange(0 until lhs.nCols) { c =>
+          els(r + c * lhs.nRows) = f(lhs(r, c))
+        }
+      }
+      flattenArray(els, lhs.nRows, lhs.nCols)
+    }
+
+/* Alternative
+  def flatten[B <: Mat[A]](lhs: Mat[B]): MA =
+    if (lhs.nRows == 0 || lhs.nCols == 0) sys.error("Cannot flatten matrix with 0 rows or zero cols.")
+    else {
+      def flatRow(r: Int): MA = {
+        if (lhs.nCols == 1) map(lhs(r, 0))(identity)
+        else {
+          var accRow = horzcat(lhs(r, 0), lhs(r, 1))
+          cforRange(2 until lhs.nCols) { c =>
+            accRow = horzcat(accRow, lhs(r, c))
+          }
+          accRow
+        }
+      }
+      if (lhs.nRows == 1) flatRow(0)
+      else {
+        var acc = vertcat(flatRow(0), flatRow(1))
+        cforRange(2 until lhs.nRows) { r =>
+          acc = vertcat(acc, flatRow(r))
+        }
+        acc
+      }
+    }
+ */
 
   /** Flatten a block matrix. Not defined if the matrix is empty. */
-  def flatten[B <: Mat[A]](lhs: Mat[B]): MA
+  def flatten[B <: Mat[A]](lhs: Mat[B]): MA =
+    if (lhs.nRows == 0 || lhs.nCols == 0) sys.error("Cannot flatten matrix with 0 rows or zero cols.")
+    else {
+      val els = new Array[Mat[A]](lhs.nRows * lhs.nCols)
+      cforRange(0 until lhs.nRows) { r =>
+        cforRange(0 until lhs.nCols) { c =>
+          els(r + c * lhs.nRows) = lhs(r, c)
+        }
+      }
+      flattenArray(els, lhs.nRows, lhs.nCols)
+    }
 
   /** Folds the elements of the matrix using the specified associative binary operator.
     * 
@@ -63,11 +181,74 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
   /** Builds a new matrix by applying a function to all elements of this matrix. */
   def map[B](lhs: Mat[B])(f: B => A): MA
 
+  /* Alternative
+  def horzcat(lhs: Mat[A], rhs: Mat[A]): MA = {
+    val m = lhs.nRows
+    require(m == rhs.nRows)
+    val nl = lhs.nCols
+    val nr = rhs.nCols
+    tabulate(m, nl + nr)( (r, c) => if (c < nl) lhs(r, c) else rhs(r, c - nl) )
+  }
+   */
   /** Returns the horizontal concatenation of two matrices with the same number of rows. */
-  def horzcat(lhs: Mat[A], rhs: Mat[A]): MA
+  def horzcat(lhs: Mat[A], rhs: Mat[A]): MA = {
+    val m = lhs.nRows
+    require(m == rhs.nRows)
+    val nl = lhs.nCols
+    val nr = rhs.nCols
+    fromMutable(m, nl + nr) { res =>
+      res(::, 0 until nl) := lhs
+      res(::, nl until nl + nr) := rhs
+    }
+  }
 
+  /* Alternative
+  def vertcat(lhs: Mat[A], rhs: Mat[A]): MA = {
+    val n = lhs.nCols
+    require(n == rhs.nCols)
+    val ml = lhs.nRows
+    val mr = rhs.nRows
+    tabulate(ml + mr, n)( (r, c) => if (r < ml) lhs(r, c) else rhs(r - ml, c) )
+  }
+   */
   /** Returns the vertical concatenation of two matrices with the same number of columns. */
-  def vertcat(lhs: Mat[A], rhs: Mat[A]): MA
+  def vertcat(lhs: Mat[A], rhs: Mat[A]): MA = {
+    val n = lhs.nCols
+    require(n == rhs.nCols)
+    val ml = lhs.nRows
+    val mr = rhs.nRows
+    fromMutable(ml + mr, n) { res =>
+      res(0 until ml, ::) := lhs
+      res(ml until ml + mr, ::) := rhs
+    }
+  }
+
+  protected def flattenArray(array: Array[Mat[A]], blockRows: Int, blockCols: Int): MA = {
+    def block(br: Int, bc: Int): Mat[A] = array(br + bc * blockRows)
+    require(blockRows > 0 && blockCols > 0)
+    var rows = 0
+    var cols = 0
+    cforRange(0 until blockCols) { bc =>
+      cols += block(0, bc).nCols
+    }
+    cforRange(0 until blockRows) { br =>
+      rows += block(br, 0).nRows
+    }
+    fromMutable(rows, cols) { res =>
+      var row = 0
+      cforRange(0 until blockRows) { br =>
+        var col = 0
+        val nr = block(br, 0).nRows
+        cforRange(0 until blockCols) { bc =>
+          val b = block(br, bc)
+          require(b.nRows == nr)
+          res(row until row + b.nRows, col until col + b.nCols) := b
+          col += b.nCols
+        }
+        row += nr
+      }
+    }
+  }
 
   //// Slices
 

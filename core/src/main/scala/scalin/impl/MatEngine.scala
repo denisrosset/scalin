@@ -7,59 +7,12 @@ import spire.syntax.eq._
 
 trait MatEngine[A, MA <: Mat[A]] extends scalin.algebra.MatEngine[A, MA] {
 
-  //// Helper methods
-
-  def pointwiseUnary(lhs: Mat[A])(f: A => A) = tabulate(lhs.nRows, lhs.nCols)((r, c) => f(lhs(r, c)) )
-
-  def pointwiseBinary(lhs: Mat[A], rhs: Mat[A])(f: (A, A) => A): MA = {
-    require(lhs.nRows == rhs.nRows)
-    require(lhs.nCols == rhs.nCols)
-    tabulate(lhs.nRows, lhs.nCols)((r, c) => f(lhs(r, c), rhs(r, c)) )
-  }
-
-  def booleanBinaryAnd(lhs: Mat[A], rhs: Mat[A])(f: (A, A) => Boolean): Boolean =
-    (lhs.nRows == rhs.nRows && lhs.nCols == rhs.nCols) && {
-      cforRange(0 until lhs.nRows) { r =>
-        cforRange(0 until lhs.nCols) { c =>
-          if (!f(lhs(r, c), rhs(r, c))) return false
-        }
-      }
-      true
-    }
-
-  def pointwiseBooleanUnary[B](lhs: Mat[B])(f: B => Boolean)(implicit ev: Boolean =:= A): MA =
-    tabulate(lhs.nRows, lhs.nCols)((r, c) =>  f(lhs(r, c)) )
-
-  def pointwiseBooleanBinary[B](lhs: Mat[B], rhs: Mat[B])(f: (B, B) => Boolean)(implicit ev: Boolean =:= A): MA = {
-    require(lhs.nRows == rhs.nRows && lhs.nCols == rhs.nCols)
-    tabulate(lhs.nRows, lhs.nCols)((r, c) =>  f(lhs(r, c), rhs(r, c)) )
-  }
-
   //// Creation
 
   def tabulate(rows: Int, cols: Int)(f: (Int, Int) => A): MA
 
-  def fill(rows: Int, cols: Int)(a: => A): MA = tabulate(rows, cols)( (i, j) => a )
 
-  def fromMat(mat: Mat[A]): MA = tabulate(mat.nRows, mat.nCols)((r, c) => mat(r, c) )
 
-  def colMajor(rows: Int, cols: Int)(elements: A*): MA = {
-    require(elements.size == rows * cols)
-    tabulate(rows, cols)( (r, c) => elements(r + c * rows) )
-  }
-
-  def rowMajor(rows: Int, cols: Int)(elements: A*): MA = {
-    require(elements.size == rows * cols)
-    tabulate(rows, cols)( (r, c) => elements(c + r * cols) )
-  }
-
-  def rowMat(elements: A*): MA = rowMajor(1, elements.size)(elements: _*)
-
-  def colMat(elements: A*): MA = colMajor(elements.size, 1)(elements: _*)
-
-  def toRowMat(lhs: Vec[A]): MA = tabulate(1, lhs.length)( (r, c) => lhs(c) )
-
-  def toColMat(lhs: Vec[A]): MA = tabulate(lhs.length, 1)( (r, c) => lhs(r) )
 
   //// Collection-like methods
 
