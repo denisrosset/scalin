@@ -166,6 +166,4 @@ class VecEngineTests extends ScalinSuite {
     engine.eqv(a, c) shouldBe false
   }
 
-
-
 }
