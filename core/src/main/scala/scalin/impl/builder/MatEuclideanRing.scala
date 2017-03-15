@@ -15,7 +15,6 @@ trait MatEuclideanRing[A, MA <: Mat[A]]
   implicit val pivotA: Pivot[A]
 
   implicit def UMA: scalin.algebra.MatEuclideanRing[A, UMA]
-  implicit def UVA: scalin.algebra.VecEuclideanRing[A, UVA]
 
   /** Computes the rank of the matrix. */
   def rank(lhs: Mat[A]): Int = {

@@ -8,7 +8,7 @@ import scalin.immutable.Vec
 
 class VecRingTests extends ScalinSuite {
 
-  implicit val engine: VecRing[Rational, Vec[Rational]] = immutable.dense.vecRing[Rational]
+  implicit val engine: VecEngine[Rational, Vec[Rational]] = immutable.dense.vecEngine[Rational]
   implicit val matEngine: MatEngine[Rational, Mat[Rational]] = immutable.dense.matEngine[Rational]
 
   test("zeros") {

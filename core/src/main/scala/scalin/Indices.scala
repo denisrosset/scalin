@@ -27,7 +27,7 @@ object Subscript {
   implicit def arrayWrap(array: Array[Int]): Subscript = new Indices.ArrayWrap(array)
 
   implicit def fromMask(mask: Vec[Boolean]): Subscript = {
-    val array = new Array[Int](scalin.impl.Vec.countTrue(mask))
+    val array = new Array[Int](scalin.Vec.countTrue(mask))
     var ak = 0
     cforRange(0 until mask.length) { mk =>
       if (mask(mk)) {

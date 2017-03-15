@@ -7,7 +7,7 @@ import scalin.immutable.Vec
 
 class VecFieldTests extends ScalinSuite {
 
-  implicit val engine: VecField[Rational, Vec[Rational]] = immutable.dense.vecField[Rational]
+  implicit val engine: VecEngine[Rational, Vec[Rational]] = immutable.dense.vecEngine[Rational]
 
   test("VecField.pointwiseDiv") {
     val a = vec[Rational](2, 4, 4, 2)

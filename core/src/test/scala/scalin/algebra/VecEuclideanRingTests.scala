@@ -7,7 +7,7 @@ import scalin.immutable.Vec
 
 class VecEuclideanRingTests extends ScalinSuite {
 
-  implicit val engine: VecEuclideanRing[Rational, Vec[Rational]] = immutable.dense.vecEuclideanRing[Rational]
+  implicit val engine: VecEngine[Rational, Vec[Rational]] = immutable.dense.vecEngine[Rational]
 
   test("gcd") {
     val a = vec[Rational](2, 4, -2)

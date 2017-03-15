@@ -1,6 +1,7 @@
 package scalin
 
 import spire.algebra._
+import spire.syntax.cfor._
 
 import algebra._
 
@@ -22,17 +23,17 @@ class PointwiseVec[A](val lhs: Vec[A]) extends AnyVal {
 
   //// With `A:MultiplicativeMonoid`
 
-  def *[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, VA]): VA = ev.pointwiseTimes(lhs, rhs)
+  def *[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecEngine[A, VA], A: MultiplicativeMonoid[A]): VA = ev.pointwiseTimes(lhs, rhs)
 
   //// With `A:Ring`
 
-  def +[VA <: Vec[A]](rhs: A)(implicit ev: VecRing[A, VA]): VA = ev.pointwisePlus(lhs, rhs)
+  def +[VA <: Vec[A]](rhs: A)(implicit ev: VecEngine[A, VA], A: AdditiveSemigroup[A]): VA = ev.pointwisePlus(lhs, rhs)
 
-  def -[VA <: Vec[A]](rhs: A)(implicit ev: VecRing[A, VA]): VA = ev.pointwiseMinus(lhs, rhs)
+  def -[VA <: Vec[A]](rhs: A)(implicit ev: VecEngine[A, VA], A: AdditiveGroup[A]): VA = ev.pointwiseMinus(lhs, rhs)
 
   //// With `A:Field`
 
-  def /[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecField[A, VA]): VA = ev.pointwiseDiv(lhs, rhs)
+  def /[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecEngine[A, VA], A: Field[A]): VA = ev.pointwiseDiv(lhs, rhs)
 
   //// With `A:Eq`
 
@@ -70,11 +71,11 @@ trait Vec[A] { lhs =>
   override def toString: String = Printer.vec(Vec.this)
 
   override def equals(any: Any): Boolean = any match {
-    case rhs: Vec[_] => scalin.impl.Vec.equal(lhs, rhs)
+    case rhs: Vec[_] => scalin.Vec.defaultEquals(lhs, rhs)
     case _ => false
   }
 
-  override def hashCode = scalin.impl.Vec.hashCode(lhs)
+  override def hashCode = scalin.Vec.defaultHashCode(lhs)
 
   //// Helper functions
 
@@ -140,50 +141,50 @@ trait Vec[A] { lhs =>
   //// With `A:MultiplicativeMonoid`
 
   /** Product of all elements. */
-  def product(implicit ev: VecMultiplicativeMonoid[A, _]): A = ev.product(lhs)
+  def product(implicit ev: VecEngine[A, _], A: MultiplicativeMonoid[A]): A = ev.product(lhs)
 
   /** Vector-scalar product. */
-  def *[VA <: Vec[A]](rhs: A)(implicit ev: VecRing[A, VA]): VA = ev.times(lhs, rhs)
+  def *[VA <: Vec[A]](rhs: A)(implicit ev: VecEngine[A, VA], A: MultiplicativeMonoid[A]): VA = ev.times(lhs, rhs)
 
   /** Scalar-vector product. */
-  def *:[VA <: Vec[A]](realLhs: A)(implicit ev: VecRing[A, VA]): VA = ev.times(realLhs, lhs)
+  def *:[VA <: Vec[A]](realLhs: A)(implicit ev: VecEngine[A, VA], A: MultiplicativeMonoid[A]): VA = ev.times(realLhs, lhs)
 
   /** Kronecker product. */
-  def kron[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecMultiplicativeMonoid[A, VA]): VA = ev.kron(lhs, rhs)
+  def kron[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecEngine[A, VA], A: MultiplicativeMonoid[A]): VA = ev.kron(lhs, rhs)
 
   /** Dyadic product by vector, which we don't call outer product, because we don't want to involve complex conjugation. */
   def dyad[MA <: Mat[A]](rhs: Vec[A])(implicit ev: MatMultiplicativeMonoid[A, MA]): MA = ev.dyad(lhs, rhs)
 
   //// With `A:AdditiveGroup`
 
-  def +[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, VA]): VA = ev.plus(lhs, rhs)
+  def +[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecEngine[A, VA], A: AdditiveSemigroup[A]): VA = ev.plus(lhs, rhs)
 
-  def -[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, VA]): VA = ev.minus(lhs, rhs)
+  def -[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecEngine[A, VA], A: AdditiveGroup[A]): VA = ev.minus(lhs, rhs)
 
-  def unary_-[VA <: Vec[A]](implicit ev: VecRing[A, VA]): VA = ev.negate(lhs)
+  def unary_-[VA <: Vec[A]](implicit ev: VecEngine[A, VA], A: AdditiveGroup[A]): VA = ev.negate(lhs)
 
-  def sum(implicit ev: VecRing[A, _]): A = ev.sum(lhs)
+  def sum(implicit ev: VecEngine[A, _], A: AdditiveMonoid[A]): A = ev.sum(lhs)
 
-  def nnz(implicit ev: VecRing[A, _], eq: Eq[A]): Int = ev.nnz(lhs)
+  def nnz(implicit ev: VecEngine[A, _], eq: Eq[A], A: AdditiveMonoid[A]): Int = ev.nnz(lhs)
 
   //// With `A:Ring`
 
   /** Vector-matrix product, where vectors are interpreted as row vectors. */
-  def *[VA <: Vec[A]](rhs: Mat[A])(implicit ev: VecRing[A, VA]): VA = ev.times(lhs, rhs)
+  def *[VA <: Vec[A]](rhs: Mat[A])(implicit ev: VecEngine[A, VA], A: Semiring[A]): VA = ev.times(lhs, rhs)
 
   /** Dot product. Does not perform complex conjugation, thus it is equivalent to the real
     * inner product, but not the complex inner product.*/
-  def dot[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, VA]): A = ev.dot(lhs, rhs)
+  def dot(rhs: Vec[A])(implicit ev: VecEngine[A, _], A: Semiring[A]): A = ev.dot(lhs, rhs)
 
   //// With `A:EuclideanRing`
 
-  def gcd(implicit ev: VecEuclideanRing[A, _], equ: Eq[A]): A = ev.gcd(lhs)
+  def gcd(implicit ev: VecEngine[A, _], A: GCDRing[A], equ: Eq[A]): A = ev.gcd(lhs)
 
-  def lcm(implicit ev: VecEuclideanRing[A, _], equ: Eq[A]): A = ev.lcm(lhs)
+  def lcm(implicit ev: VecEngine[A, _], A: GCDRing[A], equ: Eq[A]): A = ev.lcm(lhs)
 
   //// With `A:Field`
 
-  def /[VA <: Vec[A]](rhs: A)(implicit ev: VecField[A, VA]): VA = ev.div(lhs, rhs)
+  def /[VA <: Vec[A]](rhs: A)(implicit ev: VecEngine[A, VA], A: Field[A]): VA = ev.div(lhs, rhs)
 
 }
 
@@ -209,6 +210,43 @@ object Vec {
       type A = A0
       def proof = implicitly
     }
+  }
+
+  def defaultEquals(lhs: Vec[_], rhs: Vec[_]): Boolean = (lhs.length == rhs.length) && {
+    cforRange(0 until lhs.length) { k =>
+      if (lhs(k) != rhs(k)) return false
+    }
+    true
+  }
+
+  def defaultHashCode(lhs: Vec[_]): Int = {
+    import scala.util.hashing.MurmurHash3._
+    val seed = 0x3CA7195E
+    var a = 0
+    var b = 1L
+    var n = 0
+    cforRange(0 until lhs.length) { k =>
+      val hv = lhs(k).##
+      if (hv != 0) {
+        val hkv = k * 41 + hv
+        a += hkv
+        b *= (hkv | 1)
+        n += 1
+      }
+    }
+    var h = seed
+    h = mix(h, lhs.length)
+    h = mix(h, a)
+    h = mix(h, b.toInt)
+    h = mixLast(h, (b >> 32).toInt)
+    finalizeHash(h, n)
+  }
+
+  def countTrue[A](lhs: Vec[A])(implicit ev: A =:= Boolean): Int = {
+    import spire.syntax.cfor._
+    var sum = 0
+    cforRange(0 until lhs.length) { k => if (lhs(k): Boolean) sum += 1 }
+    sum
   }
 
 }

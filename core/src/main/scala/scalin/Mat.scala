@@ -187,7 +187,7 @@ trait Mat[A] { lhs =>
   def *[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatRing[A, MA]): MA = ev.times(lhs, rhs)
 
   /** Matrix-vector product. The vector is interpreted as a column vector. */
-  def *[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, VA]): VA = ev.times(lhs, rhs)
+  def *[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecEngine[A, VA], A: Ring[A]): VA = ev.times(lhs, rhs)
 
   /** Frobenius product: `A.frobenius(B) = trace(A * B.t)`. */
   def frobenius(rhs: Mat[A])(implicit ev: MatRing[A, _]): A = ev.frobenius(lhs, rhs)

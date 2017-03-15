@@ -11,7 +11,7 @@ import scalin.syntax.all._
 object PrincipalMinors {
 
   /** Finds the principal minors of an n x n matrix in a field. */
-  def apply[UMat <: mutable.Mat[A], UVec <: mutable.Vec[A], A](mat: Mat[A])(implicit UMat: MatField[A, UMat], UVec: VecField[A, UVec], eqA: Eq[A]): UVec = {
+  def apply[UMat <: mutable.Mat[A], UVec <: mutable.Vec[A], A](mat: Mat[A])(implicit UMat: MatField[A, UMat], UVec: VecEngine[A, UVec], eqA: Eq[A]): UVec = {
     import UMat.scalar
     var a: UMat = mat.toMat[UMat]
     assert(a.nRows == a.nCols)

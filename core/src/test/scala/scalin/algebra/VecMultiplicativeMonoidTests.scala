@@ -7,7 +7,7 @@ import scalin.immutable.Vec
 
 class VecMultiplicativeMonoidTests extends ScalinSuite {
 
-  implicit val engine: VecMultiplicativeMonoid[Rational, Vec[Rational]] = immutable.dense.vecMultiplicativeMonoid[Rational]
+  implicit val engine: VecEngine[Rational, Vec[Rational]] = immutable.dense.vecEngine[Rational]
 
   test("VecMultiplicativeMonoid.ones") {
     engine.ones(3) shouldBe vec[Rational](1, 1, 1)

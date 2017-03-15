@@ -12,7 +12,6 @@ trait MatMultiplicativeMonoid[A, MA <: Mat[A]]
     with scalin.impl.builder.MatEngine[A, MA] {
 
   implicit def UMA: scalin.algebra.MatMultiplicativeMonoid[A, UMA]
-  implicit def UVA: scalin.algebra.VecMultiplicativeMonoid[A, UVA]
 
   def kron(x: Mat[A], y: Mat[A]): MA = {
     val nrx = x.nRows

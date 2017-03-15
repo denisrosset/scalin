@@ -15,7 +15,6 @@ trait MatField[A, MA <: Mat[A]]
     with scalin.impl.builder.MatEuclideanRing[A, MA] {
 
   implicit def UMA: scalin.algebra.MatField[A, UMA]
-  implicit def UVA: scalin.algebra.VecField[A, UVA]
 
   def luDecomposition(lhs: Mat[A]): LUDecomposition[A] { type MA = UMA } = inplaceLU(UMA.fromMat(lhs))
 

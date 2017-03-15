@@ -1,6 +1,7 @@
 package scalin
 package syntax
 
+import spire.algebra.{AdditiveMonoid, MultiplicativeMonoid}
 import algebra._
 
 final class ColMajorOps[A](val dummy: Null) extends AnyVal {
@@ -32,7 +33,7 @@ final class FillOps[A](val dummy: Null) extends AnyVal {
 
 final class OnesOps[A](val dummy: Null) extends AnyVal {
 
-  def apply[VA <: Vec[A]](length: Int)(implicit ev: VecRing[A, VA]): VA = ev.ones(length)
+  def apply[VA <: Vec[A]](length: Int)(implicit ev: VecEngine[A, VA], A: MultiplicativeMonoid[A]): VA = ev.ones(length)
 
   def apply[MA <: Mat[A]](rows: Int, cols: Int)(implicit ev: MatRing[A, MA]): MA = ev.ones(rows, cols)
 
@@ -58,7 +59,7 @@ final class VecOps[A](val dummy: Null) extends AnyVal {
 
 final class ZerosOps[A](val dummy: Null) extends AnyVal {
 
-  def apply[VA <: Vec[A]](length: Int)(implicit ev: VecRing[A, VA]): VA = ev.zeros(length)
+  def apply[VA <: Vec[A]](length: Int)(implicit ev: VecEngine[A, VA], A: AdditiveMonoid[A]): VA = ev.zeros(length)
 
   def apply[MA <: Mat[A]](rows: Int, cols: Int)(implicit ev: MatRing[A, MA]): MA = ev.zeros(rows, cols)
 

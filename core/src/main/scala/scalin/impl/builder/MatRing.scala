@@ -7,7 +7,6 @@ trait MatRing[A, MA <: Mat[A]]
     with scalin.impl.builder.MatMultiplicativeMonoid[A, MA] {
 
   implicit def UMA: scalin.algebra.MatRing[A, UMA]
-  implicit def UVA: scalin.algebra.VecRing[A, UVA]
 
   def determinant(lhs: Mat[A]): A = MahajanVinay[A, UMA](lhs)(UMA)
 
