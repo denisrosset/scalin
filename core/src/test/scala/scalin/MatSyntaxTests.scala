@@ -323,4 +323,3 @@ class MatSyntaxTests extends ScalinSuite {
   }
 
 }
-
