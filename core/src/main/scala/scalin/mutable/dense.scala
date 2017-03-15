@@ -18,7 +18,7 @@ class VecEngine[A] extends scalin.algebra.VecEngine[A, mutable.DenseVec[A]] {
 }
 
 class MatEngine[A](implicit val UVA: scalin.algebra.VecEngine[A, mutable.DenseVec[A]])
-    extends scalin.impl.builder.MatEngine[A, mutable.DenseMat[A]] {
+    extends scalin.algebra.MatEngine[A, mutable.DenseMat[A]] {
 
   type UMA = mutable.DenseMat[A]
   def UMA = this
@@ -44,7 +44,7 @@ class MatEngine[A](implicit val UVA: scalin.algebra.VecEngine[A, mutable.DenseVe
 class MatMultiplicativeMonoid[A](implicit val scalar: MultiplicativeMonoid[A],
   UVA: scalin.algebra.VecEngine[A, mutable.DenseVec[A]])
     extends scalin.mutable.MatEngine[A]
-    with scalin.impl.builder.MatMultiplicativeMonoid[A, mutable.DenseMat[A]] {
+    with scalin.algebra.MatMultiplicativeMonoid[A, mutable.DenseMat[A]] {
 
   override def UMA = this
 
@@ -53,7 +53,7 @@ class MatMultiplicativeMonoid[A](implicit val scalar: MultiplicativeMonoid[A],
 class MatRing[A](implicit override val scalar: Ring[A],
   UVA: scalin.algebra.VecEngine[A, mutable.DenseVec[A]])
     extends scalin.mutable.MatMultiplicativeMonoid[A]
-    with scalin.impl.builder.MatRing[A, mutable.DenseMat[A]] {
+    with scalin.algebra.MatRing[A, mutable.DenseMat[A]] {
 
   override def UMA = this
 
@@ -63,7 +63,7 @@ class MatEuclideanRing[A](implicit override val scalar: EuclideanRing[A],
   UVA: scalin.algebra.VecEngine[A, mutable.DenseVec[A]],
   val pivotA: Pivot[A])
     extends scalin.mutable.MatRing[A]
-    with scalin.impl.builder.MatEuclideanRing[A, mutable.DenseMat[A]] {
+    with scalin.algebra.MatEuclideanRing[A, mutable.DenseMat[A]] {
 
   override def UMA = this
 
@@ -73,7 +73,7 @@ class MatField[A](implicit override val scalar: Field[A],
   UVA: scalin.algebra.VecEngine[A, mutable.DenseVec[A]],
   override val pivotA: Pivot[A])
     extends scalin.mutable.MatEuclideanRing[A]
-    with scalin.impl.builder.MatField[A, mutable.DenseMat[A]] {
+    with scalin.algebra.MatField[A, mutable.DenseMat[A]] {
 
   override def UMA = this
 

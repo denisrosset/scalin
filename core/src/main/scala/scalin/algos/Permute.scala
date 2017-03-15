@@ -1,30 +1,13 @@
 package scalin
-package impl
-package builder
+package algos
 
 import scalin.syntax.assign._
 
 import spire.syntax.cfor._
 
-trait MatEngine[A, MA <: Mat[A]] extends scalin.impl.MatEngine[A, MA] {
+object Permute {
 
-  //// Mutable variant
-
-  type UMA <: scalin.mutable.Mat[A]
-  implicit def UMA: scalin.algebra.MatEngine[A, UMA]
-
-  type UVA <: scalin.mutable.Vec[A]
-  implicit def UVA: scalin.algebra.VecEngine[A, UVA]
-
-  def rowsPermute(m: UMA, r1: Int, r2: Int): Unit = {
-    cforRange(0 until m.nCols) { c =>
-      val t = m(r1, c)
-      m(r1, c) := m(r2, c)
-      m(r2, c) := t
-    }
-  }
-
-  def permuteInverse(v: UVA, permInverse: Array[Int]): Unit = {
+  def permuteInverse[A, VA <: mutable.Vec[A]](v: VA, permInverse: Array[Int])(implicit VA: scalin.algebra.VecEngine[A, VA]): Unit = {
     val bs = scala.collection.mutable.BitSet.empty
     cforRange(0 until v.length) { i => bs += i }
     while (bs.nonEmpty) {
@@ -47,7 +30,15 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.impl.MatEngine[A, MA] {
     }
   }
 
-  def rowsPermuteInverse(m: UMA, rowPermInverse: Array[Int]): Unit = {
+  def rowsPermute[A, MA <: mutable.Mat[A]](m: MA, r1: Int, r2: Int)(implicit MA: scalin.algebra.MatEngine[A, MA]): Unit = {
+    cforRange(0 until m.nCols) { c =>
+      val t = m(r1, c)
+      m(r1, c) := m(r2, c)
+      m(r2, c) := t
+    }
+  }
+
+  def rowsPermuteInverse[A, MA <: mutable.Mat[A]](m: MA, rowPermInverse: Array[Int])(implicit MA: scalin.algebra.MatEngine[A, MA]): Unit = {
     if (m.nCols == 0) return
     val bs = scala.collection.mutable.BitSet.empty
     cforRange(0 until m.nRows) { i => bs += i }
@@ -71,7 +62,7 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.impl.MatEngine[A, MA] {
     }
   }
 
-  def colsPermuteInverse(m: UMA, colPermInverse: Array[Int]): Unit = {
+  def colsPermuteInverse[A, MA <: mutable.Mat[A]](m: MA, colPermInverse: Array[Int])(implicit MA: scalin.algebra.MatEngine[A, MA]): Unit = {
     if (m.nRows == 0) return
     val bs = scala.collection.mutable.BitSet.empty
     cforRange(0 until m.nCols) { i => bs += i }
@@ -95,15 +86,5 @@ trait MatEngine[A, MA <: Mat[A]] extends scalin.impl.MatEngine[A, MA] {
     }
   }
 
-
-  /** Returns a mutable vector of the given shape. The initial content of the vector is undefined. */
-  def alloc(length: Int): UVA
-
-  /** Returns a mutable matrix of the given shape. The initial content of the matrix is undefined. */
-  def alloc(rows: Int, cols: Int): UMA
-
-  /** Converts the mutable matrix `mutable` into the desired instance. `mutable` is destroyed in
-    * the process. */
-  def result(mutable: UMA): MA
 
 }

@@ -1,131 +1,48 @@
 package scalin
-package impl
-package builder
+package algos
 
-import spire.algebra.NRoot
-import spire.math.min
-import spire.syntax.cfor._
-import spire.syntax.field._
+/** LU Decomposition.
+  * For an m-by-n matrix A with m >= n, the LU decomposition is an m-by-n
+  * unit lower triangular matrix L, an n-by-n upper triangular matrix U,
+  * and a permutation vector piv of length m so that A(piv,:) = L*U.
+  * If m < n, then L is m-by-m and U is m-by-n.
+  * 
+  * The LU decompostion with pivoting always exists, even if the matrix is
+  * singular, so the construction will never fail.  The primary use of the
+  * LU decomposition is in the solution of square systems of simultaneous
+  * linear equations. This will fail if isSingular returns true.
+  */
+trait LUDecomposition[A] { lhs =>
 
-import scalin.algebra.Pivot
-import scalin.syntax.assign._
+  type MA <: Mat[A]
+  type VA <: Vec[A]
 
-trait MatField[A, MA <: Mat[A]]
-    extends scalin.impl.MatField[A, MA]
-    with scalin.impl.builder.MatEuclideanRing[A, MA] {
+  def nPivots: Int
+  def pivot(k: Int): Int
 
-  implicit def UMA: scalin.algebra.MatField[A, UMA]
+  def permutationCount: Int
+  def permutation: MA
 
-  def luDecomposition(lhs: Mat[A]): LUDecomposition[A] { type MA = UMA } = inplaceLU(UMA.fromMat(lhs))
+  def determinant: A
 
-  def rankFactorization(lhs: Mat[A]): RankFactorization[A] { type MA = UMA } = inplaceRankFactorization(UMA.fromMat(lhs))
+  def lower: MA
+  def upper: MA
+  def isSingular: Boolean
+
+  def inverse: MA
+
+  def solve(rhs: Mat[A]): MA
+  def solve(rhs: Vec[A]): VA
+
+}
+
+object LUDecomposition {
+
+ /*
 
   def inverse(lhs: Mat[A]): MA = result(luDecomposition(lhs).inverse)
 
   override def determinant(lhs: Mat[A]): A = luDecomposition(lhs).determinant
-
-  override protected def orthogonalize(m: UMA): Unit = {
-    import pivotA.closeToZero
-    val nR = m.nRows
-    val nC = m.nCols
-    cforRange(0 until nR) { i =>
-      cforRange(i + 1 until nR) { j =>
-        var uv: A = scalar.zero
-        var uu: A = scalar.zero
-        cforRange(0 until nC) { c =>
-          uv = uv + m(i, c) * m(j, c)
-          uu = uu + m(i, c) * m(i, c)
-        }
-        if (!closeToZero(uu)) {
-          val factor = uv / uu
-          cforRange(0 until nC) { c =>
-            m(j, c) := m(j, c) - factor * m(i, c)
-          }
-        }
-      }
-    }
-  }
-
-  protected def normalize(m: UMA)(implicit nroot: NRoot[A]): Unit = {
-    cforRange(0 until m.nRows) { r =>
-      var norm2: A = scalar.zero
-      cforRange(0 until m.nCols) { c =>
-        norm2 = norm2 + m(r, c) * m(r, c)
-      }
-      val normInv = spire.math.sqrt(norm2).reciprocal
-      cforRange(0 until m.nCols) { c =>
-        m(r, c) := m(r, c) * normInv
-      }
-    }    
-  }
-
-  def orthonormalized(lhs: Mat[A])(implicit nroot: NRoot[A]): MA = {
-    val res = UMA.fromMat(lhs)
-    orthogonalize(res)
-    normalize(res)
-    result(res)
-  }
-
-  def inplaceRankFactorization(m: UMA): RankFactorization[A] { type MA = UMA } = {
-    val used = collection.mutable.ArrayBuilder.make[Int]
-    var r = 0
-    cforRange(0 until m.nCols) { c =>
-      if (r < m.nRows) {
-        var priority = pivotA.priority(m(r, c))
-        var pivot = r
-        cforRange((r + 1) until m.nRows) { r1 =>
-          val r1Priority = pivotA.priority(m(r1, c))
-          if (r1Priority > priority) {
-            priority = r1Priority
-            pivot = r1
-          }
-        }
-        if (priority != 0) { // if el is zero, skip the column c
-          used += c // keep track of bound variables
-
-          // swap current row and pivot row
-          cforRange(c until m.nCols) { c1 =>
-            val tmp = m(pivot, c1)
-            m(pivot, c1) := m(r, c1)
-            m(r, c1) := tmp
-          }
-          // normalize pivot row
-          val f = m(r, c)
-          cforRange(c until m.nCols) { c1 =>
-            m(r, c1) := m(r, c1) / f
-          }
-          // eliminate current column
-          cforRange(0 until m.nRows) { r1 =>
-            if (r1 != r) {
-              val g = m(r1, c)
-              cforRange(c until m.nCols) { c1 =>
-                m(r1, c1) := m(r1, c1) - g * m(r, c1)
-              }
-            }
-          }
-          r += 1
-        } else // set zero terms to exact zero (used for floating point)
-          cforRange(r until m.nRows) { r1 =>
-            m(r, c) := scalar.zero
-          }
-      }
-    }
-    new RankFactorizationImpl(m, used.result)
-  }
-
-  final class RankFactorizationImpl(val rref: UMA, basis: Array[Int]) extends RankFactorization[A] {
-
-    def rank = basis.length
-
-    def basisIndex(k: Int) = basis(k)
-
-    type MA = UMA
-
-    def matC(original: Mat[A]): UMA = UMA.slice(original, ::, basis: Subscript)
-
-    def matF: UMA = UMA.slice(rref, 0 until rank, ::)
-
-  }
 
   /** Implementation taken from the JAMA library (NIST), in the public domain, and
     * translated to Scala.
@@ -168,7 +85,7 @@ trait MatField[A, MA <: Mat[A]]
         }
       }
       if (p != j) {
-        rowsPermute(lu, p, j)
+        algos.Permute.rowsPermute[A, UMA](lu, p, j)
         val t = piv(p)
         piv(p) = piv(j)
         piv(j) = t
@@ -334,9 +251,10 @@ trait MatField[A, MA <: Mat[A]]
         }
       }
       // Correct pivot permutations.
-      colsPermuteInverse(r, pivotsInverse)
+      algos.Permute.colsPermuteInverse[A, UMA](r, pivotsInverse)
       r
     }
   }
+  */
 
 }

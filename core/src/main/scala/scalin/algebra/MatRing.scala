@@ -88,7 +88,4 @@ trait MatRing[A, +MA <: Mat[A]] extends MatMultiplicativeMonoid[A, MA] {
     sum
   }
 
-  /** Computes the matrix determinant. Requires a square matrix. */
-  def determinant(lhs: Mat[A]): A // TODO move out
-
 }

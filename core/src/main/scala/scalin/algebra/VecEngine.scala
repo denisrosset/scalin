@@ -22,6 +22,13 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
     */
   def fromMutable(length: Int)(updateFun: scalin.mutable.Vec[A] => Unit): VA
 
+  /** Builds a vector from the processing applied on a mutable copy of the provided vector. */
+  def fromMutable(vec: Vec[A])(updateFun: scalin.mutable.Vec[A] => Unit): VA =
+    fromMutable(vec.length) { res =>
+      res(::) := vec
+      updateFun(res)
+    }
+
   //// Helper methods
 
   def pointwiseUnary(lhs: Vec[A])(f: A => A) = tabulate(lhs.length)(k => f(lhs(k)))

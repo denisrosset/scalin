@@ -4,6 +4,7 @@ import spire.algebra._
 import spire.syntax.cfor._
 
 import algebra._
+import algos._
 
 class PointwiseMat[A](val lhs: Mat[A]) extends AnyVal {
 
@@ -193,29 +194,16 @@ trait Mat[A] { lhs =>
   /** Frobenius product: `A.frobenius(B) = trace(A * B.t)`. */
   def frobenius(rhs: Mat[A])(implicit ev: MatRing[A, _]): A = ev.frobenius(lhs, rhs)
 
-  /** Computes the matrix determinant. Requires a square matrix. */
-  def determinant(implicit ev: MatRing[A, _]): A = ev.determinant(lhs)
-
   //// With `A:EuclideanRing`
 
   def gcd(implicit ev: MatEuclideanRing[A, _], equ: Eq[A]): A = ev.gcd(lhs)
 
   def lcm(implicit ev: MatEuclideanRing[A, _], equ: Eq[A]): A = ev.lcm(lhs)
 
-  def orthogonalized[MA <: Mat[A]](implicit ev: MatEuclideanRing[A, MA]): MA = ev.orthogonalized(lhs)
-
-  def rank(implicit ev: MatEuclideanRing[A, _]): Int = ev.rank(lhs)
-
   //// Methods for `A:Field`
 
   /** Division by scalar. */
   def /[MA <: Mat[A]](rhs: A)(implicit ev: MatField[A, MA]): MA = ev.div(lhs, rhs)
-
-  def luDecomposition(implicit ev: MatField[A, _]): LUDecomposition[A] = ev.luDecomposition(lhs)
-
-  def rankFactorization(implicit ev: MatField[A, _]): RankFactorization[A] = ev.rankFactorization(lhs)
-
-  def inverse[MA <: Mat[A]](implicit ev: MatField[A, MA]): MA = ev.inverse(lhs)
   
 }
 

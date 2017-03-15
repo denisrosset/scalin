@@ -4,7 +4,6 @@ package algebra
 import spire.algebra._
 import spire.syntax.cfor._
 import spire.syntax.eq._
-import spire.syntax.field._
 
 import scalin.syntax.assign._
 
@@ -18,10 +17,17 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
   /** Creates a vector from the given size (nRows, nCols) and a value function. */
   def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): MA
 
-  /** Builds a mtrix from the given size and a user-provided function that mutates
+  /** Builds a matrix from the given size and a user-provided function that mutates
     * a temporary mutable matrix.
     */
   def fromMutable(nRows: Int, nCols: Int)(updateFun: scalin.mutable.Mat[A] => Unit): MA
+
+  /** Builds a matrix from the processing applied on a mutable copy of the provided matrix. */
+  def fromMutable(mat: Mat[A])(updateFun: scalin.mutable.Mat[A] => Unit): MA =
+    fromMutable(mat.nRows, mat.nCols) { res =>
+      res(::, ::) := mat
+      updateFun(res)
+    }
 
   //// Helper methods
 
