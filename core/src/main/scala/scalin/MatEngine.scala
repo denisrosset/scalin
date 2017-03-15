@@ -67,6 +67,15 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
 
   // empty matrix is an ill-defined object (0x0, nx0 and 0xn are all empty)
 
+  def sparse(nRows: Int, nCols: Int)(i: Vec[Int], j: Vec[Int], v: Vec[A])(implicit A: Sparse[A]): MA =
+    fromMutable(nRows, nCols, A.zero) { res =>
+      require(i.length == j.length)
+      require(i.length == v.length)
+      cforRange(0 until i.length) { k =>
+        res(i(k), j(k)) := v(k)
+      }
+    }
+
   def fill(nRows: Int, nCols: Int)(a: => A): MA = tabulate(nRows, nCols)( (i, j) => a )
 
   /* Alternative

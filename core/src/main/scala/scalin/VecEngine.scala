@@ -63,6 +63,14 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
 
   def empty: VA = tabulate(0)(i => sys.error("Cannot be called"))
 
+  def sparse(length: Int)(i: Vec[Int], v: Vec[A])(implicit A: Sparse[A]): VA =
+    fromMutable(length, A.zero) { res =>
+      require(i.length == v.length)
+      cforRange(0 until i.length) { k =>
+        res(i(k)) := v(k)
+      }
+    }
+
   def fill(length: Int)(a: => A): VA = tabulate(length)( k => a )
 
   // Alternative   def fillConstant(length: Int)(a: A): VA = fill(length)(a)
