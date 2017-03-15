@@ -1,7 +1,5 @@
 package scalin
 
-import scalin.algebra._
-
 trait VecType[V[A] <: Vec[A]] {
 
   type TC[_]

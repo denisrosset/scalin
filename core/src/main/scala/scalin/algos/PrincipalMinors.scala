@@ -5,7 +5,6 @@ import spire.algebra._
 import spire.syntax.cfor._
 import spire.syntax.field._
 
-import scalin.algebra._
 import scalin.syntax.all._
 
 object PrincipalMinors {

@@ -3,9 +3,7 @@ package immutable
 
 import spire.algebra.{MultiplicativeMonoid, Ring, EuclideanRing, Field}
 
-import scalin.algebra.Pivot
-
-class VecEngine[A] extends scalin.algebra.VecEngine[A, immutable.DenseVec[A]] {
+class IVecEngine[A] extends scalin.VecEngine[A, immutable.DenseVec[A]] {
 
   def tabulate(length: Int)(f: Int => A) = immutable.DenseVec.tabulate[A](length)(f)
 
@@ -17,13 +15,7 @@ class VecEngine[A] extends scalin.algebra.VecEngine[A, immutable.DenseVec[A]] {
 
 }
 
-class MatEngine[A] extends scalin.algebra.MatEngine[A, immutable.DenseMat[A]] {
-
-  type UVA = mutable.DenseVec[A]
-  def UVA = mutable.dense.vecEngine[A]
-
-  type UMA = mutable.DenseMat[A]
-  def UMA = mutable.dense.matEngine[A]
+class IMatEngine[A] extends scalin.MatEngine[A, immutable.DenseMat[A]] {
 
   def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A) = immutable.DenseMat.tabulate[A](nRows, nCols)(f)
 
@@ -34,19 +26,13 @@ class MatEngine[A] extends scalin.algebra.MatEngine[A, immutable.DenseMat[A]] {
     res.result()
   }
 
-  def alloc(rows: Int, cols: Int) = new mutable.DenseMat(rows, cols, new Array[AnyRef](rows * cols))
-
-  def alloc(length: Int) = new mutable.DenseVec[A](new Array[AnyRef](length))
-
-  def result(mat: UMA) = mat.result()
-
 }
 
 
 object dense {
 
-  implicit def vecEngine[A]: scalin.algebra.VecEngine[A, immutable.DenseVec[A]] = new VecEngine[A]
+  implicit def vecEngine[A]: VecEngine[A, immutable.DenseVec[A]] = new IVecEngine[A]
 
-  implicit def matEngine[A]: scalin.algebra.MatEngine[A, immutable.DenseMat[A]] = new MatEngine[A]
+  implicit def matEngine[A]: MatEngine[A, immutable.DenseMat[A]] = new IMatEngine[A]
 
 }

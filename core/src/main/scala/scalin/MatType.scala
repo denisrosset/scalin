@@ -1,7 +1,5 @@
 package scalin
 
-import scalin.algebra._
-
 trait MatType[M[A] <: Mat[A]] {
 
   type TC[_]

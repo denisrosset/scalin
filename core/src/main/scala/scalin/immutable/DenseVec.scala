@@ -8,7 +8,7 @@ object DenseVec extends scalin.DenseVecFactory[DenseVec] with VecType[DenseVec] 
 
   type TC[X] = Dummy[X]
 
-  def engine[A:Dummy]: scalin.algebra.VecEngine[A, DenseVec[A]] = dense.vecEngine[A]
+  def engine[A:Dummy]: VecEngine[A, DenseVec[A]] = dense.vecEngine[A]
 
   protected def build[A](data: Array[AnyRef]): DenseVec[A] =
     new DenseVec[A](data)

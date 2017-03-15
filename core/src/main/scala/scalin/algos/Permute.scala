@@ -7,7 +7,7 @@ import spire.syntax.cfor._
 
 object Permute {
 
-  def permuteInverse[A, VA <: mutable.Vec[A]](v: VA, permInverse: Array[Int])(implicit VA: scalin.algebra.VecEngine[A, VA]): Unit = {
+  def permuteInverse[A, VA <: mutable.Vec[A]](v: VA, permInverse: Array[Int])(implicit VA: VecEngine[A, VA]): Unit = {
     val bs = scala.collection.mutable.BitSet.empty
     cforRange(0 until v.length) { i => bs += i }
     while (bs.nonEmpty) {
@@ -30,7 +30,7 @@ object Permute {
     }
   }
 
-  def rowsPermute[A, MA <: mutable.Mat[A]](m: MA, r1: Int, r2: Int)(implicit MA: scalin.algebra.MatEngine[A, MA]): Unit = {
+  def rowsPermute[A, MA <: mutable.Mat[A]](m: MA, r1: Int, r2: Int)(implicit MA: MatEngine[A, MA]): Unit = {
     cforRange(0 until m.nCols) { c =>
       val t = m(r1, c)
       m(r1, c) := m(r2, c)
@@ -38,7 +38,7 @@ object Permute {
     }
   }
 
-  def rowsPermuteInverse[A, MA <: mutable.Mat[A]](m: MA, rowPermInverse: Array[Int])(implicit MA: scalin.algebra.MatEngine[A, MA]): Unit = {
+  def rowsPermuteInverse[A, MA <: mutable.Mat[A]](m: MA, rowPermInverse: Array[Int])(implicit MA: MatEngine[A, MA]): Unit = {
     if (m.nCols == 0) return
     val bs = scala.collection.mutable.BitSet.empty
     cforRange(0 until m.nRows) { i => bs += i }
@@ -62,7 +62,7 @@ object Permute {
     }
   }
 
-  def colsPermuteInverse[A, MA <: mutable.Mat[A]](m: MA, colPermInverse: Array[Int])(implicit MA: scalin.algebra.MatEngine[A, MA]): Unit = {
+  def colsPermuteInverse[A, MA <: mutable.Mat[A]](m: MA, colPermInverse: Array[Int])(implicit MA: MatEngine[A, MA]): Unit = {
     if (m.nRows == 0) return
     val bs = scala.collection.mutable.BitSet.empty
     cforRange(0 until m.nCols) { i => bs += i }

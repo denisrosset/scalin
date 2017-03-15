@@ -3,8 +3,6 @@ package scalin
 import spire.algebra._
 import spire.syntax.cfor._
 
-import algebra._
-
 class PointwiseVec[A](val lhs: Vec[A]) extends AnyVal {
 
   //// Using standard Java methods

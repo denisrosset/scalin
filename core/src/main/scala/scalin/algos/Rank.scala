@@ -5,7 +5,6 @@ import spire.algebra.EuclideanRing
 import spire.syntax.cfor._
 import spire.syntax.euclideanRing._
 
-import scalin.algebra.Pivot
 import scalin.syntax.assign._
 
 object Rank {

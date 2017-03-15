@@ -5,7 +5,6 @@ import spire.algebra.{EuclideanRing, Field}
 import spire.syntax.cfor._
 import spire.syntax.field._
 
-import scalin.algebra.Pivot
 import scalin.syntax.assign._
 
 object Orthogonal {
@@ -16,7 +15,7 @@ object Orthogonal {
       Ortho.orthogonalize[A, mutable.Mat[A]](res)
     }*/
 
-  def euclideanRing[A, MA <: mutable.Mat[A]](res: MA)(implicit scalar: EuclideanRing[A], MA: algebra.MatEngine[A, MA], pivotA: Pivot[A]): Unit = {
+  def euclideanRing[A, MA <: mutable.Mat[A]](res: MA)(implicit scalar: EuclideanRing[A], MA: MatEngine[A, MA], pivotA: Pivot[A]): Unit = {
     import pivotA.closeToZero
     val zeroRows = scala.collection.mutable.BitSet.empty
     val nR = res.nRows
@@ -54,7 +53,7 @@ object Orthogonal {
     }
   }
 
-  def field[A, MA <: mutable.Mat[A]](m: MA)(implicit scalar: Field[A], MA: algebra.MatEngine[A, MA], pivotA: Pivot[A]): Unit = {
+  def field[A, MA <: mutable.Mat[A]](m: MA)(implicit scalar: Field[A], MA: MatEngine[A, MA], pivotA: Pivot[A]): Unit = {
     import pivotA.closeToZero
     val nR = m.nRows
     val nC = m.nCols

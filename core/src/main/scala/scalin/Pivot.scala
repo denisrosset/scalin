@@ -1,5 +1,4 @@
 package scalin
-package algebra
 
 import spire.algebra.Eq
 import spire.math._
