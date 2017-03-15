@@ -25,6 +25,10 @@ class VecEngineTests extends ScalinSuite {
     engine.fill(2)(r(1)) shouldBe vec(r(1), r(1))
   }
 
+  test("VecEngine.fillConstant") {
+    engine.fillConstant(2)(r(1)) shouldBe vec(r(1), r(1))
+  }
+
   test("VecEngine.fromSeq") {
     engine.fromSeq(Seq(r(0), r(1))) shouldBe vec[Rational](0, 1)
   }
