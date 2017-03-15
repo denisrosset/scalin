@@ -229,7 +229,7 @@ class MatEngineTests extends ScalinSuite {
     engine.minus(a, b) shouldBe res
   }
 
-    test("negate") {
+  test("negate") {
     val a = colMat[Rational](2, -1, 0)
     val res = colMat[Rational](-2, 1, 0)
     engine.negate(a) shouldBe res
@@ -313,6 +313,30 @@ class MatEngineTests extends ScalinSuite {
     val a = eye[Rational](2)
     engine.orthogonalized(a) shouldBe a
   }
-  
+/*
+    def pointwiseDiv(lhs: Mat[A], rhs: Mat[A]): MA
+
+  def div(lhs: Mat[A], rhs: A): MA
+ */
+
+  test("inverse") {
+    val a = rowMajor[Rational](2, 2)(1, 0, 0, 2)
+    val res = rowMajor[Rational](2, 2)(Rational.one, Rational.zero, Rational.zero, Rational(1, 2))
+    engine.inverse(a) shouldBe res
+  }
+
+    test("pointwiseDiv") {
+    val a = rowMat[Rational](2, 4, 4, 2)
+    val b = rowMat[Rational](2, 1, 4, 1)
+    val res = rowMat[Rational](1, 4, 1, 2)
+    engine.pointwiseDiv(a, b) shouldBe res
+  }
+
+  test("div") {
+    val a = rowMat[Rational](2, 4, 4, 6)
+    val res = rowMat[Rational](1, 2, 2, 3)
+    engine.div(a, Rational(2)) shouldBe res
+  }
+
 }
 
