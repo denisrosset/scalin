@@ -3,13 +3,15 @@ package algebra
 
 import spire.algebra.{Field, NRoot}
 
+import spire.syntax.field._
+
 trait MatField[A, +MA <: Mat[A]] extends MatEuclideanRing[A, MA] {
 
   implicit def scalar: Field[A]
 
-  def pointwiseDiv(lhs: Mat[A], rhs: Mat[A]): MA
+  def pointwiseDiv(lhs: Mat[A], rhs: Mat[A]): MA = pointwiseBinary(lhs, rhs)(_ / _)
 
-  def div(lhs: Mat[A], rhs: A): MA
+  def div(lhs: Mat[A], rhs: A): MA = pointwiseUnary(lhs)(_ / rhs)
 
   /** LU decomposition. */
   def luDecomposition(lhs: Mat[A]): LUDecomposition[A]

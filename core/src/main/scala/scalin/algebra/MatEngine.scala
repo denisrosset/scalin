@@ -93,7 +93,16 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
   //// Collection-like methods
 
   /** Returns the number of elements satisfying the predicate `f`. */
-  def count(lhs: Mat[A])(f: A => Boolean): Int
+  def count(lhs: Mat[A])(f: A => Boolean): Int = {
+    var n = 0
+    cforRange(0 until lhs.nRows) { r =>
+      cforRange(0 until lhs.nCols) { c =>
+        if (f(lhs(r, c)))
+          n += 1
+      }
+    }
+    n
+  }
 
   /* Alternative
 
@@ -176,10 +185,23 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
     * The order in which operations are performed on elements is unspecified and 
     * may be nondeterministic. 
     */
-  def fold[A1 >: A](lhs: Mat[A])(z: A1)(op: (A1, A1) => A1): A1
+  def fold[A1 >: A](lhs: Mat[A])(z: A1)(op: (A1, A1) => A1): A1 =
+    if (lhs.nRows == 0 || lhs.nCols == 0) z
+    else if (lhs.nRows == 1 && lhs.nCols == 1) lhs(0, 0)
+    else {
+      var acc = z // could be optimized
+      var i = 0
+      // in column-major order
+      cforRange(0 until lhs.nCols) { c =>
+        cforRange(0 until lhs.nRows) { r =>
+          acc = op(acc, lhs(r, c))
+        }
+      }
+      acc
+    }
 
   /** Builds a new matrix by applying a function to all elements of this matrix. */
-  def map[B](lhs: Mat[B])(f: B => A): MA
+  def map[B](lhs: Mat[B])(f: B => A): MA = tabulate(lhs.nRows, lhs.nCols)((r, c) => f(lhs(r, c)) )
 
   /* Alternative
   def horzcat(lhs: Mat[A], rhs: Mat[A]): MA = {
@@ -254,36 +276,51 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
 
   /** Returns a matrix slice of a matrix.
     * The return value is a copy (i.e. not read- or write-through as in scala.breeze). */
-  def slice(mat: Mat[A], rs: Subscript, cs: Subscript): MA
+  def slice(mat: Mat[A], rs: Subscript, cs: Subscript): MA = {
+    val ri = rs.forLength(mat.nRows)
+    val ci = cs.forLength(mat.nCols)
+    tabulate(ri.length, ci.length)( (k, l) => mat(ri(k), ci(l)) )
+  }
 
   //// Shuffling elements around
 
   /** Returns the matrix transpose. Does not conjuagates complex numbers. */
-  def t(mat: Mat[A]): MA
+  def t(mat: Mat[A]): MA = tabulate(mat.nCols, mat.nRows)((i, j) => mat(j, i) )
 
   /** Reshapes a vector in a matrix shape, using column-major ordering of elements. */ 
-  def reshape(vec: Vec[A], rows1: Int, cols1: Int): MA
+  def reshape(vec: Vec[A], rows1: Int, cols1: Int): MA = {
+    require(vec.length == rows1 * cols1)
+    tabulate(rows1, cols1)( (r1, c1) => vec(r1 + c1 * rows1) )
+  }
 
   //// With `Boolean =:= A`
 
-  def pointwiseEqual[B](lhs: Mat[B], rhs: B)(implicit ev: Boolean =:= A): MA
+  def pointwiseEqual[B](lhs: Mat[B], rhs: B)(implicit ev: Boolean =:= A): MA =
+    pointwiseBooleanUnary(lhs)(_ == rhs)
 
-  def pointwiseEqual[B](lhs: Mat[B], rhs: Mat[B])(implicit ev: Boolean =:= A): MA
+  def pointwiseEqual[B](lhs: Mat[B], rhs: Mat[B])(implicit ev: Boolean =:= A): MA =
+    pointwiseBooleanBinary(lhs, rhs)(_ == _)
 
-  def pointwiseNotEqual[B](lhs: Mat[B], rhs: B)(implicit ev: Boolean =:= A): MA
+  def pointwiseNotEqual[B](lhs: Mat[B], rhs: B)(implicit ev: Boolean =:= A): MA =
+    pointwiseBooleanUnary(lhs)(_ != rhs)
 
-  def pointwiseNotEqual[B](lhs: Mat[B], rhs: Mat[B])(implicit ev: Boolean =:= A): MA
+  def pointwiseNotEqual[B](lhs: Mat[B], rhs: Mat[B])(implicit ev: Boolean =:= A): MA =
+    pointwiseBooleanBinary(lhs, rhs)(_ != _)
 
-  def pointwiseEqv[B](lhs: Mat[B], rhs: B)(implicit B: Eq[B], ev: Boolean =:= A): MA
+  def pointwiseEqv[B](lhs: Mat[B], rhs: B)(implicit B: Eq[B], ev: Boolean =:= A): MA =
+    pointwiseBooleanUnary(lhs)(_ === rhs)
 
-  def pointwiseEqv[B](lhs: Mat[B], rhs: Mat[B])(implicit B: Eq[B], ev: Boolean =:= A): MA
+  def pointwiseEqv[B](lhs: Mat[B], rhs: Mat[B])(implicit B: Eq[B], ev: Boolean =:= A): MA =
+    pointwiseBooleanBinary(lhs, rhs)(_ === _)
 
-  def pointwiseNeqv[B](lhs: Mat[B], rhs: B)(implicit B: Eq[B], ev: Boolean =:= A): MA
+  def pointwiseNeqv[B](lhs: Mat[B], rhs: B)(implicit B: Eq[B], ev: Boolean =:= A): MA =
+    pointwiseBooleanUnary(lhs)(_ =!= rhs)
 
-  def pointwiseNeqv[B](lhs: Mat[B], rhs: Mat[B])(implicit B: Eq[B], ev: Boolean =:= A): MA
+  def pointwiseNeqv[B](lhs: Mat[B], rhs: Mat[B])(implicit B: Eq[B], ev: Boolean =:= A): MA =
+    pointwiseBooleanBinary(lhs, rhs)(_ =!= _)
 
   //// With `Eq[A]`
 
-  def eqv(lhs: Mat[A], rhs: Mat[A])(implicit eqv: Eq[A]): Boolean
+  def eqv(lhs: Mat[A], rhs: Mat[A])(implicit eqv: Eq[A]): Boolean = booleanBinaryAnd(lhs, rhs)(_ === _)
 
 }
