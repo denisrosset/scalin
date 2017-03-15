@@ -1,6 +1,5 @@
 package scalin
 package immutable
-import scalin.algebra.VecEngine
 
 class DenseVec[A](val data: Array[AnyRef])
     extends scalin.DenseVec[A] with scalin.immutable.Vec[A]

@@ -21,6 +21,8 @@ class DenseVec[A](var data: Array[AnyRef]) extends scalin.DenseVec[A] with mutab
 
 object DenseVec extends scalin.DenseVecFactory[mutable.DenseVec] {
 
+  def engine[A:TC] = dense.vecEngine[A]
+
   def build[A](data: Array[AnyRef]): mutable.DenseVec[A] =
     new mutable.DenseVec[A](data)
 
