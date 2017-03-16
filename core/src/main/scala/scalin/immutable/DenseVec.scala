@@ -27,6 +27,6 @@ object DenseVec extends DenseVecType[DenseVec] {
 
   }
 
-  def engine[A:Dummy]: VecEngine[A, DenseVec[A]] = new Engine[A]
+  def engine[A:Dummy]: scalin.VecEngine[A, DenseVec[A]] = new Engine[A]
 
 }

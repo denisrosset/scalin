@@ -1,21 +1,16 @@
 package scalin
 package algos
 
-import spire.algebra.{EuclideanRing, Field}
+import spire.algebra.{EuclideanRing, Field, NRoot, Ring}
 import spire.syntax.cfor._
 import spire.syntax.field._
 
 import scalin.syntax.assign._
 
-object Orthogonal {
-/*
-  def orthogonalized[A:EuclideanRing:Pivot, MA <: Mat[A]](lhs: Mat[A])(implicit MA: algebra.MatEuclideanRing[A, MA]) =
-    MA.fromMutable(lhs) { res =>
-      import mutable.dense._
-      Ortho.orthogonalize[A, mutable.Mat[A]](res)
-    }*/
+object GramSchmidt {
 
-  def euclideanRing[A, MA <: mutable.Mat[A]](res: MA)(implicit scalar: EuclideanRing[A], MA: MatEngine[A, MA], pivotA: Pivot[A]): Unit = {
+  def euclideanRing[A:EuclideanRing:mutable.MatEngine:Pivot](res: mutable.Mat[A]): Unit = {
+    val pivotA = Pivot[A]
     import pivotA.closeToZero
     val zeroRows = scala.collection.mutable.BitSet.empty
     val nR = res.nRows
@@ -24,13 +19,13 @@ object Orthogonal {
       if (!zeroRows.contains(i)) {
         cforRange(i + 1 until nR) { j =>
           if (!zeroRows.contains(j)) {
-            var uv = scalar.zero
-            var uu = scalar.zero
+            var uv = Ring[A].zero
+            var uu = Ring[A].zero
             cforRange(0 until nC) { c =>
               uv = uv + res(i, c) * res(j, c)
               uu = uu + res(i, c) * res(i, c)
             }
-            var g = scalar.zero
+            var g = Ring[A].zero
             var rowIsZero = true
             cforRange(0 until nC) { c =>
               res(j, c) := uu * res(j, c) - uv * res(i, c)
@@ -38,8 +33,8 @@ object Orthogonal {
               if (!closeToZero(rhs)) rowIsZero = false
               g = if (closeToZero(g)) rhs
               else if (closeToZero(rhs)) g
-              else if (pivotA.optionalExactEq.nonEmpty) scalar.gcd(rhs, g)(pivotA.optionalExactEq.get)
-              else scalar.one
+              else if (pivotA.optionalExactEq.nonEmpty) EuclideanRing[A].gcd(rhs, g)(pivotA.optionalExactEq.get)
+              else Ring[A].one
             }
             if (rowIsZero) zeroRows += j
             if (!closeToZero(g)) {
@@ -53,14 +48,15 @@ object Orthogonal {
     }
   }
 
-  def field[A, MA <: mutable.Mat[A]](m: MA)(implicit scalar: Field[A], MA: MatEngine[A, MA], pivotA: Pivot[A]): Unit = {
+  def field[A:Field:mutable.MatEngine:Pivot](m: mutable.Mat[A]): Unit = {
+    val pivotA = Pivot[A]
     import pivotA.closeToZero
     val nR = m.nRows
     val nC = m.nCols
     cforRange(0 until nR) { i =>
       cforRange(i + 1 until nR) { j =>
-        var uv: A = scalar.zero
-        var uu: A = scalar.zero
+        var uv: A = Ring[A].zero
+        var uu: A = Ring[A].zero
         cforRange(0 until nC) { c =>
           uv = uv + m(i, c) * m(j, c)
           uu = uu + m(i, c) * m(i, c)
@@ -76,14 +72,9 @@ object Orthogonal {
 
   }
 
-}
-
-object Orthonormal {
-
-  /*
-  protected def normalize(m: UMA)(implicit nroot: NRoot[A]): Unit = {
+  protected def normalize[A:Field:mutable.MatEngine:NRoot](m: mutable.Mat[A]): Unit = {
     cforRange(0 until m.nRows) { r =>
-      var norm2: A = scalar.zero
+      var norm2: A = Ring[A].zero
       cforRange(0 until m.nCols) { c =>
         norm2 = norm2 + m(r, c) * m(r, c)
       }
@@ -91,15 +82,12 @@ object Orthonormal {
       cforRange(0 until m.nCols) { c =>
         m(r, c) := m(r, c) * normInv
       }
-    }    
+    }
   }
 
-  def orthonormalized(lhs: Mat[A])(implicit nroot: NRoot[A]): MA = {
-    val res = UMA.fromMat(lhs)
-    orthogonalize(res)
-    normalize(res)
-    result(res)
+  def orthonormalize[A:Field:mutable.MatEngine:NRoot:Pivot](m: mutable.Mat[A]): Unit = {
+    field(m)
+    normalize(m)
   }
-   */
+
 }
-

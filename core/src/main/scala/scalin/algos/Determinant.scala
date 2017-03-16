@@ -20,7 +20,7 @@ object Determinant {
     * 
     * TODO: check if valid for noncommutative rings
     */
-  def ring[A:Ring, MA <: mutable.Mat[A]](lhs: Mat[A])(implicit MA: MatEngine[A, MA]): A = {
+  def ring[A:mutable.MatEngine:Ring](lhs: Mat[A]): A = {
     import spire.syntax.cfor._
     import spire.syntax.ring._
     import scalin.syntax.all._

@@ -28,6 +28,8 @@ trait Pivot[A] extends Any {
 
 object Pivot {
 
+  def apply[A](implicit ev: Pivot[A]): Pivot[A] = ev
+
   val tolerance = 1e-10
 
   def double(tolerance: Double): Pivot[Double] = new Pivot[Double] {

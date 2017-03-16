@@ -23,7 +23,7 @@ object DenseVec extends DenseVecType[mutable.DenseVec] with VecType[mutable.Dens
 
   protected def build[A](data: Array[AnyRef]): mutable.DenseVec[A] = new mutable.DenseVec[A](data)
 
-  class Engine[A] extends VecEngine[A, mutable.DenseVec[A]] {
+  class Engine[A] extends scalin.VecEngine[A, mutable.DenseVec[A]] {
 
     def tabulate(length: Int)(f: Int => A) = tabulate_[A](length)(f)
 
@@ -43,6 +43,6 @@ object DenseVec extends DenseVecType[mutable.DenseVec] with VecType[mutable.Dens
   }
 
 
-  def engine[A:TC] = new Engine[A]
+  def engine[A:TC]: scalin.VecEngine[A, mutable.DenseVec[A]] = new Engine[A]
 
 }

@@ -24,7 +24,7 @@ object DenseMat extends DenseMatType[mutable.DenseMat] {
   protected def build[A](nRows: Int, nCols: Int, data: Array[AnyRef]): DenseMat[A] =
     new DenseMat[A](nRows, nCols, data)
 
-  class Engine[A] extends MatEngine[A, mutable.DenseMat[A]] {
+  class Engine[A] extends scalin.MatEngine[A, mutable.DenseMat[A]] {
 
     def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A) = mutable.DenseMat.tabulate_[A](nRows, nCols)(f)
 
@@ -43,6 +43,6 @@ object DenseMat extends DenseMatType[mutable.DenseMat] {
 
   }
 
-  def engine[A:TC]: MatEngine[A, mutable.DenseMat[A]] = new Engine[A]
+  def engine[A:TC]: scalin.MatEngine[A, mutable.DenseMat[A]] = new Engine[A]
 
 }

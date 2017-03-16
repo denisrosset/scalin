@@ -5,12 +5,12 @@ import spire.algebra._
 import spire.syntax.cfor._
 import spire.syntax.field._
 
-import scalin.syntax.all._
+import scalin.syntax.assign._
 
 object PrincipalMinors {
 
   /** Finds the principal minors of an n x n matrix in a field. */
-  def apply[UMat <: mutable.Mat[A], UVec <: mutable.Vec[A], A:Field](mat: Mat[A])(implicit UMat: MatEngine[A, UMat], UVec: VecEngine[A, UVec], eqA: Eq[A]): UVec = {
+  def apply[A:Eq:Field:mutable.VecEngine:mutable.MatEngine](mat: Mat[A]): UVec = {
     var a: UMat = mat.toMat[UMat]
     assert(a.nRows == a.nCols)
     val n = a.nRows
