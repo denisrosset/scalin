@@ -10,19 +10,19 @@ import scalin.syntax.assign._
 object PrincipalMinors {
 
   /** Finds the principal minors of an n x n matrix in a field. */
-  def apply[A:Eq:Field:mutable.VecEngine:mutable.MatEngine](mat: Mat[A]): UVec = {
-    var a: UMat = mat.toMat[UMat]
+  def apply[A:Eq:Field:mutable.VecEngine:mutable.MatEngine](mat: Mat[A]): mutable.Vec[A] = {
+    var a: mutable.Mat[A] = mat.toMat[mutable.Mat[A]]
     assert(a.nRows == a.nCols)
     val n = a.nRows
     val zeroPivs = collection.mutable.BitSet.empty
-    val pm = zeros[A]((1 << n) - 1) // where the principal minors are stored
+    val pm = implicitly[mutable.VecEngine[A]].zeros((1 << n) - 1) // where the principal minors are stored
     var ipm = 0 // index for storing the principal minors
     var q = collection.mutable.Seq(a(::, ::)) // q is the input queue of unprocessed matrices, initial queue has 1 matrix to process
     cforRange(0 until n) { level =>
       var ipm1 = 0 // for indexing previous pm elements
       val n1 = q(0).nRows
       val nq = q.length
-      val qq = collection.mutable.Seq.fill[UMat](nq * 2)(null.asInstanceOf[UMat])
+      val qq = collection.mutable.Seq.fill[mutable.Mat[A]](nq * 2)(null.asInstanceOf[mutable.Mat[A]])
       cforRange(0 until nq) { i =>
         a = q(i)
         pm(ipm) := a(0, 0)
