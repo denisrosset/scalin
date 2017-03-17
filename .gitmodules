@@ -1,4 +1,4 @@
 [submodule "spirejars"]
 	path = spirejars
-	url = git@github.com:denisrosset/spirejars-2.12.git
+	url = https://github.com/denisrosset/spirejars-2.12.git
 	branch = master
