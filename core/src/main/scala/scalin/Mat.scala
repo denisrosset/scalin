@@ -198,6 +198,10 @@ trait Mat[A] { lhs =>
   def pw_=!=[MB <: Mat[Boolean]](rhs: Mat[A])(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
     ev.pointwiseNeqv(lhs, rhs)
 
+  //// Standard high level algorithms
+
+  def inverse[MA <: Mat[A]](implicit ev: MatEngine[A, MA], ev1: algos.Inverse[A, MA]): MA = ev1(lhs)
+
 }
 
 object Mat {
