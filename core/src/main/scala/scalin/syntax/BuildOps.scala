@@ -1,7 +1,7 @@
 package scalin
 package syntax
 
-import algebra._
+import spire.algebra.{AdditiveMonoid, MultiplicativeMonoid, Rig}
 
 final class ColMajorOps[A](val dummy: Null) extends AnyVal {
 
@@ -18,7 +18,7 @@ final class ColMatOps[A](val dummy: Null) extends AnyVal {
 
 final class EyeOps[A](val dummy: Null) extends AnyVal {
 
-  def apply[MA <: Mat[A]](n: Int)(implicit ev: MatRing[A, MA]): MA = ev.eye(n)
+  def apply[MA <: Mat[A]](n: Int)(implicit ev: MatEngine[A, MA], A: Rig[A]): MA = ev.eye(n)
 
 }
 
@@ -32,9 +32,9 @@ final class FillOps[A](val dummy: Null) extends AnyVal {
 
 final class OnesOps[A](val dummy: Null) extends AnyVal {
 
-  def apply[VA <: Vec[A]](length: Int)(implicit ev: VecRing[A, VA]): VA = ev.ones(length)
+  def apply[VA <: Vec[A]](length: Int)(implicit ev: VecEngine[A, VA], A: MultiplicativeMonoid[A]): VA = ev.ones(length)
 
-  def apply[MA <: Mat[A]](rows: Int, cols: Int)(implicit ev: MatRing[A, MA]): MA = ev.ones(rows, cols)
+  def apply[MA <: Mat[A]](rows: Int, cols: Int)(implicit ev: MatEngine[A, MA], A: MultiplicativeMonoid[A]): MA = ev.ones(rows, cols)
 
 }
 
@@ -58,9 +58,9 @@ final class VecOps[A](val dummy: Null) extends AnyVal {
 
 final class ZerosOps[A](val dummy: Null) extends AnyVal {
 
-  def apply[VA <: Vec[A]](length: Int)(implicit ev: VecRing[A, VA]): VA = ev.zeros(length)
+  def apply[VA <: Vec[A]](length: Int)(implicit ev: VecEngine[A, VA], A: AdditiveMonoid[A]): VA = ev.zeros(length)
 
-  def apply[MA <: Mat[A]](rows: Int, cols: Int)(implicit ev: MatRing[A, MA]): MA = ev.zeros(rows, cols)
+  def apply[MA <: Mat[A]](rows: Int, cols: Int)(implicit ev: MatEngine[A, MA], A: AdditiveMonoid[A]): MA = ev.zeros(rows, cols)
 
 }
 

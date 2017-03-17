@@ -11,7 +11,7 @@ import org.typelevel.discipline.scalatest.Discipline
 
 /**
   * An opinionated stack of traits to improve consistency and reduce
-  * boilerplate in Alasc tests (inspired by Cats).
+  * boilerplate in Scalin tests (inspired by Cats).
   */
 trait ScalinSuite extends FunSuite with Matchers
   with PropertyChecks
@@ -28,5 +28,7 @@ trait ScalinSuite extends FunSuite with Matchers
   def discardEvaluation(): Nothing = throw new DiscardedEvaluationException
 
   def noShrink[T] = Shrink[T](_ => Stream.empty)
+
+  override def convertToEqualizer[T](left: T): Equalizer[T] = ???
 
 }

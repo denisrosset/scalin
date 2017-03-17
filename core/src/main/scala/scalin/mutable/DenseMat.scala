@@ -19,9 +19,30 @@ class DenseMat[A](val nRows: Int, val nCols: Int, var data: Array[AnyRef]) exten
 
 }
 
-object DenseMat extends scalin.DenseMatFactory[DenseMat] {
+object DenseMat extends DenseMatType[mutable.DenseMat] {
 
-  def build[A](rows: Int, cols: Int, data: Array[AnyRef]): DenseMat[A] =
-    new DenseMat[A](rows, cols, data)
+  protected def build[A](nRows: Int, nCols: Int, data: Array[AnyRef]): DenseMat[A] =
+    new DenseMat[A](nRows, nCols, data)
+
+  class Engine[A] extends scalin.MatEngine[A, mutable.DenseMat[A]] {
+
+    def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A) = mutable.DenseMat.tabulate_[A](nRows, nCols)(f)
+
+    def fromMutable(nRows: Int, nCols: Int, default: A)(updateFun: scalin.mutable.Mat[A] => Unit) = {
+      val array = newArray[A](nRows * nCols, default)
+      val res = new scalin.mutable.DenseMat[A](nRows, nCols, array)
+      updateFun(res)
+      res
+    }
+
+    def fromMutableUnsafe(nRows: Int, nCols: Int)(updateFun: scalin.mutable.Mat[A] => Unit) = {
+      val res = new scalin.mutable.DenseMat[A](nRows, nCols, new Array[AnyRef](nRows * nCols))
+      updateFun(res)
+      res
+    }
+
+  }
+
+  def engine[A:TC]: scalin.MatEngine[A, mutable.DenseMat[A]] = new Engine[A]
 
 }

@@ -1,54 +1,7 @@
 package scalin
 
 import spire.algebra._
-
-import algebra._
-
-class PointwiseMat[A](val lhs: Mat[A]) extends AnyVal {
-
-  //// Using standard Java methods
-
-  def ==[MB <: Mat[Boolean]](rhs: A)(implicit ev: MatEngine[Boolean, MB]): MB =
-    ev.pointwiseEqual(lhs, rhs)
-
-  def ==[MB <: Mat[Boolean]](rhs: Mat[A])(implicit ev: MatEngine[Boolean, MB]): MB =
-    ev.pointwiseEqual(lhs, rhs)
-
-  def !=[MB <: Mat[Boolean]](rhs: A)(implicit ev: MatEngine[Boolean, MB]): MB =
-    ev.pointwiseNotEqual(lhs, rhs)
-
-  def !=[MB <: Mat[Boolean]](rhs: Mat[A])(implicit ev: MatEngine[Boolean, MB]): MB =
-    ev.pointwiseNotEqual(lhs, rhs)
-
-  //// With `A:MultiplicativeMonoid`
-
-  def *[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatRing[A, MA]): MA = ev.pointwiseTimes(lhs, rhs)
-
-  //// With `A:Ring`
-
-  def +[MA <: Mat[A]](rhs: A)(implicit ev: MatRing[A, MA]): MA = ev.pointwisePlus(lhs, rhs)
-
-  def -[MA <: Mat[A]](rhs: A)(implicit ev: MatRing[A, MA]): MA = ev.pointwiseMinus(lhs, rhs)
-
-  //// With `A:Field`
-
-  def /[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatField[A, MA]): MA = ev.pointwiseDiv(lhs, rhs)
-
-  //// With `A:Eq`
-
-  def ===[MB <: Mat[Boolean]](rhs: A)(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
-    ev.pointwiseEqv(lhs, rhs)
-
-  def ===[MB <: Mat[Boolean]](rhs: Mat[A])(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
-    ev.pointwiseEqv(lhs, rhs)
-
-  def =!=[MB <: Mat[Boolean]](rhs: A)(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
-    ev.pointwiseNeqv(lhs, rhs)
-
-  def =!=[MB <: Mat[Boolean]](rhs: Mat[A])(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
-    ev.pointwiseNeqv(lhs, rhs)
-
-}
+import spire.syntax.cfor._
 
 final class ToMat[A, B](val mat: Mat[A])(implicit conv: A => B) {
 
@@ -70,17 +23,15 @@ trait Mat[A] { lhs =>
   //// Standard Java methods
 
   override def equals(any: Any): Boolean = any match {
-    case rhs: Mat[_] => scalin.impl.Mat.equal(lhs, rhs)
+    case rhs: Mat[_] => scalin.Mat.defaultEquals(lhs, rhs)
     case _ => false
   }
 
-  override def hashCode: Int = scalin.impl.Mat.hashCode(lhs)
+  override def hashCode: Int = scalin.Mat.defaultHashCode(lhs)
 
   override def toString: String = Printer.mat(Mat.this)
 
   //// Helper functions
-
-  def pointwise: PointwiseMat[A] = new PointwiseMat[A](lhs)
 
   def copyIfOverlap(obj: AnyRef): Mat[A]
 
@@ -114,7 +65,7 @@ trait Mat[A] { lhs =>
   def map[B, MB <: Mat[B]](f: A => B)(implicit ev: MatEngine[B, MB]): MB =
     ev.map[A](lhs)(f)
 
-  def rowsSeq[VA <: Vec[A]](implicit ev: VecEngine[A, VA]): IndexedSeq[VA] = ev.rowSeq(lhs)
+  def rowSeq[VA <: Vec[A]](implicit ev: VecEngine[A, VA]): IndexedSeq[VA] = ev.rowSeq(lhs)
 
   def colSeq[VA <: Vec[A]](implicit ev: VecEngine[A, VA]): IndexedSeq[VA] = ev.colSeq(lhs)
 
@@ -151,71 +102,102 @@ trait Mat[A] { lhs =>
   //// With `A:MultiplicativeMonoid`
 
   /** Product by scalar from the right. */
-  def *[MA <: Mat[A]](rhs: A)(implicit ev: MatRing[A, MA]): MA = ev.times(lhs, rhs)
+  def *[MA <: Mat[A]](rhs: A)(implicit ev: MatEngine[A, MA], A: MultiplicativeSemigroup[A]): MA = ev.times(lhs, rhs)
 
   /** Product by scalar from the left. */
-  def *:[MA <: Mat[A]](realLhs: A)(implicit ev: MatRing[A, MA]): MA = ev.times(realLhs, lhs)
+  def *:[MA <: Mat[A]](realLhs: A)(implicit ev: MatEngine[A, MA], A: MultiplicativeSemigroup[A]): MA = ev.times(realLhs, lhs)
 
   /** Kronecker product. */
-  def kron[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatMultiplicativeMonoid[A, MA]): MA = ev.kron(lhs, rhs)
+  def kron[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: MultiplicativeSemigroup[A]): MA = ev.kron(lhs, rhs)
 
-  def product(implicit ev: MatMultiplicativeMonoid[A, _]): A = ev.product(lhs)
+  def product(implicit ev: MatEngine[A, _], A: MultiplicativeMonoid[A]): A = ev.product(lhs)
 
   //// With `A:AdditiveGroup`
 
   /** Addition. */
-  def +[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatRing[A, MA]): MA = ev.plus(lhs, rhs)
+  def +[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: AdditiveSemigroup[A]): MA = ev.plus(lhs, rhs)
 
   /** Subtraction. */
-  def -[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatRing[A, MA]): MA = ev.minus(lhs, rhs)
+  def -[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: AdditiveGroup[A]): MA = ev.minus(lhs, rhs)
 
   /** Matrix opposite. */
-  def unary_-[MA <: Mat[A]](implicit ev: MatRing[A, MA]): MA = ev.negate(lhs)
+  def unary_-[MA <: Mat[A]](implicit ev: MatEngine[A, MA], A: AdditiveGroup[A]): MA = ev.negate(lhs)
 
   /** Returns the number of non-zero elements in the matrix. */
-  def nnz(implicit ev: MatRing[A, _], eq: Eq[A]): Int = ev.nnz(lhs)
+  def nnz(implicit ev: MatEngine[A, _], equ: Eq[A], A: AdditiveMonoid[A]): Int = ev.nnz(lhs)
 
   /** Computes the sum of all the matrix elements. */
-  def sum(implicit ev: MatRing[A, _]): A = ev.sum(lhs)
+  def sum(implicit ev: MatEngine[A, _], A: AdditiveMonoid[A]): A = ev.sum(lhs)
 
   /** Trace: sum of the diagonal elements. Requires a square matrix. */
-  def trace(implicit ev: MatRing[A, _]): A = ev.trace(lhs)
+  def trace(implicit ev: MatEngine[A, _], A: AdditiveMonoid[A]): A = ev.trace(lhs)
 
   //// With `A:Ring`
 
   /** Matrix multiplication. */
-  def *[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatRing[A, MA]): MA = ev.times(lhs, rhs)
+  def *[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: Ring[A]): MA = ev.times(lhs, rhs)
 
   /** Matrix-vector product. The vector is interpreted as a column vector. */
-  def *[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecRing[A, VA]): VA = ev.times(lhs, rhs)
+  def *[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecEngine[A, VA], A: Ring[A]): VA = ev.times(lhs, rhs)
 
   /** Frobenius product: `A.frobenius(B) = trace(A * B.t)`. */
-  def frobenius(rhs: Mat[A])(implicit ev: MatRing[A, _]): A = ev.frobenius(lhs, rhs)
-
-  /** Computes the matrix determinant. Requires a square matrix. */
-  def determinant(implicit ev: MatRing[A, _]): A = ev.determinant(lhs)
+  def frobenius(rhs: Mat[A])(implicit ev: MatEngine[A, _], A: Ring[A]): A = ev.frobenius(lhs, rhs)
 
   //// With `A:EuclideanRing`
 
-  def gcd(implicit ev: MatEuclideanRing[A, _], equ: Eq[A]): A = ev.gcd(lhs)
+  def gcd(implicit ev: MatEngine[A, _], equ: Eq[A], A: EuclideanRing[A]): A = ev.gcd(lhs)
 
-  def lcm(implicit ev: MatEuclideanRing[A, _], equ: Eq[A]): A = ev.lcm(lhs)
-
-  def orthogonalized[MA <: Mat[A]](implicit ev: MatEuclideanRing[A, MA]): MA = ev.orthogonalized(lhs)
-
-  def rank(implicit ev: MatEuclideanRing[A, _]): Int = ev.rank(lhs)
+  def lcm(implicit ev: MatEngine[A, _], equ: Eq[A], A: EuclideanRing[A]): A = ev.lcm(lhs)
 
   //// Methods for `A:Field`
 
   /** Division by scalar. */
-  def /[MA <: Mat[A]](rhs: A)(implicit ev: MatField[A, MA]): MA = ev.div(lhs, rhs)
+  def /[MA <: Mat[A]](rhs: A)(implicit ev: MatEngine[A, MA], A: Field[A]): MA = ev.div(lhs, rhs)
 
-  def luDecomposition(implicit ev: MatField[A, _]): LUDecomposition[A] = ev.luDecomposition(lhs)
+  //// Pointwise operations
 
-  def rankFactorization(implicit ev: MatField[A, _]): RankFactorization[A] = ev.rankFactorization(lhs)
+  //// Using standard Java methods
 
-  def inverse[MA <: Mat[A]](implicit ev: MatField[A, MA]): MA = ev.inverse(lhs)
-  
+  def pw_==[MB <: Mat[Boolean]](rhs: A)(implicit ev: MatEngine[Boolean, MB]): MB =
+    ev.pointwiseEqual(lhs, rhs)
+
+  def pw_==[MB <: Mat[Boolean]](rhs: Mat[A])(implicit ev: MatEngine[Boolean, MB]): MB =
+    ev.pointwiseEqual(lhs, rhs)
+
+  def pw_!=[MB <: Mat[Boolean]](rhs: A)(implicit ev: MatEngine[Boolean, MB]): MB =
+    ev.pointwiseNotEqual(lhs, rhs)
+
+  def pw_!=[MB <: Mat[Boolean]](rhs: Mat[A])(implicit ev: MatEngine[Boolean, MB]): MB =
+    ev.pointwiseNotEqual(lhs, rhs)
+
+  //// With `A:MultiplicativeMonoid`
+
+  def pw_*[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: MultiplicativeSemigroup[A]): MA = ev.pointwiseTimes(lhs, rhs)
+
+  //// With `A:Ring`
+
+  def pw_+[MA <: Mat[A]](rhs: A)(implicit ev: MatEngine[A, MA], A: AdditiveSemigroup[A]): MA = ev.pointwisePlus(lhs, rhs)
+
+  def pw_-[MA <: Mat[A]](rhs: A)(implicit ev: MatEngine[A, MA], A: AdditiveGroup[A]): MA = ev.pointwiseMinus(lhs, rhs)
+
+  //// With `A:Field`
+
+  def pw_/[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: Field[A]): MA = ev.pointwiseDiv(lhs, rhs)
+
+  //// With `A:Eq`
+
+  def pw_===[MB <: Mat[Boolean]](rhs: A)(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
+    ev.pointwiseEqv(lhs, rhs)
+
+  def pw_===[MB <: Mat[Boolean]](rhs: Mat[A])(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
+    ev.pointwiseEqv(lhs, rhs)
+
+  def pw_=!=[MB <: Mat[Boolean]](rhs: A)(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
+    ev.pointwiseNeqv(lhs, rhs)
+
+  def pw_=!=[MB <: Mat[Boolean]](rhs: Mat[A])(implicit A: Eq[A], ev: MatEngine[Boolean, MB]): MB =
+    ev.pointwiseNeqv(lhs, rhs)
+
 }
 
 object Mat {
@@ -240,6 +222,53 @@ object Mat {
       type A = A0
       def proof = implicitly
     }
+  }
+
+  def defaultEquals(lhs: Mat[_], rhs: Mat[_]): Boolean =
+    (lhs.nRows == rhs.nRows && lhs.nCols == rhs.nCols) && {
+      cforRange(0 until lhs.nRows) { r =>
+        cforRange(0 until lhs.nCols) { c =>
+          if (lhs(r, c) != rhs(r, c)) return false
+        }
+      }
+      true
+    }
+
+  def defaultHashCode(lhs: Mat[_]): Int = {
+    import scala.util.hashing.MurmurHash3._
+    val seed = 0x3CA7198A
+    var a = 0
+    var b = 1L
+    var n = 0
+    cforRange(0 until lhs.nRows) { r =>
+      cforRange(0 until lhs.nCols) { c =>
+        val hv = lhs(r, c).##
+        if (hv != 0) {
+          val hkv = (r * 41 + c) * 41 + hv
+          a += hkv
+          b *= (hkv | 1)
+          n += 1
+        }
+      }
+    }
+    var h = seed
+    h = mix(h, lhs.nRows)
+    h = mix(h, lhs.nCols)
+    h = mix(h, a)
+    h = mix(h, b.toInt)
+    h = mixLast(h, (b >> 32).toInt)
+    finalizeHash(h, n)
+  }
+
+  def countTrue[A](lhs: Mat[A])(implicit ev: A =:= Boolean): Int = {
+    var sum = 0
+    cforRange(0 until lhs.nRows) { r =>
+      cforRange(0 until lhs.nCols) { c =>
+        if (lhs(r, c): Boolean)
+          sum += 1
+      }
+    }
+    sum
   }
 
 }

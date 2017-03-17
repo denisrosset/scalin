@@ -66,5 +66,24 @@ object Mats {
     } yield lhs * rhs.t
   }
 
+  def genPosIntDiag[A:Arbitrary:Eq:Ring](n: Int): Gen[Mat[A]] = {
+    import scalin.mutable.dense._
+    Gen.containerOfN[IndexedSeq, Int](n, Gen.choose(1, 10)) map {
+      diag =>
+      val res = zeros[A](n, n)
+      cforRange(0 until n) { i =>
+        res(i, i) := Ring[A].fromInt(diag(i))
+      }
+      res.result()
+    }
+  }
+
+  def genPosDef[A:Arbitrary:Eq:Ring](n: Int): Gen[Mat[A]] = {
+    import scalin.immutable.dense._
+    for {
+      U <- genFullRank[A](n)
+      D <- genPosIntDiag[A](n)
+    } yield U * D * U.t
+  }
 
 }

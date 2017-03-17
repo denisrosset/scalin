@@ -34,7 +34,7 @@ lazy val scalinSettings = buildSettings ++ commonSettings ++ publishSettings ++ 
 
 lazy val buildSettings = Seq(
   organization := "net.alasc",
-  scalaVersion := scala211Version,
+  scalaVersion := scala212Version,
   crossScalaVersions := Seq(scala210Version, scala211Version, scala212Version)
 )
 
@@ -47,6 +47,7 @@ lazy val commonSettings = Seq(
     "-Ywarn-value-discard"
   )),
   resolvers ++= Seq(
+    Resolver.url("spirejars", url(file("spirejars").toURI.toASCIIString))(Resolver.ivyStylePatterns),
     "bintray/non" at "http://dl.bintray.com/non/maven",
     Resolver.sonatypeRepo("snapshots")
   ),
