@@ -182,7 +182,7 @@ trait Vec[A] { lhs =>
 
 }
 
-object Vec {
+object Vec extends VecType[Vec] {
 
   trait Unpack[VA] {
     type V[X] <: Vec[X]
@@ -205,6 +205,8 @@ object Vec {
       def proof = implicitly
     }
   }
+
+  def defaultEngine[A:TC] = scalin.immutable.DenseVec.defaultEngine[A]
 
   def defaultEquals(lhs: Vec[_], rhs: Vec[_]): Boolean = (lhs.length == rhs.length) && {
     cforRange(0 until lhs.length) { k =>

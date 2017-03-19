@@ -29,6 +29,6 @@ object DenseMat extends DenseMatType[immutable.DenseMat] {
   }
 
 
-  def engine[A:TC]: scalin.MatEngine[A, immutable.DenseMat[A]] = new Engine[A]
+  def defaultEngine[A:TC]: scalin.MatEngine[A, immutable.DenseMat[A]] = new Engine[A]
 
 }

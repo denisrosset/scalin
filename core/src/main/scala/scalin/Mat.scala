@@ -204,7 +204,11 @@ trait Mat[A] { lhs =>
 
 }
 
-object Mat {
+object Mat extends MatType[Mat] {
+
+  type TC[A] = Dummy[A]
+
+  def defaultEngine[A:TC] = new immutable.DenseMat.Engine[A]
 
   trait Unpack[MA] {
     type M[X] <: Mat[X]

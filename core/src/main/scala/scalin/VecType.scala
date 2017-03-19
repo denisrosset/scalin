@@ -1,21 +1,40 @@
 package scalin
 
+import spire.algebra.{AdditiveMonoid, MultiplicativeMonoid}
+import spire.NoImplicit
+
+class VecBuilder[A, VA <: Vec[A]](val engine: VecEngine[A, VA]) extends AnyVal
+
 trait VecType[V[A] <: Vec[A]] {
 
   type TC[_]
 
-  def engine[A:TC]: VecEngine[A, V[A]]
+  type Builder[A] = VecBuilder[A, V[A]]
 
-  def empty[A:TC]: V[A] = engine[A].empty
+  def Builder[A](implicit ev: VecBuilder[A, V[A]]): Builder[A] = ev
 
-  def tabulate[A:TC](length: Int)(f: Int => A): V[A] = engine[A].tabulate(length)(f)
+  def defaultEngine[A:TC]: VecEngine[A, V[A]]
 
-  def fill[A:TC](length: Int)(f: => A): V[A] = engine[A].fill(length)(f)
+  implicit def defaultBuilder[A:TC](implicit NI: NoImplicit[VecEngine[A, V[A]]]): VecBuilder[A, V[A]] = new VecBuilder[A, V[A]](defaultEngine[A])
 
-  def fillConstant[A:TC](length: Int)(a: A): V[A] = engine[A].fill(length)(a)
+  implicit def fromVecEngine[A](implicit VA: VecEngine[A, V[A]]): VecBuilder[A, V[A]] = new VecBuilder[A, V[A]](VA)
+  
+  def empty[A:Builder]: V[A] = Builder[A].engine.empty
 
-  def fromSeq[A:TC](elements: Seq[A]): V[A] = engine[A].fromSeq(elements)
+  def tabulate[A:Builder](length: Int)(f: Int => A): V[A] = Builder[A].engine.tabulate(length)(f)
 
-  def fromVec[A:TC](vec: Vec[A]): V[A] = engine[A].fromVec(vec)
+  def fill[A:Builder](length: Int)(f: => A): V[A] = Builder[A].engine.fill(length)(f)
+
+  def fillConstant[A:Builder](length: Int)(a: A): V[A] = Builder[A].engine.fill(length)(a)
+
+  def zeros[A:Builder:AdditiveMonoid](length: Int): V[A] = Builder[A].engine.zeros(length)
+
+  def ones[A:Builder:MultiplicativeMonoid](length: Int): V[A] = Builder[A].engine.ones(length)
+
+  def fromSeq[A:Builder](elements: Seq[A]): V[A] = Builder[A].engine.fromSeq(elements)
+
+  def fromVec[A:Builder](vec: Vec[A]): V[A] = Builder[A].engine.fromVec(vec)
+
+  def apply[A:Builder](elements: A*): V[A] = Builder[A].engine.fromSeq(elements)
 
 }

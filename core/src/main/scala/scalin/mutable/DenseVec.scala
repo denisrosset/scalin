@@ -43,6 +43,6 @@ object DenseVec extends DenseVecType[mutable.DenseVec] with VecType[mutable.Dens
   }
 
 
-  def engine[A:TC]: scalin.VecEngine[A, mutable.DenseVec[A]] = new Engine[A]
+  def defaultEngine[A:TC]: scalin.VecEngine[A, mutable.DenseVec[A]] = new Engine[A]
 
 }

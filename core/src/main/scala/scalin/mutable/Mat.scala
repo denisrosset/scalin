@@ -91,3 +91,9 @@ trait Mat[A] extends scalin.Mat[A] {
   }
 
 }
+
+object Mat extends MatType[Mat] {
+
+  def defaultEngine[A:TC] = DenseMat.defaultEngine[A]
+
+}
