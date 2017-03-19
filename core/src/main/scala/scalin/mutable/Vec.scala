@@ -5,6 +5,8 @@ import spire.syntax.cfor._
 
 trait Vec[A] extends scalin.Vec[A] { lhs =>
 
+  def result(): immutable.Vec[A]
+
   def set(k: Int, a: A): Unit
 
   def set(sub: Subscript, rhs: A): Unit = {

@@ -5,6 +5,8 @@ import spire.syntax.cfor._
 
 trait Mat[A] extends scalin.Mat[A] {
 
+  def result(): immutable.Mat[A]
+
   // 1x1
 
   def set(r: Int, c: Int, a: A): Unit

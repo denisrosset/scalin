@@ -17,7 +17,7 @@ object Mats {
       values <- Gen.containerOfN[IndexedSeq, A]((n - 1) * (n - 2) / 2, Arbitrary.arbitrary[A])
       diag <- Gen.containerOfN[IndexedSeq, A](n, nonZero)
     } yield {
-      val res = zeros[A](n, n)
+      val res = scalin.mutable.Mat.zeros[A](n, n)
       cforRange(0 until n) { k =>
         res(k, k) := diag(k)
       }
@@ -36,7 +36,7 @@ object Mats {
   def genUpperDiagOne[A:Arbitrary:Ring](n: Int): Gen[Mat[A]] = {
     import scalin.mutable.dense._
     Gen.containerOfN[IndexedSeq, A]((n - 1) * (n - 2) / 2, Arbitrary.arbitrary[A]).map { values =>
-      val res = eye[A](n)
+      val res = scalin.mutable.Mat.eye[A](n)
       var i = 0
       cforRange(1 until n) { r =>
         cforRange(r + 1 until n) { c =>
@@ -70,7 +70,7 @@ object Mats {
     import scalin.mutable.dense._
     Gen.containerOfN[IndexedSeq, Int](n, Gen.choose(1, 10)) map {
       diag =>
-      val res = zeros[A](n, n)
+      val res = scalin.mutable.Mat.zeros[A](n, n)
       cforRange(0 until n) { i =>
         res(i, i) := Ring[A].fromInt(diag(i))
       }

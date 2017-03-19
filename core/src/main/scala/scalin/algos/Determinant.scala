@@ -28,9 +28,9 @@ object Determinant {
     require(lhs.nCols == n)
     var current = new Array[mutable.Mat[A]](2)
     val b = n % 2
-    current(b) = eye[A](n)
-    current(1 - b) = zeros[A](n, n)
-    var next = Array[mutable.Mat[A]](zeros[A](n, n), zeros[A](n, n))
+    current(b) = mutable.Mat.eye[A](n)
+    current(1 - b) = mutable.Mat.zeros[A](n, n)
+    var next = Array[mutable.Mat[A]](mutable.Mat.zeros[A](n, n), mutable.Mat.zeros[A](n, n))
     cforRange(0 to n - 2) { i =>
       cforRange(0 until n) { v =>
         cforRange(0 to v) { u =>

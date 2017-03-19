@@ -11,13 +11,13 @@ class MatField extends ScalinSuite {
 
   test("Inverses of matrices of determinant one") {
     forAll(Mats.genDetOne[Rational](4)) { m =>
-      (m * m.inverse) shouldBe eye[Rational](4)
+      (m * m.inverse) shouldBe Mat.eye[Rational](4)
     }
   }
 
   test("Inverses of full rank matrices") {
     forAll(Mats.genFullRank[Rational](4)) { m =>
-      (m * m.inverse) shouldBe eye[Rational](4)
+      (m * m.inverse) shouldBe Mat.eye[Rational](4)
     }
   }
 
