@@ -43,7 +43,17 @@ trait Mat[A] { lhs =>
 
   //// Collection-like methods
 
-  def count(f: A => Boolean)(implicit ev: MatEngine[A, _]): Int = ev.count(lhs)(f)
+  /** Returns the number of elements satisfying the predicate `f`. */
+  def count(f: A => Boolean): Int = {
+    var n = 0
+    cforRange(0 until lhs.nRows) { r =>
+      cforRange(0 until lhs.nCols) { c =>
+        if (f(lhs(r, c)))
+          n += 1
+      }
+    }
+    n
+  }
 
   /** scala.collection-like flatMap. */
   def flatMap[B, MB <: Mat[B]](f: A => Mat[B])(implicit ev: MatEngine[B, MB]): MB =
@@ -59,7 +69,25 @@ trait Mat[A] { lhs =>
     ev.flatten[U.M[U.A]](lhs).asInstanceOf[ev.Ret]
   }
 
-  def fold[A1 >: A](z: A1)(op: (A1, A1) => A1)(implicit ev: MatEngine[A, _]): A1 = ev.fold[A1](lhs)(z)(op)
+  /** Folds the elements of the matrix using the specified associative binary operator.
+    * 
+    * The order in which operations are performed on elements is unspecified and 
+    * may be nondeterministic. 
+    */
+  def fold[A1 >: A](z: A1)(op: (A1, A1) => A1): A1 =
+    if (lhs.nRows == 0 || lhs.nCols == 0) z
+    else if (lhs.nRows == 1 && lhs.nCols == 1) lhs(0, 0)
+    else {
+      var acc = z // could be optimized
+      var i = 0
+      // in column-major order
+      cforRange(0 until lhs.nCols) { c =>
+        cforRange(0 until lhs.nRows) { r =>
+          acc = op(acc, lhs(r, c))
+        }
+      }
+      acc
+    }
 
     /** Maps the values of the elements. */
   def map[B, MB <: Mat[B]](f: A => B)(implicit ev: MatEngine[B, MB]): MB =
@@ -110,7 +138,7 @@ trait Mat[A] { lhs =>
   /** Kronecker product. */
   def kron[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA], A: MultiplicativeSemigroup[A]): MA = ev.kron(lhs, rhs)
 
-  def product(implicit ev: MatEngine[A, _], A: MultiplicativeMonoid[A]): A = ev.product(lhs)
+  def product(implicit A: MultiplicativeMonoid[A]): A = fold(A.one)(A.times)
 
   //// With `A:AdditiveGroup`
 
@@ -124,13 +152,23 @@ trait Mat[A] { lhs =>
   def unary_-[MA <: Mat[A]](implicit ev: MatEngine[A, MA], A: AdditiveGroup[A]): MA = ev.negate(lhs)
 
   /** Returns the number of non-zero elements in the matrix. */
-  def nnz(implicit ev: MatEngine[A, _], equ: Eq[A], A: AdditiveMonoid[A]): Int = ev.nnz(lhs)
+  def nnz(implicit ev: Eq[A], A: AdditiveMonoid[A]): Int = count(A.isZero(_))
 
   /** Computes the sum of all the matrix elements. */
-  def sum(implicit ev: MatEngine[A, _], A: AdditiveMonoid[A]): A = ev.sum(lhs)
+  def sum(implicit A: AdditiveMonoid[A]): A = fold(A.zero)(A.plus)
 
-  /** Trace: sum of the diagonal elements. Requires a square matrix. */
-  def trace(implicit ev: MatEngine[A, _], A: AdditiveMonoid[A]): A = ev.trace(lhs)
+  /** Trace of the matrix, equal to the sum of diagonal entries. Requires a square matrix. */
+  def trace(implicit A: AdditiveMonoid[A]): A = {
+    val n = lhs.nRows
+    require(n == lhs.nCols)
+    if (n == 0) A.zero else {
+      var s: A = lhs(0, 0)
+      cforRange(1 until n) { k =>
+        s = A.plus(s, lhs(k, k))
+      }
+      s
+    }
+  }
 
   //// With `A:Ring`
 
@@ -145,9 +183,11 @@ trait Mat[A] { lhs =>
 
   //// With `A:EuclideanRing`
 
-  def gcd(implicit ev: MatEngine[A, _], equ: Eq[A], A: EuclideanRing[A]): A = ev.gcd(lhs)
+  /** Computes the gcd of the elements of the matrix. */
+  def gcd(implicit equ: Eq[A], A: EuclideanRing[A]): A = fold(A.zero)(A.gcd)
 
-  def lcm(implicit ev: MatEngine[A, _], equ: Eq[A], A: EuclideanRing[A]): A = ev.lcm(lhs)
+  /** Computes the lcm of the elements of the matrix. */
+  def lcm(implicit equ: Eq[A], A: EuclideanRing[A]): A = fold(A.one)(A.lcm)
 
   //// Methods for `A:Field`
 

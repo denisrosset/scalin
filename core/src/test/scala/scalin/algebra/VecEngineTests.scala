@@ -42,11 +42,6 @@ class VecEngineTests extends ScalinSuite {
     engine.cat(a, b) shouldBe res
   }
 
-  test("count") {
-    val a = Vec[Rational](0, 1, -1, 2, -2)
-    engine.count(a)(_ > 0) shouldBe 2
-  }
-
   test("flatMap") {
     val a = Vec[Rational](1, 2)
     engine.flatMap(a)(x => Vec[Rational](x, 0)) shouldBe Vec[Rational](1, 0, 2, 0)
@@ -55,11 +50,6 @@ class VecEngineTests extends ScalinSuite {
   test("flatten") {
     val a: Vec[Vec[Rational]] = immutable.DenseVec.tabulate(2)(i => Vec[Rational](0, 1))
     engine.flatten(a) shouldBe Vec[Rational](0, 1, 0, 1)
-  }
-
-  test("fold") {
-    val a = Vec[Rational](1, 2, 3, 4)
-    engine.fold(a)(Rational.one)(_ * _) shouldBe Rational(24)
   }
 
   test("map") {
@@ -204,16 +194,6 @@ class VecEngineTests extends ScalinSuite {
     engine.pointwiseMinus(a, Rational(1)) shouldBe res
   }
 
-  test("nnz") {
-    val a = Vec[Rational](2, 0, 1, 0, 0)
-    engine.nnz(a) shouldBe 3
-  }
-
-  test("sum") {
-    val a = Vec[Rational](1, 2, 3, 4)
-    engine.sum(a) shouldBe Rational(10)
-  }
-
   test("times mat-vec") {
     val a = matEngine.rowMajor(2, 2)(1, 2, 2, 1)
     val b = Vec[Rational](1, 1)
@@ -235,10 +215,6 @@ class VecEngineTests extends ScalinSuite {
     engine.ones(3) shouldBe Vec[Rational](1, 1, 1)
   }
 
-  test("product") {
-    engine.product(Vec[Rational](1, 2, 3, 4)) shouldBe Rational(24)
-  }
-
   test("times") {
     val a = Vec[Rational](1, 2, 3, 4)
     engine.times(a, Rational(2)) shouldBe Vec[Rational](2, 4, 6, 8)
@@ -254,16 +230,6 @@ class VecEngineTests extends ScalinSuite {
   test("kron") {
     val a = Vec[Rational](1, 2)
     engine.kron(a, a) shouldBe Vec[Rational](1, 2, 2, 4)
-  }
-
-  test("gcd") {
-    val a = Vec[Rational](2, 4, -2)
-    engine.gcd(a) shouldBe Rational(2)
-  }
-
-  test("lcm") {
-    val a = Vec[Rational](2, 3, 6)
-    engine.lcm(a) shouldBe Rational(6)
   }
 
   test("pointwiseDiv") {

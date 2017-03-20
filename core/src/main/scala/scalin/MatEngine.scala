@@ -107,18 +107,6 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
 
   //// Collection-like methods
 
-  /** Returns the number of elements satisfying the predicate `f`. */
-  def count(lhs: Mat[A])(f: A => Boolean): Int = {
-    var n = 0
-    cforRange(0 until lhs.nRows) { r =>
-      cforRange(0 until lhs.nCols) { c =>
-        if (f(lhs(r, c)))
-          n += 1
-      }
-    }
-    n
-  }
-
   /* Alternative
 
   def flatMap[B](lhs: Mat[B])(f: B => Mat[A]): MA =
@@ -193,26 +181,6 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
         }
       }
       flattenArray(els, lhs.nRows, lhs.nCols)
-    }
-
-  /** Folds the elements of the matrix using the specified associative binary operator.
-    * 
-    * The order in which operations are performed on elements is unspecified and 
-    * may be nondeterministic. 
-    */
-  def fold[A1 >: A](lhs: Mat[A])(z: A1)(op: (A1, A1) => A1): A1 =
-    if (lhs.nRows == 0 || lhs.nCols == 0) z
-    else if (lhs.nRows == 1 && lhs.nCols == 1) lhs(0, 0)
-    else {
-      var acc = z // could be optimized
-      var i = 0
-      // in column-major order
-      cforRange(0 until lhs.nCols) { c =>
-        cforRange(0 until lhs.nRows) { r =>
-          acc = op(acc, lhs(r, c))
-        }
-      }
-      acc
     }
 
   /** Builds a new matrix by applying a function to all elements of this matrix. */
@@ -342,10 +310,6 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
 
   def ones(rows: Int, cols: Int)(implicit A: MultiplicativeMonoid[A]): MA = fillConstant(rows, cols)(A.one)
 
-  //// With `MultiplicativeMonoid[A]`, returning scalar
-
-  def product(lhs: Mat[A])(implicit A: MultiplicativeMonoid[A]): A = fold(lhs)(A.one)(A.times)
-
   //// With `MultiplicativeMonoid[A]`, returning matrix
 
   /** Scalar-matrix product. */
@@ -422,25 +386,6 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
 
   def pointwiseMinus(lhs: Mat[A], rhs: A)(implicit A: AdditiveGroup[A]): MA = pointwiseUnary(lhs)(_ - rhs)
 
-  /** Returns the number of non-zero elements in the matrix. */
-  def nnz(lhs: Mat[A])(implicit ev: Eq[A], A: AdditiveMonoid[A]): Int = count(lhs)(A.isZero(_))
-
-  /** Computes the sum of all the matrix elements. */
-  def sum(lhs: Mat[A])(implicit A: AdditiveMonoid[A]): A = fold(lhs)(A.zero)(A.plus)
-
-  /** Trace of the matrix, equal to the sum of diagonal entries. Requires a square matrix. */
-  def trace(lhs: Mat[A])(implicit A: AdditiveMonoid[A]): A = {
-    val n = lhs.nRows
-    require(n == lhs.nCols)
-    if (n == 0) A.zero else {
-      var sum = lhs(0, 0)
-      cforRange(1 until n) { k =>
-        sum += lhs(k, k)
-      }
-      sum
-    }
-  }
-
   //// Ring methods
 
   /** Matrix-matrix product. Requires `lhs.cols == rhs.rows`. */
@@ -477,12 +422,6 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
     }
     sum
   }
-
-  /** Computes the gcd of the elements of the matrix. */
-  def gcd(lhs: Mat[A])(implicit equ: Eq[A], A: EuclideanRing[A]): A = fold(lhs)(A.zero)(A.gcd)
-
-  /** Computes the lcm of the elements of the matrix. */
-  def lcm(lhs: Mat[A])(implicit equ: Eq[A], A: EuclideanRing[A]): A = fold(lhs)(A.one)(A.lcm)
 
   def pointwiseDiv(lhs: Mat[A], rhs: Mat[A])(implicit A: Field[A]): MA = pointwiseBinary(lhs, rhs)(A.div)
 

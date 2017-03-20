@@ -35,7 +35,7 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
 
   //// Helper methods
 
-  def pointwiseUnary(lhs: Vec[A])(f: A => A) = tabulate(lhs.length)(k => f(lhs(k)))
+  def pointwiseUnary(lhs: Vec[A])(f: A => A): VA = tabulate(lhs.length)(k => f(lhs(k)))
 
   def pointwiseBinary(lhs: Vec[A], rhs: Vec[A])(f: (A, A) => A): VA = {
     require(lhs.length == rhs.length)
@@ -119,15 +119,6 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
     }
   }
 
-  def count(lhs: Vec[A])(f: A => Boolean): Int = {
-    var n = 0
-    cforRange(0 until lhs.length) { k =>
-      if (f(lhs(k)))
-        n += 1
-    }
-    n
-  }
-
   /* Alternative
 
   def flatMap[B](lhs: Vec[B])(f: B => Vec[A]): VA =
@@ -176,15 +167,6 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
         els(j) = lhs(j)
       }
       catArray(els)
-    }
-
-  def fold[A1 >: A](lhs: Vec[A])(z: A1)(op: (A1, A1) => A1): A1 =
-    if (lhs.length == 0) z else {
-      var acc = op(z, lhs(0))
-      cforRange(1 until lhs.length) { k =>
-        acc = op(acc, lhs(k))
-      }
-      acc
     }
 
   def map[B](lhs: Vec[B])(f: B => A): VA = tabulate(lhs.length)( k => f(lhs(k)) )
@@ -261,10 +243,6 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
 
   def ones(length: Int)(implicit A: MultiplicativeMonoid[A]): VA = fillConstant(length)(A.one)
 
-  //// With `MultiplicativeMonoid[A]`, returning scalar
-
-  def product(lhs: Vec[A])(implicit A: MultiplicativeMonoid[A]): A = fold(lhs)(A.one)(A.times)
-
   //// With `MultiplicativeMonoid[A]`, returning vector
 
   def times(lhs: A, rhs: Vec[A])(implicit A: MultiplicativeMonoid[A]): VA = pointwiseUnary(rhs)(lhs * _)
@@ -300,9 +278,6 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
   //// REQUIRES
   //// Additive semigroup/monoid/group
 
-  /** Number of contained non-zero elements. */
-  def nnz(lhs: Vec[A])(implicit A: AdditiveMonoid[A], equ: Eq[A]): Int = count(lhs)(A.isZero(_))
-
   def zeros(length: Int)(implicit A: AdditiveMonoid[A]): VA = fillConstant(length)(A.zero)
 
   def plus(lhs: Vec[A], rhs: Vec[A])(implicit A: AdditiveSemigroup[A]): VA = pointwiseBinary(lhs, rhs)(A.plus)
@@ -314,9 +289,6 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
   def pointwisePlus(lhs: Vec[A], rhs: A)(implicit A: AdditiveSemigroup[A]): VA = pointwiseUnary(lhs)(A.plus(_, rhs))
 
   def pointwiseMinus(lhs: Vec[A], rhs: A)(implicit A: AdditiveGroup[A]): VA = pointwiseUnary(lhs)(A.minus(_, rhs))
-
-  /** Sum of all the elements in the vector. */
-  def sum(lhs: Vec[A])(implicit A: AdditiveMonoid[A]): A = fold(lhs)(A.zero)(A.plus)
 
   //// REQUIRES
   //// Semiring
@@ -409,16 +381,6 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
       sum
     }
   }
-
-
-  //// REQUIRES
-  //// GCDRing[A]
-
-  /** Computes the gcd of the elements of the vector. */
-  def gcd(lhs: Vec[A])(implicit equ: Eq[A], A: GCDRing[A]): A = fold(lhs)(A.zero)(A.gcd)
-
-  /** Computes the lcm of the elements of the vector. */
-  def lcm(lhs: Vec[A])(implicit equ: Eq[A], A: GCDRing[A]): A = fold(lhs)(A.one)(A.lcm)
 
   //// REQUIRES
   //// EuclideanRing[A]

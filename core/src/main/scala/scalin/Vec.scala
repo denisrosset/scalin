@@ -51,7 +51,14 @@ trait Vec[A] { lhs =>
 
   def cat[VA <: Vec[A]](rhs: Vec[A])(implicit ev: VecEngine[A, VA]): VA = ev.cat(lhs, rhs)
 
-  def count(f: A => Boolean)(implicit ev: VecEngine[A, _]): Int = ev.count(lhs)(f)
+  def count(f: A => Boolean): Int = {
+    var n = 0
+    cforRange(0 until lhs.length) { k =>
+      if (f(lhs(k)))
+        n += 1
+    }
+    n
+  }
 
   /** scala.collection-like flatMap. */
   def flatMap[B, VB <: Vec[B]](f: A => Vec[B])(implicit ev: VecEngine[B, VB]): VB = ev.flatMap[A](lhs)(f)
@@ -66,7 +73,14 @@ trait Vec[A] { lhs =>
     ev.flatten[U.V[U.A]](lhs).asInstanceOf[ev.Ret]
   }
 
-  def fold[A1 >: A](z: A1)(op: (A1, A1) => A1)(implicit ev: VecEngine[A, _]): A1 = ev.fold[A1](lhs)(z)(op)
+  def fold[A1 >: A](z: A1)(op: (A1, A1) => A1): A1 =
+    if (lhs.length == 0) z else {
+      var acc = op(z, lhs(0))
+      cforRange(1 until lhs.length) { k =>
+        acc = op(acc, lhs(k))
+      }
+      acc
+    }
 
   /** Maps the values of the elements. */
   def map[B, VB <: Vec[B]](f: A => B)(implicit ev: VecEngine[B, VB]): VB = ev.map[A](lhs)(f)
@@ -91,7 +105,7 @@ trait Vec[A] { lhs =>
   //// With `A:MultiplicativeMonoid`
 
   /** Product of all elements. */
-  def product(implicit ev: VecEngine[A, _], A: MultiplicativeMonoid[A]): A = ev.product(lhs)
+  def product(implicit A: MultiplicativeMonoid[A]): A = fold(A.one)(A.times)
 
   /** Vector-scalar product. */
   def *[VA <: Vec[A]](rhs: A)(implicit ev: VecEngine[A, VA], A: MultiplicativeMonoid[A]): VA = ev.times(lhs, rhs)
@@ -113,9 +127,11 @@ trait Vec[A] { lhs =>
 
   def unary_-[VA <: Vec[A]](implicit ev: VecEngine[A, VA], A: AdditiveGroup[A]): VA = ev.negate(lhs)
 
-  def sum(implicit ev: VecEngine[A, _], A: AdditiveMonoid[A]): A = ev.sum(lhs)
+  /** Sum of all the elements in the vector. */
+  def sum(implicit A: AdditiveMonoid[A]): A = fold(A.zero)(A.plus)
 
-  def nnz(implicit ev: VecEngine[A, _], eq: Eq[A], A: AdditiveMonoid[A]): Int = ev.nnz(lhs)
+  /** Number of contained non-zero elements. */
+  def nnz(implicit A: AdditiveMonoid[A], equ: Eq[A]): Int = count(A.isZero(_))
 
   //// With `A:Ring`
 
@@ -126,11 +142,13 @@ trait Vec[A] { lhs =>
     * inner product, but not the complex inner product.*/
   def dot(rhs: Vec[A])(implicit ev: VecEngine[A, _], A: Semiring[A]): A = ev.dot(lhs, rhs)
 
-  //// With `A:EuclideanRing`
+  //// With `A:GCDRing`
 
-  def gcd(implicit ev: VecEngine[A, _], A: GCDRing[A], equ: Eq[A]): A = ev.gcd(lhs)
+  /** Computes the gcd of the elements of the vector. */
+  def gcd(implicit equ: Eq[A], A: GCDRing[A]): A = fold(A.zero)(A.gcd)
 
-  def lcm(implicit ev: VecEngine[A, _], A: GCDRing[A], equ: Eq[A]): A = ev.lcm(lhs)
+  /** Computes the lcm of the elements of the vector. */
+  def lcm(implicit equ: Eq[A], A: GCDRing[A]): A = fold(A.one)(A.lcm)
 
   //// With `A:Field`
 

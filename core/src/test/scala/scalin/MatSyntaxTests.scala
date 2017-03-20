@@ -34,10 +34,6 @@ class MatSyntaxTests extends ScalinSuite {
     Vec[Rational](1, 2, 3).toColMat shouldBe Mat.colMajor[Rational](3, 1)(1, 2, 3)
   }
 
-  test("count") {
-    Mat.rowMajor[Rational](2,2)(1,2,3,4).count(_ > 2) shouldBe 2
-  }
-
   test("flatten") {
     val a: Mat[Mat[Rational]] = Mat.tabulate(2, 2)((i, j) => Mat.rowMajor[Rational](1, 1)(i+j))
     a.flatten shouldBe Mat.rowMajor[Rational](2, 2)(0, 1, 1, 2)
@@ -161,10 +157,6 @@ class MatSyntaxTests extends ScalinSuite {
     Mat.ones[Rational](2, 2) shouldBe Mat.rowMajor[Rational](2, 2)(1, 1, 1, 1)
   }
 
-  test("product") {
-    Mat.rowMajor[Rational](2, 2)(1,2,3,4).product shouldBe Rational(24)
-  }
-
   test("times") {
     val a = Mat.rowMat[Rational](1, 2, 3, 4)
     (a * Rational(2)) shouldBe Mat.rowMat[Rational](2, 4, 6, 8)
@@ -231,19 +223,9 @@ class MatSyntaxTests extends ScalinSuite {
     (a pw_- Rational(1)) shouldBe res
   }
 
-  test("nnz") {
-    val a = Mat.rowMajor[Rational](2, 2)(0, 1, 0, 1)
-    a.nnz shouldBe 2
-  }
-
   test("sum") {
     val a = Mat.rowMajor[Rational](2, 2)(1, 2, 3, 4)
     a.sum shouldBe Rational(10)
-  }
-
-  test("trace") {
-    val a = Mat.rowMajor[Rational](2, 2)(1, 2, 3, 4)
-    a.trace shouldBe Rational(5)
   }
 
   test("times (mat, mat)") {
@@ -322,5 +304,24 @@ class MatSyntaxTests extends ScalinSuite {
     val res = Mat.rowMat[Rational](1, 2, 2, 3)
     (a / Rational(2)) shouldBe res
   }
+
+  test("nnz") {
+    val a = Mat.rowMajor[Rational](2, 2)(0, 1, 0, 1)
+    a.nnz shouldBe 2
+  }
+
+  test("trace") {
+    val a = Mat.rowMajor[Rational](2, 2)(1, 2, 3, 4)
+    a.trace shouldBe Rational(5)
+  }
+
+  test("count") {
+    Mat.rowMajor[Rational](2,2)(1,2,3,4).count(_ > 2) shouldBe 2
+  }
+
+  test("product") {
+    Mat.rowMajor[Rational](2, 2)(1,2,3,4).product shouldBe Rational(24)
+  }
+
 
 }

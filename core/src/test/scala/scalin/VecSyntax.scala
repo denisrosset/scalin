@@ -149,4 +149,28 @@ class VecSyntax extends ScalinSuite {
   }
    */
 
+  test("nnz") {
+    val a = Vec[Rational](2, 0, 1, 0, 0)
+    a.nnz shouldBe 3
+  }
+
+  test("sum") {
+    val a = Vec[Rational](1, 2, 3, 4)
+    a.sum shouldBe Rational(10)
+  }
+
+  test("gcd") {
+    val a = Vec[Rational](2, 4, -2)
+    a.gcd shouldBe Rational(2)
+  }
+
+  test("lcm") {
+    val a = Vec[Rational](2, 3, 6)
+    a.lcm shouldBe Rational(6)
+  }
+
+  test("product") {
+    Vec[Rational](1, 2, 3, 4).product shouldBe Rational(24)
+  }
+
 }

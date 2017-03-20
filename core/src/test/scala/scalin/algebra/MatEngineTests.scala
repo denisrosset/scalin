@@ -49,10 +49,6 @@ class MatEngineTests extends ScalinSuite {
     engine.fromMat(Mat.rowMajor[Rational](2,2)(1,2,3,4)) shouldBe Mat.rowMajor[Rational](2,2)(1,2,3,4)
   }
 
-  test("count") {
-    engine.count(Mat.rowMajor[Rational](2,2)(1,2,3,4))(_ > 2) shouldBe 2
-  }
-
   test("flatten") {
     val a: Mat[Mat[Rational]] = Mat.tabulate(2, 2)((i, j) => Mat.rowMajor[Rational](1, 1)(i+j))
     engine.flatten(a) shouldBe Mat.rowMajor[Rational](2, 2)(0, 1, 1, 2)
@@ -61,11 +57,6 @@ class MatEngineTests extends ScalinSuite {
   test("flatMap") {
     val a = Mat.rowMajor[Rational](2,2)(0,1,1,2)
     engine.flatMap(a)(x => Mat.rowMajor[Rational](1, 1)(x + 1)) shouldBe Mat.rowMajor[Rational](2, 2)(1, 2, 2, 3)
-  }
-
-  test("fold") {
-    val a = Mat.rowMajor[Rational](2, 2)(1, 2, 3, 4)
-    engine.fold(a)(Rational.one)(_ * _) shouldBe Rational(24)
   }
 
   test("map") {
@@ -174,10 +165,6 @@ class MatEngineTests extends ScalinSuite {
     engine.ones(2, 2) shouldBe Mat.rowMajor[Rational](2, 2)(1, 1, 1, 1)
   }
 
-  test("product") {
-    engine.product(Mat.rowMajor[Rational](2, 2)(1,2,3,4)) shouldBe Rational(24)
-  }
-
   test("times") {
     val a = Mat.rowMat[Rational](1, 2, 3, 4)
     engine.times(a, Rational(2)) shouldBe Mat.rowMat[Rational](2, 4, 6, 8)
@@ -245,21 +232,6 @@ class MatEngineTests extends ScalinSuite {
     engine.pointwiseMinus(a, Rational(1)) shouldBe res
   }
 
-  test("nnz") {
-    val a = Mat.rowMajor[Rational](2, 2)(0, 1, 0, 1)
-    engine.nnz(a) shouldBe 2
-  }
-
-  test("sum") {
-    val a = Mat.rowMajor[Rational](2, 2)(1, 2, 3, 4)
-    engine.sum(a) shouldBe Rational(10)
-  }
-
-  test("trace") {
-    val a = Mat.rowMajor[Rational](2, 2)(1, 2, 3, 4)
-    engine.trace(a) shouldBe Rational(5)
-  }
-
   test("times (mat, mat)") {
     val a = Mat.rowMajor[Rational](2, 4)(1, 3, 5, 7,
       2, 4, 6, 8)
@@ -297,15 +269,6 @@ class MatEngineTests extends ScalinSuite {
     engine.rank(a) shouldBe 3
   }*/
 
-  test("gcd") {
-    val a = Mat.rowMat[Rational](2, 4, -2)
-    engine.gcd(a) shouldBe Rational(2)
-  }
-
-  test("lcm") {
-    val a = Mat.rowMat[Rational](2, 3, 6)
-    engine.lcm(a) shouldBe Rational(6)
-  }
   /* TODO
 
   test("orthogonalized") {
