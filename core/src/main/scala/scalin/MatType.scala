@@ -21,6 +21,10 @@ trait MatType[M[A] <: Mat[A]] {
 
   def tabulate[A:Builder](nRows: Int, nCols: Int)(f: (Int, Int) => A): M[A] = Builder[A].engine.tabulate(nRows, nCols)(f)
 
+  def fromMutable[A:Builder](nRows: Int, nCols: Int, default: A)(updateFun: scalin.mutable.Mat[A] => Unit): M[A] = Builder[A].engine.fromMutable(nRows, nCols, default)(updateFun)
+
+  def fromMutableUnsafe[A:Builder](nRows: Int, nCols: Int)(updateFun: scalin.mutable.Mat[A] => Unit): M[A] = Builder[A].engine.fromMutableUnsafe(nRows, nCols)(updateFun)
+
   def zeros[A:Builder:AdditiveMonoid](nRows: Int, nCols: Int): M[A] = Builder[A].engine.zeros(nRows, nCols)
 
   def ones[A:Builder:MultiplicativeMonoid](nRows: Int, nCols: Int): M[A] = Builder[A].engine.ones(nRows, nCols)

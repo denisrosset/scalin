@@ -17,18 +17,18 @@ object Mats {
       values <- Gen.containerOfN[IndexedSeq, A]((n - 1) * (n - 2) / 2, Arbitrary.arbitrary[A])
       diag <- Gen.containerOfN[IndexedSeq, A](n, nonZero)
     } yield {
-      val res = scalin.mutable.Mat.zeros[A](n, n)
-      cforRange(0 until n) { k =>
-        res(k, k) := diag(k)
-      }
-      var i = 0
-      cforRange(1 until n) { r =>
-        cforRange(r + 1 until n) { c =>
-          res(r, c) := values(i)
-          i += 1
+      Mat.fromMutable(n, n, Ring[A].zero) { res =>
+        cforRange(0 until n) { k =>
+          res(k, k) := diag(k)
+        }
+        var i = 0
+        cforRange(1 until n) { r =>
+          cforRange(r + 1 until n) { c =>
+            res(r, c) := values(i)
+            i += 1
+          }
         }
       }
-      res.result()
     }
   }
 
@@ -36,15 +36,16 @@ object Mats {
   def genUpperDiagOne[A:Arbitrary:Ring](n: Int): Gen[Mat[A]] = {
     import scalin.mutable.dense._
     Gen.containerOfN[IndexedSeq, A]((n - 1) * (n - 2) / 2, Arbitrary.arbitrary[A]).map { values =>
-      val res = scalin.mutable.Mat.eye[A](n)
-      var i = 0
-      cforRange(1 until n) { r =>
-        cforRange(r + 1 until n) { c =>
-          res(r, c) := values(i)
-          i += 1
+      Mat.fromMutable(n, n, Ring[A].zero) { res =>
+        var i = 0
+        cforRange(0 until n) { k => res(k, k) := Ring[A].one }
+        cforRange(1 until n) { r =>
+          cforRange(r + 1 until n) { c =>
+            res(r, c) := values(i)
+            i += 1
+          }
         }
       }
-      res.result()
     }
   }
 
@@ -70,11 +71,11 @@ object Mats {
     import scalin.mutable.dense._
     Gen.containerOfN[IndexedSeq, Int](n, Gen.choose(1, 10)) map {
       diag =>
-      val res = scalin.mutable.Mat.zeros[A](n, n)
-      cforRange(0 until n) { i =>
-        res(i, i) := Ring[A].fromInt(diag(i))
+      Mat.fromMutable(n, n, Ring[A].zero) { res =>
+        cforRange(0 until n) { i =>
+          res(i, i) := Ring[A].fromInt(diag(i))
+        }
       }
-      res.result()
     }
   }
 
