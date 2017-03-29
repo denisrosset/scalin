@@ -7,7 +7,7 @@ val disciplineVersion = "0.7.2"
 val scalaCheckVersion = "1.13.4"
 val scalaMacrosVersion = "2.0.1"
 val scalaTestVersion = "3.0.1"
-val spireVersion = "0.13.1-SNAPSHOT"
+val spireVersion = "0.14.1"
 
 lazy val scalin = (project in file("."))
   .settings(moduleName := "scalin")
@@ -46,8 +46,6 @@ lazy val commonSettings = Seq(
     "-Ywarn-value-discard"
   )),
   resolvers ++= Seq(
-    Resolver.url("spirejars", url(file("spirejars").toURI.toASCIIString))(Resolver.ivyStylePatterns),
-    "bintray/non" at "http://dl.bintray.com/non/maven",
     Resolver.sonatypeRepo("snapshots")
   ),
   libraryDependencies += "org.spire-math" %% "spire" % spireVersion
