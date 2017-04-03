@@ -9,6 +9,8 @@ import scalin.syntax.assign._
 
 object PrincipalMinors {
 
+  // Based on the algorithm of Griffin&Tsatsomeros doi:10.1016/j.laa.2006.04.008
+
   /** Finds the principal minors of an n x n matrix in a field. */
   def apply[A:Eq:Field:mutable.VecEngine:mutable.MatEngine](mat: Mat[A]): mutable.Vec[A] = {
     var a: mutable.Mat[A] = mat.toMat[mutable.Mat[A]]
