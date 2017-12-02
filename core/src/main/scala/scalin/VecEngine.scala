@@ -394,4 +394,8 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
 
   def div(lhs: Vec[A], rhs: A)(implicit A: Field[A]): VA = pointwiseUnary(lhs)(_ / rhs)
 
+  //// REQUIRES
+  //// Conjugation[A]
+
+  def conjugate(lhs: Vec[A])(implicit A: Conjugation[A]): VA = map(lhs)(A.conjugate)
 }

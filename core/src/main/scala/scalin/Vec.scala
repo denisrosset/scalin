@@ -154,6 +154,10 @@ trait Vec[A] { lhs =>
 
   def /[VA <: Vec[A]](rhs: A)(implicit ev: VecEngine[A, VA], A: Field[A]): VA = ev.div(lhs, rhs)
 
+  //// With `A:Conjugation`
+
+  def conjugate[VA <: Vec[A]](implicit ev: VecEngine[A, VA], A: Conjugation[A]): VA = ev.conjugate(lhs)
+
   //// Pointwise operations
 
   //// Using standard Java methods
@@ -197,7 +201,6 @@ trait Vec[A] { lhs =>
 
   def pw_=!=[VB <: Vec[Boolean]](rhs: Vec[A])(implicit A: Eq[A], ev: VecEngine[Boolean, VB]): VB =
     ev.pointwiseNeqv(lhs, rhs)
-
 }
 
 object Vec extends VecType[Vec] {

@@ -123,8 +123,10 @@ trait Mat[A] { lhs =>
   /** Transposition. */
   def t[MA <: Mat[A]](implicit ev: MatEngine[A, MA]): MA = ev.t(lhs)
 
+  /** Horizontal concatenation. */
   def horzcat[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA]): MA = ev.horzcat(lhs, rhs)
 
+  /** Vertical concatenation. */
   def vertcat[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA]): MA = ev.vertcat(lhs, rhs)
 
   //// With `A:MultiplicativeMonoid`
@@ -193,6 +195,14 @@ trait Mat[A] { lhs =>
 
   /** Division by scalar. */
   def /[MA <: Mat[A]](rhs: A)(implicit ev: MatEngine[A, MA], A: Field[A]): MA = ev.div(lhs, rhs)
+
+  //// With `A:Conjugation`
+
+  /** Conjugate. */
+  def conjugate[MA <: Mat[A]](implicit ev: MatEngine[A, MA], A: Conjugation[A]): MA = ev.conjugate(lhs)
+
+  /** Conjugate transpose. */
+  def ct[MA <: Mat[A]](implicit ev: MatEngine[A, MA], A: Conjugation[A]): MA = ev.ct(lhs)
 
   //// Pointwise operations
 

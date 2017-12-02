@@ -23,6 +23,4 @@ class KroneckerSuite extends ScalinSuite {
     val rhs = Vec[Int](0,1)
     (lhs kron rhs) shouldBe Vec(0,2,0,3,0,4)
   }
-
-
 }

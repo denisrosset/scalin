@@ -427,4 +427,11 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
 
   def div(lhs: Mat[A], rhs: A)(implicit A: Field[A]): MA = pointwiseUnary(lhs)(A.div(_, rhs))
 
+  //// Requires conjugation
+
+  /** Returns the matrix conjugate. Does not transpose the matrix. */
+  def conjugate(mat: Mat[A])(implicit A: Conjugation[A]): MA = map(mat)(A.conjugate)
+
+  /** Returns the conjugate transpose, i.e. is equal to conjugate(t(mat)). */
+  def ct(mat: Mat[A])(implicit A: Conjugation[A]): MA = tabulate(mat.nCols, mat.nRows)((i, j) => A.conjugate(mat(j, i)))
 }
