@@ -13,7 +13,7 @@ object PrincipalMinors {
 
   /** Finds the principal minors of an n x n matrix in a field. */
   def apply[A:Eq:Field:mutable.VecEngine:mutable.MatEngine](mat: Mat[A]): mutable.Vec[A] = {
-    var a: mutable.Mat[A] = mat.toMat[mutable.Mat[A]]
+    var a: mutable.Mat[A] = mat.to[mutable.Mat[A]](MatConv.fromEngine)
     assert(a.nRows == a.nCols)
     val n = a.nRows
     val zeroPivs = collection.mutable.BitSet.empty

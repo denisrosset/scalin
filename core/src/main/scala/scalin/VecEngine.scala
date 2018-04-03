@@ -4,31 +4,72 @@ import spire.algebra._
 import spire.syntax.eq._
 import spire.syntax.cfor._
 import spire.syntax.field._
-
 import scalin.syntax.assign._
+import spire.util.Opt
+
+import scala.annotation.tailrec
 
 trait VecEngine[A, +VA <: Vec[A]] { self  =>
 
+  type Ret <: VA // hack for the return type of Vec.flatten
+
   implicit def VA: VecEngine[A, VA] = self
+
+  //// Construct this from mutable vectors
+
+  type Mut <: scalin.mutable.Vec[A]
+  def mutableEngine: VecEngine[A, Mut]
+  implicit def mutableConv: VecConv[A, Mut, VA]
 
   //// Minimal methods to implement
 
   /** Creates a vector from length and a value function index => vec(index). */
   def tabulate(length: Int)(f: Int => A): VA
 
+  def blockTabulate(nBlocks: Int)(f: Int => Vec[A]): VA = {
+    var nonEmpty: Opt[Vec[A]] = Opt.empty[Vec[A]]
+    val array = new Array[Vec[A]](nBlocks)
+    cforRange(0 until nBlocks) { b =>
+      val block = f(b)
+      array(b) = block
+      if (block.length != 0)
+        nonEmpty = Opt(block)
+    }
+    @tailrec def computeLength(s: Int, b: Int): Int =
+      if (b == nBlocks) s else computeLength(s + array(b).length, b + 1)
+    val length = computeLength(0, 0)
+    val mut = nonEmpty match {
+      case Opt(block) => mutableEngine.fillConstant(length)(block(0))
+      case _ => return tabulate(0)(i => sys.error("Matrix is empty"))
+    }
+    var start = 0
+    cforRange(0 until nBlocks) { b =>
+      val block = array(b)
+      mut(start until start + block.length) := block
+      start += block.length
+    }
+    mutableConv(mut)
+  }
+
+  /** Creates a vector of given length filled with the specific element `fill`.
+    * The fill is only evaluated once and copied in the whole vector. */
+  def fillConstant(length: Int)(a: => A): VA
+
   /** Builds a vector from length and a user-provided function that mutates
     * a temporary mutable vector previously filled with the provided `default` value.
     */
-  def fromMutable(length: Int, default: A)(updateFun: scalin.mutable.Vec[A] => Unit): VA
-
-  /** Similar to fromMutable, but requires `updateFun` to update every element of the passed
-    * mutable matrix. */
-
-  def fromMutableUnsafe(length: Int)(updateFun: scalin.mutable.Vec[A] => Unit): VA
+  def fromMutable(length: Int, default: => A)(updateFun: Mut => Unit): VA =
+    if (length == 0)
+      tabulate(length)(sys.error("Never used"))
+    else {
+      val mutable = mutableEngine.fillConstant(length)(default)
+      updateFun(mutable)
+      mutableConv(mutable)
+    }
 
   /** Builds a vector from the processing applied on a mutable copy of the provided vector. */
   def fromMutable(vec: Vec[A])(updateFun: scalin.mutable.Vec[A] => Unit): VA =
-    fromMutableUnsafe(vec.length) { res =>
+    fromMutable(vec.length, vec(0)) { res =>
       res(::) := vec
       updateFun(res)
     }
@@ -57,8 +98,6 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
     tabulate(lhs.length)( k => f(lhs(k), rhs(k)) )
   }
 
-  type Ret <: VA // hack for the return type of Vec.flatten
-
   //// Creation
 
   def empty: VA = tabulate(0)(i => sys.error("Cannot be called"))
@@ -72,12 +111,6 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
     }
 
   def fill(length: Int)(a: => A): VA = tabulate(length)( k => a )
-
-  // Alternative   def fillConstant(length: Int)(a: A): VA = fill(length)(a)
-
-  def fillConstant(length: Int)(a: A): VA = fromMutable(length, a) { res =>
-    // do nothing, already filled up
-  }
 
   def fromSeq(elements: Seq[A]): VA = tabulate(elements.size)( elements(_) )
 
@@ -94,30 +127,8 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
   }
    */
 
-  def cat(lhs: Vec[A], rhs: Vec[A]): VA = {
-    val nl = lhs.length
-    val nr = rhs.length
-    fromMutableUnsafe(nl + nr) { res =>
-      res(0 until nl) := lhs
-      res(nl until nl + nr) := rhs
-    }
-  }
-
-  protected def catArray(array: Array[Vec[A]]): VA = {
-    val n = array.length
-    var len = 0
-    cforRange(0 until n) { j =>
-      len += array(j).length
-    }
-    fromMutableUnsafe(len) { res =>
-      var i = 0
-      cforRange(0 until n) { j =>
-        val lenj = array(j).length
-        res(i until (i + lenj)) := array(j)
-        i += lenj
-      }
-    }
-  }
+  def cat(lhs: Vec[A], rhs: Vec[A]): VA =
+    blockTabulate(2)( i => if (i == 0) lhs else rhs )
 
   /* Alternative
 
@@ -136,13 +147,7 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
   def flatMap[B](lhs: Vec[B])(f: B => Vec[A]): VA =
     if (lhs.length == 0) empty
     else if (lhs.length == 1) fromVec(f(lhs(0)))
-    else {
-      val els = new Array[Vec[A]](lhs.length)
-      cforRange(0 until lhs.length) { j =>
-        els(j) = f(lhs(j))
-      }
-      catArray(els)
-    }
+    else blockTabulate(lhs.length)( i => f(lhs(i)) )
 
   /* Alternative
 
@@ -161,13 +166,7 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
   def flatten[B <: Vec[A]](lhs: Vec[B]): VA =
     if (lhs.length == 0) empty
     else if (lhs.length == 1) fromVec(lhs(0))
-    else {
-      val els = new Array[Vec[A]](lhs.length)
-      cforRange(0 until lhs.length) { j =>
-        els(j) = lhs(j)
-      }
-      catArray(els)
-    }
+    else blockTabulate(lhs.length)( i => lhs(i) )
 
   def map[B](lhs: Vec[B])(f: B => A): VA = tabulate(lhs.length)( k => f(lhs(k)) )
 
@@ -261,19 +260,8 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
     }
    */
 
-  def kron(x: Vec[A], y: Vec[A])(implicit A: MultiplicativeMonoid[A]): VA = {
-    val nx = x.length
-    val ny = y.length
-    fromMutableUnsafe(nx * ny) { res =>
-      var i = 0
-      cforRange(0 until nx) { ix =>
-        cforRange(0 until ny) { iy =>
-          res(i) := x(ix) * y(iy)
-          i += 1
-        }
-      }
-    }
-  }
+  def kron(x: Vec[A], y: Vec[A])(implicit A: MultiplicativeMonoid[A]): VA =
+    blockTabulate(x.length)( i => x(i) *: y )
 
   //// REQUIRES
   //// Additive semigroup/monoid/group
@@ -317,16 +305,12 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
     require(n == rhs.nRows)
     if (n == 0)
       zeros(rhs.nCols)
-    else {
-      fromMutableUnsafe(rhs.nCols) { res =>
-        cforRange(0 until rhs.nCols) { c =>
-          var sum = lhs(0) * rhs(0, c)
-          cforRange(1 until n) { r =>
-            sum += lhs(r) * rhs(r, c)
-          }
-          res(c) := sum
-        }
+    else tabulate(rhs.nCols) { c =>
+      var sum = lhs(0) * rhs(0, c)
+      cforRange(1 until n) { r =>
+        sum += lhs(r) * rhs(r, c)
       }
+      sum
     }
   }
 
@@ -355,16 +339,12 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
     require(n == lhs.nCols)
     if (n == 0)
       zeros(lhs.nRows)
-    else {
-      fromMutableUnsafe(lhs.nRows) { res =>
-        cforRange(0 until lhs.nRows) { r =>
-          var sum = lhs(r, 0) * rhs(0)
-          cforRange(1 until n) { c =>
-            sum += lhs(r, c) * rhs(c)
-          }
-          res(r) := sum
-        }
+    else tabulate(lhs.nRows) { r =>
+      var sum = lhs(r, 0) * rhs(0)
+      cforRange(1 until n) { c =>
+        sum += lhs(r, c) * rhs(c)
       }
+      sum
     }
   }
 

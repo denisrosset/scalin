@@ -1,48 +1,44 @@
 package scalin
 package mutable
 
-class DenseMat[A](val nRows: Int, val nCols: Int, var data: Array[AnyRef]) extends scalin.DenseMat[A] with mutable.Mat[A] {
+import scalin.generic.DenseMatType
 
-  def copyIfOverlap(obj: AnyRef) = if (obj eq this) new DenseMat[A](nRows, nCols, data.clone) else this
+class DenseMat[A](val nRows: Int,
+                  val nCols: Int,
+                  var data: Array[AnyRef], // mutable data array
+                  var sharedData: Boolean // if exported = true, data has to be treated as immutable
+                 ) extends generic.DenseMat[A] with mutable.Mat[A] {
+
+  def prepareMutation(): Unit =
+    if (sharedData) {
+      data = data.clone
+      sharedData = false
+    }
+
+  def copyIfOverlap(obj: AnyRef): DenseMat[A] = if (obj eq this) new DenseMat[A](nRows, nCols, data.clone, false) else this
 
   def set(r: Int, c: Int, a: A): Unit = {
+    prepareMutation()
     data(r + c * nRows) = a.asInstanceOf[AnyRef]
-  }
-
-  def exported = (data eq null)
-
-  def result(): immutable.DenseMat[A] = {
-    val res = new immutable.DenseMat[A](nRows, nCols, data)
-    data = null
-    res
   }
 
 }
 
 object DenseMat extends DenseMatType[mutable.DenseMat] {
 
-  protected def build[A](nRows: Int, nCols: Int, data: Array[AnyRef]): DenseMat[A] =
-    new DenseMat[A](nRows, nCols, data)
+  class Engine[A] extends generic.DenseMatEngine[A, mutable.DenseMat[A]] { self =>
+    type Ret = mutable.DenseMat[A]
+    def mutableEngine: scalin.MatEngine[A, mutable.DenseMat[A]] = self
+    implicit def mutableConv: MatConv[A, mutable.DenseMat[A], mutable.DenseMat[A]] =
+      new MatConv[A, mutable.DenseMat[A], mutable.DenseMat[A]] {
+        def apply(from: mutable.DenseMat[A]): mutable.DenseMat[A] =
+          new mutable.DenseMat[A](from.nRows, from.nCols, from.data.clone, false)
+      }
 
-  class Engine[A] extends scalin.MatEngine[A, mutable.DenseMat[A]] {
-
-    def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A) = mutable.DenseMat.tabulate_[A](nRows, nCols)(f)
-
-    def fromMutable(nRows: Int, nCols: Int, default: A)(updateFun: scalin.mutable.Mat[A] => Unit) = {
-      val array = newArray[A](nRows * nCols, default)
-      val res = new scalin.mutable.DenseMat[A](nRows, nCols, array)
-      updateFun(res)
-      res
-    }
-
-    def fromMutableUnsafe(nRows: Int, nCols: Int)(updateFun: scalin.mutable.Mat[A] => Unit) = {
-      val res = new scalin.mutable.DenseMat[A](nRows, nCols, new Array[AnyRef](nRows * nCols))
-      updateFun(res)
-      res
-    }
-
+    protected def build(nRows: Int, nCols: Int, data: Array[AnyRef]): DenseMat[A] =
+      new DenseMat[A](nRows, nCols, data, false)
   }
 
-  def defaultEngine[A:TC]: scalin.MatEngine[A, mutable.DenseMat[A]] = new Engine[A]
+  def defaultEngine[A: TC]: scalin.MatEngine[A, mutable.DenseMat[A]] = new Engine[A]
 
 }

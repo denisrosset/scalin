@@ -3,12 +3,6 @@ package scalin
 import spire.algebra._
 import spire.syntax.cfor._
 
-final class ToVec[A, B](vec: Vec[A])(implicit conv: A => B) {
-
-  def get[VB <: Vec[B]](implicit ev: VecEngine[B, VB]): VB = vec.map(conv)
-
-}
-
 /** Vector trait; `A` is the scalar type. */
 trait Vec[A] { lhs =>
 
@@ -27,17 +21,20 @@ trait Vec[A] { lhs =>
     case _ => false
   }
 
-  override def hashCode = scalin.Vec.defaultHashCode(lhs)
+  override def hashCode: Int = scalin.Vec.defaultHashCode(lhs)
 
   //// Helper functions
 
+  /** Returns a copy of this Vec if it has overlapping data with the object obj.
+    *
+    * Used in mutable operations where obj1 = op(op2) or op1 = op(op2, op3) and
+    * op1 and op2/op3 share underlying data.
+    * */
   def copyIfOverlap(obj: AnyRef): Vec[A]
 
   //// Conversion/creation
 
-  def to[B](implicit conv: A => B) = new ToVec[A, B](lhs)
-
-  def toVec[VA <: Vec[A]](implicit ev: VecEngine[A, VA]): VA = ev.fromVec(lhs)
+  def to[VA <: Vec[A]](implicit ev: VecEngine[A, VA]): VA = ev.fromVec(lhs) // TODO: replace as in Mat
 
   def toRowMat[MA <: Mat[A]](implicit ev: MatEngine[A, MA]): MA = ev.toRowMat(lhs)
 

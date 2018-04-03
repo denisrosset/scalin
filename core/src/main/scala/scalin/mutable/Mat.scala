@@ -1,15 +1,21 @@
 package scalin
 package mutable
 
+import spire.algebra.AdditiveSemigroup
 import spire.syntax.cfor._
 
-trait Mat[A] extends scalin.Mat[A] {
+trait Mat[A] extends scalin.Mat[A] { self =>
 
-  def result(): immutable.Mat[A]
+  def sharedData: Boolean
+
+  def prepareMutation(): Unit
 
   // 1x1
 
   def set(r: Int, c: Int, a: A): Unit
+
+  // useful for COOMat and sparse matrices that can have duplicate entries
+  def add(r: Int, c: Int, a: A)(implicit ev: AdditiveSemigroup[A]): Unit = set(r, c, ev.plus(apply(r, c), a))
 
   // 1xn and nx1
 
@@ -21,11 +27,12 @@ trait Mat[A] extends scalin.Mat[A] {
   }
 
   def set(r: Int, cs: Subscript, rhs: scalin.Vec[A]): Unit = {
+    val rhsCopy = rhs.copyIfOverlap(self)
     val ci = cs.forLength(nCols)
     val n = ci.length
-    require(n == rhs.length)
+    require(n == rhsCopy.length)
     cforRange(0 until ci.length) { ck =>
-      set(r, ci(ck), rhs(ck))
+      set(r, ci(ck), rhsCopy(ck))
     }
   }
 
@@ -37,11 +44,12 @@ trait Mat[A] extends scalin.Mat[A] {
   }
 
   def set(rs: Subscript, c: Int, rhs: scalin.Vec[A]): Unit = {
+    val rhsCopy = rhs.copyIfOverlap(self)
     val ri = rs.forLength(nRows)
     val n = ri.length
-    require(n == rhs.length)
+    require(n == rhsCopy.length)
     cforRange(0 until ri.length) { rk =>
-      set(ri(rk), c, rhs(rk))
+      set(ri(rk), c, rhsCopy(rk))
     }
   }
 
@@ -58,13 +66,14 @@ trait Mat[A] extends scalin.Mat[A] {
   }
 
   def set(rs: Subscript, cs: Subscript, rhs: scalin.Mat[A]): Unit = {
+    val rhsCopy = rhs.copyIfOverlap(self)
     val ri = rs.forLength(nRows)
     val ci = cs.forLength(nCols)
-    require(ri.length == rhs.nRows)
-    require(ci.length == rhs.nCols)
+    require(ri.length == rhsCopy.nRows)
+    require(ci.length == rhsCopy.nCols)
     cforRange(0 until ri.length) { rk =>
       cforRange(0 until ci.length) { ck =>
-        set(ri(rk), ci(ck), rhs(rk, ck))
+        set(ri(rk), ci(ck), rhsCopy(rk, ck))
       }
     }
   }
@@ -82,13 +91,14 @@ trait Mat[A] extends scalin.Mat[A] {
   }
 
   def set(sub: Subscript, rhs: scalin.Vec[A]): Unit = {
+    val rhsCopy = rhs.copyIfOverlap(self)
     val ind = sub.forLength(nRows * nCols)
-    require(rhs.length == ind.length)
+    require(rhsCopy.length == ind.length)
     cforRange(0 until ind.length) { k =>
       val ik = ind(k)
       val r = ik % nRows
       val c = ik / nRows
-      set(r, c, rhs(k))
+      set(r, c, rhsCopy(k))
     }
   }
 
@@ -96,6 +106,6 @@ trait Mat[A] extends scalin.Mat[A] {
 
 object Mat extends MatType[Mat] {
 
-  def defaultEngine[A:TC] = DenseMat.defaultEngine[A]
+  def defaultEngine[A: TC]: MatEngine[A] = DenseMat.defaultEngine[A]
 
 }

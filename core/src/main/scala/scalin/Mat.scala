@@ -3,12 +3,6 @@ package scalin
 import spire.algebra._
 import spire.syntax.cfor._
 
-final class ToMat[A, B](val mat: Mat[A])(implicit conv: A => B) {
-
-  def get[MB <: Mat[B]](implicit ev: MatEngine[B, MB]): MB = mat.map(conv)
-
-}
-
 /** Matrix trait. */
 trait Mat[A] { lhs =>
 
@@ -33,13 +27,16 @@ trait Mat[A] { lhs =>
 
   //// Helper functions
 
+  /** Returns a copy of this Mat if it has overlapping data with the object obj.
+    *
+    * Used in mutable operations where obj1 = op(op2) or op1 = op(op2, op3) and
+    * op1 and op2/op3 share underlying data.
+    * */
   def copyIfOverlap(obj: AnyRef): Mat[A]
 
   //// Conversion/creation
 
-  def to[B](implicit conv: A => B) = new ToMat[A, B](lhs)
-
-  def toMat[MA <: Mat[A]](implicit ev: MatEngine[A, MA]): MA = ev.fromMat(lhs)
+  def to[MA <: Mat[A]](implicit ev: MatConv[A, lhs.type, MA]): MA = ev(lhs)
 
   //// Collection-like methods
 

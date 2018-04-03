@@ -48,7 +48,7 @@ lazy val commonSettings = Seq(
   resolvers ++= Seq(
     Resolver.sonatypeRepo("snapshots")
   ),
-  libraryDependencies += "org.typelevel" %% "spire" % spireVersion
+  libraryDependencies ++= Seq("org.typelevel" %% "spire" % spireVersion)
 ) ++ scalaMacroDependencies ++ warnUnusedImport
 
 lazy val publishSettings = Seq(

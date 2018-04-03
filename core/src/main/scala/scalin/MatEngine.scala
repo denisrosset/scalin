@@ -4,31 +4,87 @@ import spire.algebra._
 import spire.syntax.cfor._
 import spire.syntax.eq._
 import spire.syntax.field._
-
 import scalin.syntax.assign._
+import spire.util.Opt
+
+import scala.annotation.tailrec
 
 /** Builder for matrices with an arbitrary scalar type `A`. */
 trait MatEngine[A, +MA <: Mat[A]] { self =>
 
+  type Ret <: MA // hack for the return type of Mat.flatten
+
   implicit def MA: MatEngine[A, MA] = self
+
+  //// Construct this from mutable matrices
+
+  type Mut <: scalin.mutable.Mat[A]
+  def mutableEngine: MatEngine[A, Mut]
+  implicit def mutableConv: MatConv[A, Mut, MA]
 
   //// Minimal methods to implement
 
-  /** Creates a vector from the given size (nRows, nCols) and a value function. */
+  /** Creates a matrix from the given size (nRows, nCols) and a value function. */
   def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): MA
+
+  /** Creates a matrix from the given blocks. */
+  def blockTabulate(nBlockRows: Int, nBlockCols: Int)(f: (Int, Int) => Mat[A]): MA = {
+    var nonEmpty: Opt[Mat[A]] = Opt.empty[Mat[A]]
+    val array = new Array[Mat[A]](nBlockRows * nBlockCols)
+    cforRange(0 until nBlockRows) { br =>
+      cforRange(0 until nBlockCols) { bc =>
+        val block = f(br, bc)
+        array(br + bc * nBlockCols) = block
+        if (block.nRows != 0 && block.nCols != 0)
+          nonEmpty = Opt(block)
+      }
+    }
+    @tailrec def computeRows(s: Int, br: Int): Int =
+      if (br == nBlockRows) s else computeRows(s + array(br).nRows, br + 1)
+    @tailrec def computeCols(s: Int, bc: Int): Int =
+      if (bc == nBlockCols) s else computeCols(s + array(bc * nBlockRows).nCols, bc + 1)
+    val nRows = computeRows(0, 0)
+    val nCols = computeCols(0, 0)
+    val mut = nonEmpty match {
+      case Opt(block) => mutableEngine.fillConstant(nRows, nCols)(block(0, 0))
+      case _ => return tabulate(nRows, nCols)( (r, c) => sys.error("Matrix is empty") )
+    }
+    var colStart = 0
+    cforRange(0 until nBlockCols) { bc =>
+      var rowStart = 0
+      cforRange(0 until nBlockRows) { br =>
+        val block = array(br + bc * nBlockRows)
+        mut(rowStart until rowStart + block.nRows, colStart until colStart + block.nCols) := block
+        rowStart += block.nRows
+        if (br == nBlockRows - 1)
+          colStart += block.nCols
+      }
+    }
+    mutableConv(mut)
+  }
+
+  /** Creates a nRows x nCols matrix with the specific element `fill`.
+    * The fill is only evaluated once and copied in the whole matrix. */
+  def fillConstant(nRows: Int, nCols: Int)(a: => A): MA
 
   /** Builds a matrix from the given size and a user-provided function that mutates
     * a temporary mutable matrix previously filled with the provided `default` value.
+    *
+    * default is evaluated once if the matrix has > 0 elements,
+    * and then the result is copied over the matrix.
     */
-  def fromMutable(nRows: Int, nCols: Int, default: A)(updateFun: scalin.mutable.Mat[A] => Unit): MA
-
-  /** Similar to fromMutable, but requires `updateFun` to update every element of the passed
-    * mutable matrix. */
-  def fromMutableUnsafe(nRows: Int, nCols: Int)(updateFun: scalin.mutable.Mat[A] => Unit): MA
+  def fromMutable(nRows: Int, nCols: Int, default: => A)(updateFun: Mut => Unit): MA =
+    if (nRows == 0 || nCols == 0)
+      tabulate(nRows, nCols)(sys.error("Never used"))
+    else {
+      val mutable = mutableEngine.fillConstant(nRows, nCols)(default)
+      updateFun(mutable)
+      mutableConv(mutable)
+    }
 
   /** Builds a matrix from the processing applied on a mutable copy of the provided matrix. */
-  def fromMutable(mat: Mat[A])(updateFun: scalin.mutable.Mat[A] => Unit): MA =
-    fromMutableUnsafe(mat.nRows, mat.nCols) { res =>
+  def fromMutable(mat: Mat[A])(updateFun: Mut => Unit): MA =
+    fromMutable(mat.nRows, mat.nCols, mat(0, 0)) { res =>
       res(::, ::) := mat
       updateFun(res)
     }
@@ -61,29 +117,20 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
     tabulate(lhs.nRows, lhs.nCols)((r, c) =>  f(lhs(r, c), rhs(r, c)) )
   }
 
-  type Ret <: MA // hack for the return type of Mat.flatten
-
   //// Creation
 
   // empty matrix is an ill-defined object (0x0, nx0 and 0xn are all empty)
 
-  def sparse(nRows: Int, nCols: Int)(i: Vec[Int], j: Vec[Int], v: Vec[A])(implicit A: Sparse[A]): MA =
-    fromMutable(nRows, nCols, A.zero) { res =>
+  def sparse(nRows: Int, nCols: Int)(i: Vec[Int], j: Vec[Int], v: Vec[A])(implicit A: AdditiveMonoid[A], sparse: Sparse[A]): MA =
+    fromMutable(nRows, nCols, sparse.zero) { res =>
       require(i.length == j.length)
       require(i.length == v.length)
       cforRange(0 until i.length) { k =>
-        res(i(k), j(k)) := v(k)
+        res(i(k), j(k)) := res(i(k), j(k)) + v(k)
       }
     }
 
-  def fill(nRows: Int, nCols: Int)(a: => A): MA = tabulate(nRows, nCols)( (i, j) => a )
-
-  /* Alternative
-  def fillConstant(rows: Int, cols: Int)(a: A): MA = fill(rows, cols)(a)
-   */
-  def fillConstant(nRows: Int, nCols: Int)(a: A): MA = fromMutable(nRows, nCols, a) { res =>
-    // do nothing, already filled up
-  }
+  def fill(nRows: Int, nCols: Int)(a: => A): MA = tabulate(nRows, nCols)( (r, c) => a )
 
   def colMajor(rows: Int, cols: Int)(elements: A*): MA = {
     require(elements.size == rows * cols)
@@ -135,15 +182,7 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
   /** Returns the flattened block matrix specified by `lhs.map(f)`. Not defined if the matrix is empty. */
   def flatMap[B](lhs: Mat[B])(f: B => Mat[A]): MA =
     if (lhs.nRows == 0 || lhs.nCols == 0) sys.error("Cannot flatten matrix with 0 rows or zero cols.")
-    else {
-      val els = new Array[Mat[A]](lhs.nRows * lhs.nCols)
-      cforRange(0 until lhs.nRows) { r =>
-        cforRange(0 until lhs.nCols) { c =>
-          els(r + c * lhs.nRows) = f(lhs(r, c))
-        }
-      }
-      flattenArray(els, lhs.nRows, lhs.nCols)
-    }
+    else blockTabulate(lhs.nRows, lhs.nCols)( (r, c) => f(lhs(r, c)) )
 
 /* Alternative
   def flatten[B <: Mat[A]](lhs: Mat[B]): MA =
@@ -173,15 +212,7 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
   /** Flatten a block matrix. Not defined if the matrix is empty. */
   def flatten[B <: Mat[A]](lhs: Mat[B]): MA =
     if (lhs.nRows == 0 || lhs.nCols == 0) sys.error("Cannot flatten matrix with 0 rows or zero cols.")
-    else {
-      val els = new Array[Mat[A]](lhs.nRows * lhs.nCols)
-      cforRange(0 until lhs.nRows) { r =>
-        cforRange(0 until lhs.nCols) { c =>
-          els(r + c * lhs.nRows) = lhs(r, c)
-        }
-      }
-      flattenArray(els, lhs.nRows, lhs.nCols)
-    }
+    else blockTabulate(lhs.nRows, lhs.nCols)( (r, c) => lhs(r, c) )
 
   /** Builds a new matrix by applying a function to all elements of this matrix. */
   def map[B](lhs: Mat[B])(f: B => A): MA = tabulate(lhs.nRows, lhs.nCols)((r, c) => f(lhs(r, c)) )
@@ -196,16 +227,8 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
   }
    */
   /** Returns the horizontal concatenation of two matrices with the same number of rows. */
-  def horzcat(lhs: Mat[A], rhs: Mat[A]): MA = {
-    val m = lhs.nRows
-    require(m == rhs.nRows)
-    val nl = lhs.nCols
-    val nr = rhs.nCols
-    fromMutableUnsafe(m, nl + nr) { res =>
-      res(::, 0 until nl) := lhs
-      res(::, nl until nl + nr) := rhs
-    }
-  }
+  def horzcat(lhs: Mat[A], rhs: Mat[A]): MA =
+    blockTabulate(1, 2)( (r, c) => if (c == 0) lhs else rhs )
 
   /* Alternative
   def vertcat(lhs: Mat[A], rhs: Mat[A]): MA = {
@@ -217,43 +240,8 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
   }
    */
   /** Returns the vertical concatenation of two matrices with the same number of columns. */
-  def vertcat(lhs: Mat[A], rhs: Mat[A]): MA = {
-    val n = lhs.nCols
-    require(n == rhs.nCols)
-    val ml = lhs.nRows
-    val mr = rhs.nRows
-    fromMutableUnsafe(ml + mr, n) { res =>
-      res(0 until ml, ::) := lhs
-      res(ml until ml + mr, ::) := rhs
-    }
-  }
-
-  protected def flattenArray(array: Array[Mat[A]], blockRows: Int, blockCols: Int): MA = {
-    def block(br: Int, bc: Int): Mat[A] = array(br + bc * blockRows)
-    require(blockRows > 0 && blockCols > 0)
-    var rows = 0
-    var cols = 0
-    cforRange(0 until blockCols) { bc =>
-      cols += block(0, bc).nCols
-    }
-    cforRange(0 until blockRows) { br =>
-      rows += block(br, 0).nRows
-    }
-    fromMutableUnsafe(rows, cols) { res =>
-      var row = 0
-      cforRange(0 until blockRows) { br =>
-        var col = 0
-        val nr = block(br, 0).nRows
-        cforRange(0 until blockCols) { bc =>
-          val b = block(br, bc)
-          require(b.nRows == nr)
-          res(row until row + b.nRows, col until col + b.nCols) := b
-          col += b.nCols
-        }
-        row += nr
-      }
-    }
-  }
+  def vertcat(lhs: Mat[A], rhs: Mat[A]): MA =
+    blockTabulate(2, 1)( (r, c) => if (r == 0) lhs else rhs )
 
   //// Slices
 
@@ -340,29 +328,8 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
    */
 
   /** Kronecker product. */
-  def kron(x: Mat[A], y: Mat[A])(implicit A: MultiplicativeSemigroup[A]): MA = {
-    val nrx = x.nRows
-    val ncx = x.nCols
-    val nry = y.nRows
-    val ncy = y.nCols
-    val nR = nrx * nry
-    val nC = ncx * ncy
-    fromMutableUnsafe(nR, nC) { b =>
-      var r = 0
-      cforRange(0 until nrx) { rx =>
-        cforRange(0 until nry) { ry =>
-          var c = 0
-          cforRange(0 until ncx) { cx =>
-            cforRange(0 until ncy) { cy =>
-              b(r, c) := x(rx, cx) * y(ry, cy)
-              c += 1
-            }
-          }
-          r += 1
-        }
-      }
-    }
-  }
+  def kron(x: Mat[A], y: Mat[A])(implicit A: MultiplicativeSemigroup[A]): MA =
+    blockTabulate(x.nRows, x.nCols)( (r, c) => x(r, c) *: y )
 
   //// Creation
 

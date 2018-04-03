@@ -9,11 +9,11 @@ trait MatType[M[A] <: Mat[A]] {
 
   type TC[_]
 
+  def defaultEngine[A:TC]: MatEngine[A, M[A]]
+
   type Builder[A] = MatBuilder[A, M[A]]
 
   def Builder[A](implicit ev: MatBuilder[A, M[A]]): Builder[A] = ev
-
-  def defaultEngine[A:TC]: MatEngine[A, M[A]]
 
   implicit def defaultBuilder[A:TC](implicit NI: NoImplicit[MatEngine[A, M[A]]]): MatBuilder[A, M[A]] = new MatBuilder[A, M[A]](defaultEngine[A])
 
@@ -21,9 +21,10 @@ trait MatType[M[A] <: Mat[A]] {
 
   def tabulate[A:Builder](nRows: Int, nCols: Int)(f: (Int, Int) => A): M[A] = Builder[A].engine.tabulate(nRows, nCols)(f)
 
-  def fromMutable[A:Builder](nRows: Int, nCols: Int, default: A)(updateFun: scalin.mutable.Mat[A] => Unit): M[A] = Builder[A].engine.fromMutable(nRows, nCols, default)(updateFun)
+  def tabulateBlocks[A:Builder](nBlockRows: Int, nBlockCols: Int)(f: (Int, Int) => Mat[A]): M[A] =
+    Builder[A].engine.blockTabulate(nBlockRows, nBlockCols)(f)
 
-  def fromMutableUnsafe[A:Builder](nRows: Int, nCols: Int)(updateFun: scalin.mutable.Mat[A] => Unit): M[A] = Builder[A].engine.fromMutableUnsafe(nRows, nCols)(updateFun)
+  def fromMutable[A:Builder](nRows: Int, nCols: Int, default: A)(updateFun: scalin.mutable.Mat[A] => Unit): M[A] = Builder[A].engine.fromMutable(nRows, nCols, default)(updateFun)
 
   def zeros[A:Builder:AdditiveMonoid](nRows: Int, nCols: Int): M[A] = Builder[A].engine.zeros(nRows, nCols)
 
@@ -35,7 +36,7 @@ trait MatType[M[A] <: Mat[A]] {
 
   def fillConstant[A:Builder](nRows: Int, nCols: Int)(a: A): M[A] = Builder[A].engine.fillConstant(nRows, nCols)(a)
 
-  def sparse[A:Builder:Sparse](nRows: Int, nCols: Int)(i: Vec[Int], j: Vec[Int], v: Vec[A]): M[A] =
+  def sparse[A:Builder:AdditiveMonoid:Sparse](nRows: Int, nCols: Int)(i: Vec[Int], j: Vec[Int], v: Vec[A]): M[A] =
     Builder[A].engine.sparse(nRows, nCols)(i, j, v)
 
   def colMajor[A:Builder](rows: Int, cols: Int)(elements: A*): M[A] = Builder[A].engine.colMajor(rows, cols)(elements: _*)

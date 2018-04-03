@@ -23,9 +23,10 @@ trait VecType[V[A] <: Vec[A]] {
 
   def tabulate[A:Builder](length: Int)(f: Int => A): V[A] = Builder[A].engine.tabulate(length)(f)
 
-  def fromMutable[A:Builder](length: Int, default: A)(updateFun: scalin.mutable.Vec[A] => Unit): V[A] = Builder[A].engine.fromMutable(length, default)(updateFun)
+  def tabulateBlocks[A:Builder](nBlocks: Int)(f: Int => Vec[A]): V[A] =
+    Builder[A].engine.blockTabulate(nBlocks)(f)
 
-  def fromMutableUnsafe[A:Builder](length: Int)(updateFun: scalin.mutable.Vec[A] => Unit): V[A] = Builder[A].engine.fromMutableUnsafe(length)(updateFun)
+  def fromMutable[A:Builder](length: Int, default: A)(updateFun: scalin.mutable.Vec[A] => Unit): V[A] = Builder[A].engine.fromMutable(length, default)(updateFun)
 
   def fill[A:Builder](length: Int)(f: => A): V[A] = Builder[A].engine.fill(length)(f)
 

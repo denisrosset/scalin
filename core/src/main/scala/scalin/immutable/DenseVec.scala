@@ -1,30 +1,31 @@
 package scalin
 package immutable
 
+import scalin.generic
+import scalin.generic.DenseVecType
+
 class DenseVec[A](val data: Array[AnyRef])
-    extends scalin.DenseVec[A] with scalin.immutable.Vec[A]
+    extends generic.DenseVec[A] with scalin.immutable.Vec[A]
 
 object DenseVec extends DenseVecType[DenseVec] {
 
   protected def build[A](data: Array[AnyRef]): DenseVec[A] = new DenseVec[A](data)
 
-  class Engine[A] extends scalin.VecEngine[A, immutable.DenseVec[A]] {
+  class Engine[A] extends generic.DenseVecEngine[A, immutable.DenseVec[A]] {
 
-    def tabulate(length: Int)(f: Int => A) = tabulate_[A](length)(f)
+    type Ret = immutable.DenseVec[A]
 
-    def fromMutable(length: Int, default: A)(updateFun: scalin.mutable.Vec[A] => Unit) = {
-      val array = newArray[A](length, default)
-      val res = new scalin.mutable.DenseVec[A](array) // add method to mutable VecEngine to allocate vector with null, sound semantics; see mutable.VecEngine as well
-      updateFun(res)
-      res.result()
-    }
+    protected def build(data: Array[AnyRef]): DenseVec[A] = new DenseVec[A](data)
 
-    def fromMutableUnsafe(length: Int)(updateFun: scalin.mutable.Vec[A] => Unit) = {
-      val res = new scalin.mutable.DenseVec[A](new Array[AnyRef](length)) // add method to mutable VecEngine to allocate vector with null, sound semantics; see mutable.VecEngine as well
-      updateFun(res)
-      res.result()
-    }
+    def mutableEngine: scalin.VecEngine[A, mutable.DenseVec[A]] = mutable.DenseVec.defaultEngine
 
+    implicit def mutableConv: VecConv[A, mutable.DenseVec[A], immutable.DenseVec[A]] =
+      new VecConv[A, mutable.DenseVec[A], immutable.DenseVec[A]] {
+        def apply(from: mutable.DenseVec[A]): DenseVec[A] = {
+          from.sharedData = true
+          new immutable.DenseVec[A](from.data)
+        }
+      }
   }
 
   def defaultEngine[A:Dummy]: scalin.VecEngine[A, DenseVec[A]] = new Engine[A]
