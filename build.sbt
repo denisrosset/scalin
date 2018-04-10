@@ -1,14 +1,14 @@
 // inspired by Spire build.sbt file
 
-val scala210Version = "2.10.6"
-val scala211Version = "2.11.8"
-val scala212Version = "2.12.1"
-val disciplineVersion = "0.7.2"
-val scalaCheckVersion = "1.13.4"
-val scalaMacrosVersion = "2.0.1"
-val scalaTestVersion = "3.0.1"
-val spireVersion = "0.14.1"
-val alascVersion = "0.14.1.3"
+val scala210Version = "2.10.7"
+val scala211Version = "2.11.12"
+val scala212Version = "2.12.5"
+val disciplineVersion = "0.8"
+val scalaCheckVersion = "1.13.5"
+val scalaMacrosVersion = "2.1.0"
+val scalaTestVersion = "3.0.5"
+val spireVersion = "0.15.0"
+val alascVersion = "0.15.0.0"
 
 lazy val scalin = (project in file("."))
   .settings(moduleName := "scalin")
@@ -23,6 +23,7 @@ lazy val macros = (project in file("macros"))
   .settings(commonJvmSettings: _*)
 
 lazy val core = (project in file("core"))
+  .enablePlugins(TutPlugin)
   .settings(moduleName := "scalin-core")
   .settings(scalinSettings: _*)
   .settings(scalaTestSettings: _*)
@@ -40,7 +41,7 @@ lazy val alasc = (project in file("alasc"))
   .settings(commonJvmSettings: _*)
   .dependsOn(macros, core)
 
-lazy val scalinSettings = buildSettings ++ commonSettings ++ publishSettings ++ tutSettings
+lazy val scalinSettings = buildSettings ++ commonSettings ++ publishSettings
 
 lazy val buildSettings = Seq(
   organization := "net.alasc",
@@ -70,8 +71,8 @@ lazy val publishSettings = Seq(
 )
 
 lazy val noPublishSettings = Seq(
-  publish := (),
-  publishLocal := (),
+  publish := (()),
+  publishLocal := (()),
   publishArtifact := false
 )
 
