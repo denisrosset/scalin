@@ -8,13 +8,14 @@ val scalaCheckVersion = "1.13.4"
 val scalaMacrosVersion = "2.0.1"
 val scalaTestVersion = "3.0.1"
 val spireVersion = "0.14.1"
+val alascVersion = "0.14.1.3"
 
 lazy val scalin = (project in file("."))
   .settings(moduleName := "scalin")
   .settings(scalinSettings: _*)
   .settings(noPublishSettings)
-  .aggregate(macros, core)
-  .dependsOn(macros, core)
+  .aggregate(macros, core, alasc)
+  .dependsOn(macros, core, alasc)
 
 lazy val macros = (project in file("macros"))
   .settings(moduleName := "scalin-macros")
@@ -28,6 +29,16 @@ lazy val core = (project in file("core"))
   .settings(libraryDependencies += "org.scalacheck" %% "scalacheck" % scalaCheckVersion)
   .settings(commonJvmSettings: _*)
   .dependsOn(macros)
+
+lazy val alasc = (project in file("alasc"))
+  .settings(moduleName := "scalin-alasc")
+  .settings(scalinSettings: _*)
+  .settings(scalaTestSettings: _*)
+  .settings(libraryDependencies += "org.scalacheck" %% "scalacheck" % scalaCheckVersion)
+  .settings(libraryDependencies += "net.alasc" %% "alasc-core" % alascVersion)
+  .settings(libraryDependencies += "net.alasc" %% "alasc-laws" % alascVersion)
+  .settings(commonJvmSettings: _*)
+  .dependsOn(macros, core)
 
 lazy val scalinSettings = buildSettings ++ commonSettings ++ publishSettings ++ tutSettings
 
