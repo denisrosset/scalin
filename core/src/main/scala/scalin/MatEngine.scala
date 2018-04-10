@@ -34,7 +34,7 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
     cforRange(0 until nBlockRows) { br =>
       cforRange(0 until nBlockCols) { bc =>
         val block = f(br, bc)
-        array(br + bc * nBlockCols) = block
+        array(br + bc * nBlockRows) = block
         if (block.nRows != 0 && block.nCols != 0)
           nonEmpty = Opt(block)
       }
