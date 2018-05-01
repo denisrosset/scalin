@@ -196,10 +196,10 @@ trait Mat[A] { lhs =>
   //// With `A:Conjugation`
 
   /** Conjugate. */
-  def conjugate[MA <: Mat[A]](implicit ev: MatEngine[A, MA], A: Conjugation[A]): MA = ev.conjugate(lhs)
+  def conjugate[MA <: Mat[A]](implicit ev: MatEngine[A, MA], A: Involution[A]): MA = ev.conjugate(lhs)
 
   /** Conjugate transpose. */
-  def ct[MA <: Mat[A]](implicit ev: MatEngine[A, MA], A: Conjugation[A]): MA = ev.ct(lhs)
+  def ct[MA <: Mat[A]](implicit ev: MatEngine[A, MA], A: Involution[A]): MA = ev.ct(lhs)
 
   //// Pointwise operations
 

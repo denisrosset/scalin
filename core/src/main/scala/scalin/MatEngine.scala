@@ -397,8 +397,8 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
   //// Requires conjugation
 
   /** Returns the matrix conjugate. Does not transpose the matrix. */
-  def conjugate(mat: Mat[A])(implicit A: Conjugation[A]): MA = map(mat)(A.conjugate)
+  def conjugate(mat: Mat[A])(implicit A: Involution[A]): MA = map(mat)(A.adjoint)
 
   /** Returns the conjugate transpose, i.e. is equal to conjugate(t(mat)). */
-  def ct(mat: Mat[A])(implicit A: Conjugation[A]): MA = tabulate(mat.nCols, mat.nRows)((i, j) => A.conjugate(mat(j, i)))
+  def ct(mat: Mat[A])(implicit A: Involution[A]): MA = tabulate(mat.nCols, mat.nRows)((i, j) => A.adjoint(mat(j, i)))
 }

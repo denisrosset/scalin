@@ -153,7 +153,7 @@ trait Vec[A] { lhs =>
 
   //// With `A:Conjugation`
 
-  def conjugate[VA <: Vec[A]](implicit ev: VecEngine[A, VA], A: Conjugation[A]): VA = ev.conjugate(lhs)
+  def conjugate[VA <: Vec[A]](implicit ev: VecEngine[A, VA], A: Involution[A]): VA = ev.conjugate(lhs)
 
   //// Pointwise operations
 

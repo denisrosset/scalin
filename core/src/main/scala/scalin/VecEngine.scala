@@ -377,5 +377,5 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
   //// REQUIRES
   //// Conjugation[A]
 
-  def conjugate(lhs: Vec[A])(implicit A: Conjugation[A]): VA = map(lhs)(A.conjugate)
+  def conjugate(lhs: Vec[A])(implicit A: Involution[A]): VA = map(lhs)(A.adjoint)
 }
