@@ -18,6 +18,12 @@ abstract class CSCMat[A] extends scalin.Mat[A] {
   type Ptr <: Long // encoding of col and rowIndex
                    // special value -1L is empty
 
+  def ptr(col: Int): Ptr =
+    if (colPtrs(col) == colPtrs(col + 1))
+      (-1L).asInstanceOf[Ptr]
+    else
+      ((col.toLong << 32) + colPtrs(col).toLong).asInstanceOf[Ptr]
+
   def ptrIndex(ptr: Ptr): Int = {
     require((ptr: Long) != -1L)
     (ptr: Long).toInt
@@ -30,8 +36,8 @@ abstract class CSCMat[A] extends scalin.Mat[A] {
     require((ptr: Long) != -1L)
     ((ptr: Long) >> 32).toInt
   }
-  def ptrIsEmpty(ptr: Ptr): Boolean = (ptr: Long) == 1L
-  def ptrNonEmpty(ptr: Ptr): Boolean = (ptr: Long) != 1L
+  def ptrIsEmpty(ptr: Ptr): Boolean = (ptr: Long) == -1L
+  def ptrNonEmpty(ptr: Ptr): Boolean = (ptr: Long) != -1L
   def ptrNext(ptr: Ptr): Ptr = {
     val c = ptrCol(ptr)
     val newRowIndex = ptrIndex(ptr) + 1

@@ -39,7 +39,7 @@ object GramSchmidt {
             if (rowIsZero) zeroRows += j
             if (!closeToZero(g)) {
               cforRange(0 until nC) { c =>
-                res(j, c) := res(j, c) /~ g
+                res(j, c) := res(j, c) equot g
               }
             }
           }

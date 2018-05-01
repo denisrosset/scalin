@@ -7,8 +7,8 @@ val disciplineVersion = "0.8"
 val scalaCheckVersion = "1.13.5"
 val scalaMacrosVersion = "2.1.0"
 val scalaTestVersion = "3.0.5"
-val spireVersion = "0.15.0"
-val alascVersion = "0.15.0.0"
+val spireVersion = "0.15.1-SNAPSHOT"
+val alascVersion = "0.15.1.0-SNAPSHOT"
 
 lazy val scalin = (project in file("."))
   .settings(moduleName := "scalin")
