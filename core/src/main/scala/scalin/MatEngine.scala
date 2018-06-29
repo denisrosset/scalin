@@ -75,7 +75,7 @@ trait MatEngine[A, +MA <: Mat[A]] { self =>
     */
   def fromMutable(nRows: Int, nCols: Int, default: => A)(updateFun: Mut => Unit): MA =
     if (nRows == 0 || nCols == 0)
-      tabulate(nRows, nCols)(sys.error("Never used"))
+      tabulate(nRows, nCols)( (i, j) => sys.error("Never used") )
     else {
       val mutable = mutableEngine.fillConstant(nRows, nCols)(default)
       updateFun(mutable)

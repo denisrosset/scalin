@@ -60,7 +60,7 @@ trait VecEngine[A, +VA <: Vec[A]] { self  =>
     */
   def fromMutable(length: Int, default: => A)(updateFun: Mut => Unit): VA =
     if (length == 0)
-      tabulate(length)(sys.error("Never used"))
+      tabulate(length)(i => sys.error("Never used"))
     else {
       val mutable = mutableEngine.fillConstant(length)(default)
       updateFun(mutable)

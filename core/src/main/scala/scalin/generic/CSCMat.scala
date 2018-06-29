@@ -4,6 +4,8 @@ package generic
 import spire.syntax.cfor._
 import scalin.syntax.all._
 
+import scala.annotation.tailrec
+
 /** A compressed sparse column matrix, as used in Matlab, etc..,
   * see [[https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_column_.28CSC_or_CCS.29]]
   *
@@ -106,6 +108,20 @@ abstract class CSCMatEngine[A, +MA <: generic.CSCMat[A]] extends scalin.MatEngin
     }
   }
 
+  override def map[B](lhs: Mat[B])(f: B => A): MA = lhs match {
+    case csc: CSCMat[B] if sparse.provenZero(f(csc.sparse.zero)) =>
+      fromMutable(csc.nRows, csc.nCols, sparse.zero) { mat =>
+        cforRange(0 until csc.nCols) { c =>
+          @tailrec def iterateRows(ptr: csc.Ptr): Unit =
+            if (!csc.ptrIsEmpty(ptr)) {
+              mat(csc.ptrRow(ptr), c) := f(csc.ptrValue(ptr))
+              iterateRows(csc.ptrNext(ptr))
+            }
+          iterateRows(csc.ptr(c))
+        }
+      }
+    case _ => super.map(lhs)(f)
+  }
 }
 
 abstract class CSCMatType[M[A] <: generic.CSCMat[A]] extends scalin.MatType[M] {
