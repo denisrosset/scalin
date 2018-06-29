@@ -3,6 +3,8 @@ package scalin
 import spire.algebra._
 import spire.syntax.cfor._
 
+import scala.reflect.ClassTag
+
 /** Matrix trait. */
 trait Mat[A] { lhs =>
 
@@ -93,6 +95,18 @@ trait Mat[A] { lhs =>
   def rowSeq[VA <: Vec[A]](implicit ev: VecEngine[A, VA]): IndexedSeq[VA] = ev.rowSeq(lhs)
 
   def colSeq[VA <: Vec[A]](implicit ev: VecEngine[A, VA]): IndexedSeq[VA] = ev.colSeq(lhs)
+
+  /** Returns a new Array containing the elements of this Vec. */
+  def toArrayArray(implicit ev: ClassTag[A]): Array[Array[A]] = {
+    val res = new Array[Array[A]](nRows)
+    cforRange(0 until nRows) { r =>
+      res(r) = new Array[A](nCols)
+      cforRange(0 until nCols) { c =>
+        res(r)(c) = apply(r, c)
+      }
+    }
+    res
+  }
 
   //// Slices
 

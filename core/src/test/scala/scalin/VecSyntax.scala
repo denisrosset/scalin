@@ -46,6 +46,12 @@ class VecSyntax extends ScalinSuite {
     a.map(_ * 2) shouldBe Vec[Rational](4, 6, 8)
   }
 
+  test("toArrayArray") {
+    val a = Vec[Int](0, 1, 2, 3)
+    a.toArray shouldBe Array(0, 1, 2, 3)
+  }
+
+
   test("Mat.colSeq") {
     val a = Mat.rowMajor(2, 2)(1, 2,
       3, 4)

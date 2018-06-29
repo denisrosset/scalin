@@ -54,6 +54,11 @@ class MatSyntaxTests extends ScalinSuite {
     a.map(_ * 2) shouldBe Mat.rowMajor[Rational](2, 2)(0, 2, 4, 6)
   }
 
+  test("toArrayArray") {
+    val a = Mat.rowMajor[Int](2, 2)(0, 1, 2, 3)
+    a.toArrayArray shouldBe Array(Array(0, 1), Array(2, 3))
+  }
+
   test("horzcat") {
     val a = Mat.rowMajor[Rational](2, 2)(0, 1, 2, 3)
     val b = Mat.rowMajor[Rational](2, 2)(4, 5, 6, 7)

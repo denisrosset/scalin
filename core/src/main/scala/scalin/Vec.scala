@@ -3,6 +3,8 @@ package scalin
 import spire.algebra._
 import spire.syntax.cfor._
 
+import scala.reflect.ClassTag
+
 /** Vector trait; `A` is the scalar type. */
 trait Vec[A] { lhs =>
 
@@ -83,11 +85,17 @@ trait Vec[A] { lhs =>
   def map[B, VB <: Vec[B]](f: A => B)(implicit ev: VecEngine[B, VB]): VB = ev.map[A](lhs)(f)
 
   def toIndexedSeq: IndexedSeq[A] = new IndexedSeq[A] {
+    def length: Int = lhs.length
+    def apply(k: Int): A = lhs.apply(k)
+  }
 
-    def length = lhs.length
-
-    def apply(k: Int) = lhs.apply(k)
-
+  /** Returns a new Array containing the elements of this Vec. */
+  def toArray(implicit ev: ClassTag[A]): Array[A] = {
+    val res = new Array[A](length)
+    cforRange(0 until length) { i =>
+      res(i) = apply(i)
+    }
+    res
   }
 
   //// Slices
@@ -159,15 +167,19 @@ trait Vec[A] { lhs =>
 
   //// Using standard Java methods
 
+  /** Point-wise equality with scalar. */
   def pw_==[VB <: Vec[Boolean]](rhs: A)(implicit ev: VecEngine[Boolean, VB]): VB =
     ev.pointwiseEqual(lhs, rhs)
 
+  /** Point-wise equality with another vector of compatible size. */
   def pw_==[VB <: Vec[Boolean]](rhs: Vec[A])(implicit ev: VecEngine[Boolean, VB]): VB =
     ev.pointwiseEqual(lhs, rhs)
 
+  /** Point-wise nonequality with scalar. */
   def pw_!=[VB <: Vec[Boolean]](rhs: A)(implicit ev: VecEngine[Boolean, VB]): VB =
     ev.pointwiseNotEqual(lhs, rhs)
 
+  /** Point-wise nonequality with another vector of compatible size. */
   def pw_!=[VB <: Vec[Boolean]](rhs: Vec[A])(implicit ev: VecEngine[Boolean, VB]): VB =
     ev.pointwiseNotEqual(lhs, rhs)
 
