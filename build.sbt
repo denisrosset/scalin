@@ -2,13 +2,13 @@
 
 val scala210Version = "2.10.7"
 val scala211Version = "2.11.12"
-val scala212Version = "2.12.5"
+val scala212Version = "2.12.6"
 val disciplineVersion = "0.8"
 val scalaCheckVersion = "1.13.5"
 val scalaMacrosVersion = "2.1.0"
 val scalaTestVersion = "3.0.5"
-val spireVersion = "0.15.1-SNAPSHOT"
-val alascVersion = "0.15.1.0-SNAPSHOT"
+val spireVersion = "0.16.0"
+val alascVersion = "0.16.0.0"
 
 lazy val scalin = (project in file("."))
   .settings(moduleName := "scalin")
