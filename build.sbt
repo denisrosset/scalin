@@ -58,6 +58,7 @@ lazy val commonSettings = Seq(
     "-Ywarn-value-discard"
   )),
   resolvers ++= Seq(
+    "bintray/denisrosset/maven" at "https://dl.bintray.com/denisrosset/maven",
     Resolver.sonatypeRepo("snapshots")
   ),
   libraryDependencies ++= Seq("org.typelevel" %% "spire" % spireVersion)
