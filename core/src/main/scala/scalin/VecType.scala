@@ -15,7 +15,10 @@ trait VecType[V[A] <: Vec[A]] {
 
   def defaultEngine[A:TC]: VecEngine[A, V[A]]
 
-  implicit def defaultBuilder[A:TC](implicit NI: NoImplicit[VecEngine[A, V[A]]]): VecBuilder[A, V[A]] = new VecBuilder[A, V[A]](defaultEngine[A])
+  implicit def defaultBuilder[A:TC](implicit NI: NoImplicit[VecEngine[A, V[A]]]): VecBuilder[A, V[A]] = {
+    identity(NI)
+    new VecBuilder[A, V[A]](defaultEngine[A])
+  }
 
   implicit def fromVecEngine[A](implicit VA: VecEngine[A, V[A]]): VecBuilder[A, V[A]] = new VecBuilder[A, V[A]](VA)
   

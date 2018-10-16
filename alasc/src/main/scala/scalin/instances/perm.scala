@@ -4,7 +4,6 @@ package instances
 import net.alasc.algebra.PermutationAction
 import net.alasc.perms.Perm
 import spire.algebra.{Action, Group, Order}
-import spire.syntax.group._
 
 final class PermVecAction[A, VA <: Vec[A], G](implicit gG: Group[G], paG: PermutationAction[G], VA: VecEngine[A, VA]) extends Action[VA, G] {
     import spire.syntax.action._

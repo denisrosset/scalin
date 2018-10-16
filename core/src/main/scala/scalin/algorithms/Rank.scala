@@ -1,5 +1,5 @@
 package scalin
-package algos
+package algorithms
 
 /*import spire.algebra.EuclideanRing
 import spire.syntax.cfor._

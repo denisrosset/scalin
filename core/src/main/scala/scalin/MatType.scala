@@ -15,7 +15,10 @@ trait MatType[M[A] <: Mat[A]] {
 
   def Builder[A](implicit ev: MatBuilder[A, M[A]]): Builder[A] = ev
 
-  implicit def defaultBuilder[A:TC](implicit NI: NoImplicit[MatEngine[A, M[A]]]): MatBuilder[A, M[A]] = new MatBuilder[A, M[A]](defaultEngine[A])
+  implicit def defaultBuilder[A:TC](implicit NI: NoImplicit[MatEngine[A, M[A]]]): MatBuilder[A, M[A]] = {
+    identity(NI) // implicit not used
+    new MatBuilder[A, M[A]](defaultEngine[A])
+  }
 
   implicit def fromMatEngine[A](implicit MA: MatEngine[A, M[A]]): MatBuilder[A, M[A]] = new MatBuilder[A, M[A]](MA)
 

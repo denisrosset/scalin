@@ -1,5 +1,5 @@
 package scalin
-package algos
+package algorithms
 
 /** Reduced row echelon form of a matrix (Gauss-Jordan elimination). */
 trait RankFactorization[A] { lhs =>

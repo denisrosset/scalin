@@ -1,5 +1,5 @@
 package scalin
-package algos
+package algorithms
 
 import spire.algebra._
 import spire.syntax.cfor._

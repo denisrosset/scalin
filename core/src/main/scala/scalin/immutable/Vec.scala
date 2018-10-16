@@ -9,6 +9,8 @@ trait Vec[A] extends scalin.Vec[A] { lhs =>
 
 object Vec extends VecType[scalin.immutable.Vec] {
 
+  type TC[A] = Dummy[A]
+
   def defaultEngine[A:TC] = DenseVec.defaultEngine[A]
 
 }

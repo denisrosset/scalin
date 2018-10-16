@@ -1,8 +1,7 @@
 package scalin
 
+import scalin.decomposition.LU
 import spire.math.Rational
-
-import algos.LUDecomposition
 
 class MatField extends ScalinSuite {
 
@@ -24,7 +23,7 @@ class MatField extends ScalinSuite {
   test("LU decomposition") {
     forAll(Mats.genFullRank[Rational](3)) { m =>
       import scalin.mutable.dense._
-      val dec: LUDecomposition[Rational] = LUDecomposition.inPlaceLU(implicitly[scalin.mutable.MatEngine[Rational]].fromMat(m))
+      val dec: LU[Rational] = LU.inPlaceLU(implicitly[scalin.mutable.MatEngine[Rational]].fromMat(m))
       val lu = dec.lower * dec.upper
       cforRange(0 until m.nRows) { k => m(dec.pivot(k), ::) shouldBe lu(k, ::) }
     }

@@ -1,6 +1,7 @@
 package scalin
 
 import spire.algebra._
+import spire.syntax.eq._
 import spire.syntax.cfor._
 
 import scala.reflect.ClassTag
@@ -78,7 +79,6 @@ trait Mat[A] { lhs =>
     else if (lhs.nRows == 1 && lhs.nCols == 1) lhs(0, 0)
     else {
       var acc = z // could be optimized
-      var i = 0
       // in column-major order
       cforRange(0 until lhs.nCols) { c =>
         cforRange(0 until lhs.nRows) { r =>
@@ -139,6 +139,44 @@ trait Mat[A] { lhs =>
 
   /** Vertical concatenation. */
   def vertcat[MA <: Mat[A]](rhs: Mat[A])(implicit ev: MatEngine[A, MA]): MA = ev.vertcat(lhs, rhs)
+
+  //// Properties
+
+  def isSquare: Boolean = nRows == nCols
+
+  //// Properties, with `A:Eq`
+
+  def isSymmetric(implicit A: Eq[A]): Boolean = isSquare && {
+      cforRange(0 until nRows) { r =>
+        cforRange(0 until r) { c =>
+          if (lhs(r, c) =!= lhs(c, r))
+            return false
+        }
+      }
+      true
+    }
+
+  def isHermitian(implicit A: Eq[A], ev: Involution[A]): Boolean = isSquare && {
+    cforRange(0 until nRows) { r =>
+      cforRange(0 to r) { c =>
+        if (lhs(r, c) =!= ev.adjoint(lhs(c, r)))
+          return false
+      }
+    }
+    true
+  }
+
+  //// Properties, with `A:Eq` and `A:AdditiveMonoid`
+
+  def isDiagonal(implicit A: Eq[A], ev: AdditiveMonoid[A]): Boolean = isSquare && {
+    cforRange(0 until nRows) { r =>
+      cforRange(0 until nCols) { c =>
+        if (r != c && !ev.isZero(lhs(r, c)))
+          return false
+      }
+    }
+    true
+  }
 
   //// With `A:MultiplicativeMonoid`
 
@@ -261,7 +299,10 @@ trait Mat[A] { lhs =>
 
   //// Standard high level algorithms
 
-  def inverse[MA <: Mat[A]](implicit ev: MatEngine[A, MA], ev1: algos.Inverse[A, MA]): MA = ev1(lhs)
+  def inverse[MA <: Mat[A]](implicit ev: MatEngine[A, MA], ev1: algorithms.Inverse[A, MA]): MA = {
+    identity(ev)
+    ev1(lhs)
+  }
 
 }
 

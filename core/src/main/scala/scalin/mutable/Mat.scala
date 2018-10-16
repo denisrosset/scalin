@@ -104,7 +104,9 @@ trait Mat[A] extends scalin.Mat[A] { self =>
 
 }
 
-object Mat extends MatType[Mat] {
+object Mat extends MatType[scalin.mutable.Mat] {
+
+  type TC[A] = Dummy[A]
 
   def defaultEngine[A: TC]: MatEngine[A] = DenseMat.defaultEngine[A]
 

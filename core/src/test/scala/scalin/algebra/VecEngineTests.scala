@@ -209,6 +209,7 @@ class VecEngineTests extends ScalinSuite {
   test("dot") {
     val a = Vec[Rational](1, 2)
     val b = Vec[Rational](2, 1)
+    a.dot(b) shouldBe Rational(4)
   }
 
   test("ones") {

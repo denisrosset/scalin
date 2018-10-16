@@ -1,13 +1,7 @@
 package scalin
-package algos
+package algorithms
 
 import spire.algebra.Ring
-
-trait Determinant[A] {
-
-  def apply(mat: Mat[A]): A
-
-}
 
 /** Computes the matrix determinant. Requires a square matrix. */
 object Determinant {

@@ -34,7 +34,9 @@ trait Vec[A] extends scalin.Vec[A] { lhs =>
 
 }
 
-object Vec extends VecType[Vec] {
+object Vec extends VecType[scalin.mutable.Vec] {
+
+  type TC[A] = Dummy[A]
 
   def defaultEngine[A:TC]: scalin.VecEngine[A, DenseVec[A]] = DenseVec.defaultEngine[A]
 
