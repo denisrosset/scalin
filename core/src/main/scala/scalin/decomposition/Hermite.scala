@@ -77,6 +77,7 @@ object Hermite {
 
   // Implementation taken from Python project abelian under GPL3 license
   // https://pypi.org/project/abelian/
+  // Original source https://github.com/tommyod/abelian/blob/master/abelian/linalg/factorizations.py
   def apply[A:Eq:EuclideanRing:Associates](A: scalin.immutable.Mat[A]): Hermite[A] = {
     import scalin.mutable.dense._
     val m = A.nRows
