@@ -7,7 +7,7 @@ val disciplineVersion = "0.8"
 val scalaCheckVersion = "1.13.5"
 val scalaMacrosVersion = "2.1.0"
 val scalaTestVersion = "3.0.5"
-val spireVersion = "0.16.1-SNAPSHOT"
+val spireVersion = "0.16.0"
 val alascVersion = "0.16.0.0"
 
 lazy val scalin = (project in file("."))
@@ -125,7 +125,7 @@ lazy val warnUnusedImport = Seq(
   scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
 )
 
-lazy val scalaMacroDependencies: Seq[Setting[_]] = Seq(XC
+lazy val scalaMacroDependencies: Seq[Setting[_]] = Seq(
   libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value % "provided",
   libraryDependencies ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
