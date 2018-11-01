@@ -2,7 +2,6 @@ package scalin.decomposition
 
 import scalin.Pivot
 import scalin.immutable.{Mat, Vec}
-import scalin.immutable.dense._
 import scalin.syntax.all._
 import spire.algebra.Field
 import spire.syntax.cfor._
@@ -21,17 +20,19 @@ import spire.syntax.field._
   */
 trait LU[A] { lhs =>
 
+  def P: Mat[A]
+  def L: Mat[A]
+  def U: Mat[A]
+
+  def value(implicit A: Field[A], ev: scalin.immutable.MatEngine[A]): Mat[A] = P * L * U
+
   def nPivots: Int
   def pivot(k: Int): Int
   def pivots: Vector[Int]
-
   def permutationCount: Int
-  def permutation: Mat[A]
 
   def determinant: A
 
-  def lower: Mat[A]
-  def upper: Mat[A]
   def isSingular: Boolean
 
   def inverse: Mat[A]
@@ -44,6 +45,7 @@ trait LU[A] { lhs =>
 final class LUImpl[A:Field:Pivot](val _pivots: Array[Int],
                                   val permutationCount: Int,
                                   lu: scalin.Mat[A]) extends LU[A] {
+  import scalin.immutable.dense._
 
   def nPivots = _pivots.length
 
@@ -62,13 +64,13 @@ final class LUImpl[A:Field:Pivot](val _pivots: Array[Int],
     res
   }
 
-  def permutation: Mat[A] = Mat.fromMutable[A](n, n, Field[A].zero) { mut =>
+  def P: Mat[A] = Mat.fromMutable[A](n, n, Field[A].zero) { mut =>
     cforRange(0 until n) { i =>
       mut(_pivots(i), i) := Field[A].one
     }
   }
 
-  def lower: Mat[A] = Mat.fromMutable[A](m, n, Field[A].zero) { mut =>
+  def L: Mat[A] = Mat.fromMutable[A](m, n, Field[A].zero) { mut =>
     cforRange(0 until n) { i => mut(i, i) := Field[A].one }
     cforRange(0 until m) { i =>
       cforRange(0 until i) { j =>
@@ -77,7 +79,7 @@ final class LUImpl[A:Field:Pivot](val _pivots: Array[Int],
     }
   }
 
-  def upper: Mat[A] = Mat.fromMutable[A](n, n, Field[A].zero) { mut =>
+  def U: Mat[A] = Mat.fromMutable[A](n, n, Field[A].zero) { mut =>
     cforRange(0 until n) { i =>
       cforRange(i until n) { j =>
         mut(i, j) := lu(i, j)
@@ -197,7 +199,7 @@ final class LUImpl[A:Field:Pivot](val _pivots: Array[Int],
         }
       }
     }
-    scalin.algorithms.Permute.colsPermuteInverse[A, scalin.mutable.Mat[A]](r, pivotsInverse)
+    scalin.computation.Permute.colsPermuteInverse[A, scalin.mutable.Mat[A]](r, pivotsInverse)
   }
 }
 
@@ -258,7 +260,7 @@ object LU {
         }
       }
       if (p != j) {
-        scalin.algorithms.Permute.rowsPermute[A, scalin.mutable.Mat[A]](lu, p, j)
+        scalin.computation.Permute.rowsPermute[A, scalin.mutable.Mat[A]](lu, p, j)
         val t = piv(p)
         piv(p) = piv(j)
         piv(j) = t

@@ -1,5 +1,5 @@
 package scalin
-package algorithms
+package computation
 
 import scalin.syntax.assign._
 

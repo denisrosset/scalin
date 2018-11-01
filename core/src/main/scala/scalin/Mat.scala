@@ -299,7 +299,7 @@ trait Mat[A] { lhs =>
 
   //// Standard high level algorithms
 
-  def inverse[MA <: Mat[A]](implicit ev: MatEngine[A, MA], ev1: algorithms.Inverse[A, MA]): MA = {
+  def inverse[MA <: Mat[A]](implicit ev: MatEngine[A, MA], ev1: computation.Inverse[A, MA]): MA = {
     identity(ev)
     ev1(lhs)
   }

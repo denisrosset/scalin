@@ -7,7 +7,10 @@ import spire.syntax.field._
 import spire.syntax.signed._
 import scalin.syntax.all._
 
-class NonSymEigen[A:Epsilon:Field:Signed:NRoot](A: scalin.immutable.Mat[A]) extends Eigen[A] {
+/** Nonsymmetric real matrix eigenvalue decomposition, converted to Scala generic code from the Jama library
+  * https://math.nist.gov/javanumerics/jama/
+  */
+class NonSymRealEigen[A:Epsilon:Field:Signed:NRoot](A: scalin.immutable.Mat[A]) extends RealEigen[A] {
   require(A.nRows == A.nCols)
 
   import scalin.mutable.dense._

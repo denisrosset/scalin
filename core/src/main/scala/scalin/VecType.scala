@@ -31,6 +31,8 @@ trait VecType[V[A] <: Vec[A]] {
 
   def fromMutable[A:Builder](length: Int, default: A)(updateFun: scalin.mutable.Vec[A] => Unit): V[A] = Builder[A].engine.fromMutable(length, default)(updateFun)
 
+  def fromMutable[A:Builder](vec: scalin.Vec[A])(updateFun: scalin.mutable.Vec[A] => Unit): V[A] = Builder[A].engine.fromMutable(vec)(updateFun)
+
   def fill[A:Builder](length: Int)(f: => A): V[A] = Builder[A].engine.fill(length)(f)
 
   def fillConstant[A:Builder](length: Int)(a: A): V[A] = Builder[A].engine.fill(length)(a)

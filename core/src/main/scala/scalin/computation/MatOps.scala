@@ -1,5 +1,5 @@
 package scalin
-package algorithms
+package computation
 
 class MatOps[A](val lhs: Mat[A]) extends AnyVal {
   /*

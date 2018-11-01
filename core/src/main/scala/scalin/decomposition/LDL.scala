@@ -11,18 +11,24 @@ import spire.implicits._
   *
   * The original matrix is = L * D * L.t
   */
-class LDL[F](L: Mat[F], D: Mat[F]) {
+trait LDL[F] {
 
-  def value(implicit ev: Field[F]): Mat[F] = {
-    import scalin.immutable.dense._
-    L * D * L.t
-  }
+  def L: Mat[F]
+
+  def D: Mat[F]
+
+  def value(implicit F: Field[F], ev: scalin.immutable.MatEngine[F]): Mat[F] = L * D * L.t
 
 }
 
 object LDL {
 
-  def apply[F:Field:Signed:Sparse](A: Mat[F]): Option[LDL[F]] = {
+  class Impl[F](val L: Mat[F], val D: Mat[F]) extends LDL[F]
+
+  /** Returns the LDL Cholesky decomposition, and throws a RuntimeException if the provided
+    * matrix is not semidefinite positive.
+    */
+  def apply[F:Field:Signed:Sparse](A: Mat[F]): LDL[F] = {
     // from the algorithm on Wikipedia Cholesky page, we added the Macaulay2 LDL tests to cater
     // for semidefinite positive matrices
     val d = A.nRows
@@ -44,10 +50,10 @@ object LDL {
       p(maxInd) = p(j)
       p(j) = tmpSwap
       // test SDP condition
-      if (maxVal.isSignNegative) return None
+      if (maxVal.isSignNegative) throw new RuntimeException("Matrix is not SDP")
       if (maxVal.isSignZero) {
         cforRange(0 until d) { i =>
-          if (A(p(i),p(j)).isSignNonZero) return None
+          if (A(p(i),p(j)).isSignNonZero) throw new RuntimeException("Matrix is not SDP")
         }
       }
       if (maxVal.isSignPositive) {
@@ -57,7 +63,7 @@ object LDL {
           tmp = tmp - L(p(j), p(k)) * L(p(j), p(k)) * D(p(k), p(k))
         }
         D(p(j), p(j)) := tmp
-        if (tmp.isSignNegative) return None
+        if (tmp.isSignNegative) throw new RuntimeException("Matrix is not SDP")
         if (tmp.isSignPositive) {
           cforRange(j + 1 until d) { i =>
             tmp = A(p(i), p(j))
@@ -71,7 +77,7 @@ object LDL {
     }
     val iL = L.to[scalin.immutable.DenseMat[F]]
     val iD = D.to[scalin.immutable.CSCMat[F]]
-    Some(new LDL(iL, iD))
+    new Impl(iL, iD)
   }
 
 }

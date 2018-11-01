@@ -1,7 +1,10 @@
 package scalin
-package algorithms
+package computation
 
 import spire.algebra.Ring
+import spire.syntax.cfor._
+import spire.syntax.ring._
+import scalin.syntax.all._
 
 /** Computes the matrix determinant. Requires a square matrix. */
 object Determinant {
@@ -14,10 +17,8 @@ object Determinant {
     * 
     * TODO: check if valid for noncommutative rings
     */
-  def ring[A:mutable.MatEngine:Ring](lhs: Mat[A]): A = {
-    import spire.syntax.cfor._
-    import spire.syntax.ring._
-    import scalin.syntax.all._
+  def ring[A:Ring](lhs: Mat[A]): A = {
+    import scalin.mutable.dense._
     val n = lhs.nRows
     require(lhs.nCols == n)
     var current = new Array[mutable.Mat[A]](2)

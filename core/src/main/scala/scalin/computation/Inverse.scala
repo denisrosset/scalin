@@ -1,5 +1,5 @@
 package scalin
-package algorithms
+package computation
 
 import scalin.decomposition.LU
 import spire.algebra.Field

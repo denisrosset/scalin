@@ -6,7 +6,10 @@ import spire.syntax.field._
 import spire.syntax.signed._
 import scalin.syntax.all._
 
-class SymEigen[A:Epsilon:Field:Signed:NRoot](A: scalin.immutable.Mat[A]) extends Eigen[A] {
+/** Symmetric real matrix eigenvalue decomposition, converted to Scala generic code from the Jama library
+  * https://math.nist.gov/javanumerics/jama/
+  */
+class SymRealEigen[A:Epsilon:Field:Signed:NRoot](A: scalin.immutable.Mat[A]) extends RealEigen[A] {
   require(A.nRows == A.nCols)
 
   import scalin.mutable.dense._

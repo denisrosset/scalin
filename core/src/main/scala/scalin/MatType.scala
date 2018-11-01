@@ -29,6 +29,8 @@ trait MatType[M[A] <: Mat[A]] {
 
   def fromMutable[A:Builder](nRows: Int, nCols: Int, default: A)(updateFun: scalin.mutable.Mat[A] => Unit): M[A] = Builder[A].engine.fromMutable(nRows, nCols, default)(updateFun)
 
+  def fromMutable[A:Builder](mat: scalin.Mat[A])(updateFun: scalin.mutable.Mat[A] => Unit): M[A] = Builder[A].engine.fromMutable(mat)(updateFun)
+
   def zeros[A:Builder:AdditiveMonoid](nRows: Int, nCols: Int): M[A] = Builder[A].engine.zeros(nRows, nCols)
 
   def ones[A:Builder:MultiplicativeMonoid](nRows: Int, nCols: Int): M[A] = Builder[A].engine.ones(nRows, nCols)

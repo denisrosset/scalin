@@ -1,11 +1,10 @@
-package scalin
-package algorithms
+package scalin.computation
 
+import scalin.{Pivot, mutable}
 import spire.algebra.{EuclideanRing, Field, NRoot, Ring}
 import spire.syntax.cfor._
 import spire.syntax.field._
-
-import scalin.syntax.assign._
+import scalin.syntax.all._
 
 object GramSchmidt {
 

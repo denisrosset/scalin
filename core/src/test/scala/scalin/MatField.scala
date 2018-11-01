@@ -24,7 +24,7 @@ class MatField extends ScalinSuite {
     forAll(Mats.genFullRank[Rational](3)) { m =>
       import scalin.mutable.dense._
       val dec: LU[Rational] = LU.inPlaceLU(implicitly[scalin.mutable.MatEngine[Rational]].fromMat(m))
-      val lu = dec.lower * dec.upper
+      val lu = dec.L * dec.U
       cforRange(0 until m.nRows) { k => m(dec.pivot(k), ::) shouldBe lu(k, ::) }
     }
   }
